@@ -1,4 +1,5 @@
 
+
 import React, { useState } from 'react';
 import CurriculumSelector from './CurriculumSelector';
 import QuizView from './QuizView';
@@ -70,20 +71,37 @@ const QuizGenerator: React.FC = () => {
             </div>
 
             {error && (
-                <div className="mt-8 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative" role="alert">
+                <div className="mt-8 bg-red-100/70 backdrop-blur-lg border border-red-400 text-red-700 px-4 py-3 rounded-lg relative shadow-lg" role="alert">
                     <strong className="font-bold">Hata!</strong>
                     <span className="block sm:inline ml-2">{error}</span>
                 </div>
             )}
 
             {generatedQuiz ? (
-                 <QuizView questions={generatedQuiz.questions} grade={generatedQuiz.gradeName} />
+                 <div className="animate-fade-in-up">
+                    <QuizView questions={generatedQuiz.questions} grade={generatedQuiz.gradeName} />
+                 </div>
             ) : !isLoading && !error && (
-                 <div className="text-center mt-12 p-8 bg-white rounded-2xl shadow-lg border border-slate-200">
+                 <div className="text-center mt-12 p-8 bg-white/70 backdrop-blur-lg rounded-2xl shadow-xl border-t border-white/80">
                     <h3 className="text-xl font-semibold text-slate-700">Sınavınızı Oluşturmaya Başlayın</h3>
                     <p className="text-slate-500 mt-2">Yukarıdaki menüden sınıf, ünite ve kazanım seçerek yapay zeka destekli sınavınızı oluşturun.</p>
                 </div>
             )}
+            <style>{`
+                @keyframes fade-in-up {
+                    0% {
+                        opacity: 0;
+                        transform: translateY(20px);
+                    }
+                    100% {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+                .animate-fade-in-up {
+                    animation: fade-in-up 0.5s ease-out forwards;
+                }
+            `}</style>
         </>
     );
 };

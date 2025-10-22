@@ -6,47 +6,58 @@ import HistoryList from './components/HistoryList';
 import SavedQuiz from './components/SavedQuiz';
 import { SparklesIcon, HistoryIcon } from './components/icons';
 
-const Layout: React.FC = () => (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-800 flex flex-col">
-        <main className="flex-grow max-w-4xl mx-auto p-4 sm:p-8 w-full">
-            <header className="text-center mb-10 non-printable">
-                <div className="inline-flex items-center justify-center bg-blue-100 text-blue-600 rounded-full p-3 mb-4">
-                    <SparklesIcon className="w-10 h-10" />
-                </div>
-                <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900">AI Destekli Sınav Hazırlama Asistanı</h1>
-                <p className="mt-2 text-lg text-slate-600 max-w-2xl mx-auto">
+const MainLayout: React.FC = () => (
+    <div className="min-h-screen bg-gradient-to-br from-sky-50 to-indigo-100 font-sans text-slate-800 flex flex-col">
+        <header className="sticky top-0 z-50 non-printable">
+             <div className="max-w-5xl mx-auto px-4">
+                 <div className="flex justify-between items-center h-20 bg-white/80 backdrop-blur-lg rounded-2xl mt-4 shadow-md border border-white/80">
+                    <div className="flex items-center gap-3 px-6">
+                         <div className="inline-flex items-center justify-center bg-blue-100 text-blue-600 rounded-full p-2">
+                            <SparklesIcon className="w-6 h-6" />
+                        </div>
+                        <h1 className="text-xl font-bold text-slate-900 hidden sm:block">AI Sınav Asistanı</h1>
+                    </div>
+                    <nav className="flex items-center justify-center gap-2 p-2 bg-slate-100/70 rounded-2xl">
+                        <NavLink 
+                            to="/" 
+                            className={({ isActive }) => 
+                                `flex items-center gap-2 px-3 py-2 rounded-xl font-semibold transition-colors text-sm ${
+                                    isActive ? 'bg-white shadow text-blue-600' : 'hover:bg-white/60 text-slate-600'
+                                }`
+                            }
+                        >
+                            <SparklesIcon className="w-5 h-5" />
+                            Yeni Sınav
+                        </NavLink>
+                        <NavLink 
+                            to="/history" 
+                            className={({ isActive }) => 
+                                `flex items-center gap-2 px-3 py-2 rounded-xl font-semibold transition-colors text-sm ${
+                                    isActive ? 'bg-white shadow text-blue-600' : 'hover:bg-white/60 text-slate-600'
+                                }`
+                            }
+                        >
+                            <HistoryIcon className="w-5 h-5" />
+                            Geçmiş
+                        </NavLink>
+                    </nav>
+                     <div className="w-24 hidden sm:block"></div> {/* Spacer for symmetry */}
+                 </div>
+             </div>
+        </header>
+
+        <main className="flex-grow max-w-5xl mx-auto p-4 sm:p-8 w-full">
+            <div className="text-center mb-12 non-printable">
+                 <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">AI Destekli Sınav Hazırlama Asistanı</h2>
+                <p className="mt-3 text-lg text-slate-600 max-w-2xl mx-auto">
                     Matematik müfredatındaki her bir kazanıma özel, kişiselleştirilmiş sınavları saniyeler içinde oluşturun.
                 </p>
-                <nav className="mt-8 flex justify-center gap-2 sm:gap-4 border-b border-slate-200 pb-4">
-                    <NavLink 
-                        to="/" 
-                        className={({ isActive }) => 
-                            `flex items-center gap-2 px-3 py-2 sm:px-4 rounded-lg font-semibold transition-colors text-sm sm:text-base ${
-                                isActive ? 'bg-blue-600 text-white' : 'hover:bg-slate-200 text-slate-600'
-                            }`
-                        }
-                    >
-                        <SparklesIcon className="w-5 h-5" />
-                        Yeni Sınav
-                    </NavLink>
-                    <NavLink 
-                        to="/history" 
-                        className={({ isActive }) => 
-                            `flex items-center gap-2 px-3 py-2 sm:px-4 rounded-lg font-semibold transition-colors text-sm sm:text-base ${
-                                isActive ? 'bg-blue-600 text-white' : 'hover:bg-slate-200 text-slate-600'
-                            }`
-                        }
-                    >
-                        <HistoryIcon className="w-5 h-5" />
-                        Geçmiş Sınavlar
-                    </NavLink>
-                </nav>
-            </header>
-            <div className="mt-8">
-                 <Outlet />
             </div>
+            
+            <Outlet />
+           
         </main>
-        <footer className="text-center p-4 text-slate-500 text-sm non-printable">
+        <footer className="text-center p-6 text-slate-500 text-sm non-printable">
             <p>AI Sınav Hazırlama Asistanı &copy; {new Date().getFullYear()} | Tüm hakları saklıdır.</p>
         </footer>
     </div>
@@ -57,7 +68,7 @@ const App: React.FC = () => {
     return (
         <HashRouter>
             <Routes>
-                <Route path="/" element={<Layout />}>
+                <Route path="/" element={<MainLayout />}>
                     <Route index element={<QuizGenerator />} />
                     <Route path="history" element={<HistoryList />} />
                     <Route path="history/:quizId" element={<SavedQuiz />} />

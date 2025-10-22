@@ -47,8 +47,8 @@ const CurriculumSelector: React.FC<CurriculumSelectorProps> = ({
   const canGenerate = selectedGrade && selectedUnit && selectedKazanim && !isLoading;
 
   return (
-    <div className="bg-white p-6 rounded-2xl shadow-lg border border-slate-200">
-      <h2 className="text-xl font-bold text-slate-800 mb-4">Sınav Parametreleri</h2>
+    <div className="bg-white/70 backdrop-blur-lg p-6 sm:p-8 rounded-2xl shadow-xl border-t border-white/80">
+      <h2 className="text-xl font-bold text-slate-800 mb-6 text-center">Sınav Parametreleri</h2>
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {/* Sınıf Seçimi */}
         <div>
@@ -57,7 +57,7 @@ const CurriculumSelector: React.FC<CurriculumSelectorProps> = ({
             id="grade-select"
             value={selectedGrade ?? ''}
             onChange={handleGradeChange}
-            className="w-full p-2 border border-slate-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+            className="w-full p-2.5 bg-white/80 border border-slate-300/70 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
           >
             <option value="" disabled>Sınıf seçin...</option>
             {curriculumData.map(grade => (
@@ -74,7 +74,7 @@ const CurriculumSelector: React.FC<CurriculumSelectorProps> = ({
             value={selectedUnit ?? ''}
             onChange={handleUnitChange}
             disabled={!selectedGrade}
-            className="w-full p-2 border border-slate-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition disabled:bg-slate-100"
+            className="w-full p-2.5 bg-white/80 border border-slate-300/70 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition disabled:bg-slate-100/50"
           >
             <option value="" disabled>Ünite seçin...</option>
             {currentGradeData?.units.map(unit => (
@@ -91,7 +91,7 @@ const CurriculumSelector: React.FC<CurriculumSelectorProps> = ({
             value={selectedKazanim ?? ''}
             onChange={(e) => setSelectedKazanim(e.target.value)}
             disabled={!selectedUnit}
-            className="w-full p-2 border border-slate-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition disabled:bg-slate-100"
+            className="w-full p-2.5 bg-white/80 border border-slate-300/70 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition disabled:bg-slate-100/50"
           >
             <option value="" disabled>Kazanım seçin...</option>
             {currentUnitData?.kazanimlar.map(kazanim => (
@@ -107,7 +107,7 @@ const CurriculumSelector: React.FC<CurriculumSelectorProps> = ({
             id="question-count-select"
             value={numQuestions}
             onChange={(e) => setNumQuestions(parseInt(e.target.value, 10))}
-            className="w-full p-2 border border-slate-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+            className="w-full p-2.5 bg-white/80 border border-slate-300/70 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
           >
             <option value={5}>5 Soru</option>
             <option value={10}>10 Soru</option>
@@ -115,11 +115,11 @@ const CurriculumSelector: React.FC<CurriculumSelectorProps> = ({
           </select>
         </div>
       </div>
-      <div className="mt-6">
+      <div className="mt-8">
         <button
           onClick={onGenerate}
           disabled={!canGenerate}
-          className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg shadow-md hover:bg-blue-700 disabled:bg-slate-400 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105"
+          className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold py-3 px-4 rounded-lg shadow-lg hover:shadow-xl disabled:bg-slate-400 disabled:shadow-md disabled:from-slate-400 disabled:to-slate-400 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-[1.02]"
         >
           {isLoading ? (
             <>

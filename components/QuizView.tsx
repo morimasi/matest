@@ -1,4 +1,5 @@
 
+
 import React, { useRef, useState } from 'react';
 import { DetailedQuestion } from '../types';
 import { DownloadIcon, PrintIcon, ShareIcon, SparklesIcon } from './icons';
@@ -91,15 +92,15 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade }) => {
   };
 
   return (
-    <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-lg border border-slate-200 mt-8 printable-area">
+    <div className="bg-white/70 backdrop-blur-lg p-6 sm:p-8 rounded-2xl shadow-xl border-t border-white/80 mt-8 printable-area">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 print:hidden non-printable">
         <div>
             <h2 className="text-2xl font-bold text-slate-800">Oluşturulan Sınav</h2>
             <p className="text-slate-500 max-w-md">{`${grade} | ${firstQuestion.unite_adi} | ${firstQuestion.kazanim_kodu}`}</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-          <button onClick={handlePrint} title="Yazdır" className="p-2 rounded-full hover:bg-slate-100 transition-colors"><PrintIcon className="w-6 h-6 text-slate-600" /></button>
-          <button onClick={handleDownloadPdf} disabled={isDownloading} title="PDF Olarak İndir" className="p-2 rounded-full hover:bg-slate-100 transition-colors disabled:opacity-50">
+          <button onClick={handlePrint} title="Yazdır" className="p-2 rounded-full hover:bg-slate-200/50 transition-colors"><PrintIcon className="w-6 h-6 text-slate-600" /></button>
+          <button onClick={handleDownloadPdf} disabled={isDownloading} title="PDF Olarak İndir" className="p-2 rounded-full hover:bg-slate-200/50 transition-colors disabled:opacity-50">
             {isDownloading ? (
                 <svg className="animate-spin h-6 w-6 text-slate-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -109,8 +110,8 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade }) => {
                 <DownloadIcon className="w-6 h-6 text-slate-600" />
             )}
             </button>
-          <button onClick={handleShare} title="Paylaş" className="p-2 rounded-full hover:bg-slate-100 transition-colors"><ShareIcon className="w-6 h-6 text-slate-600" /></button>
-          <div className="flex items-center gap-4 ml-4 border-l pl-4">
+          <button onClick={handleShare} title="Paylaş" className="p-2 rounded-full hover:bg-slate-200/50 transition-colors"><ShareIcon className="w-6 h-6 text-slate-600" /></button>
+          <div className="flex items-center gap-4 ml-4 border-l border-slate-300/70 pl-4">
             <label className="flex items-center cursor-pointer">
               <span className="mr-2 text-sm font-medium text-slate-700">Cevapları Göster</span>
               <input type="checkbox" checked={showAnswers} onChange={() => setShowAnswers(!showAnswers)} className="toggle-checkbox" />
@@ -125,7 +126,7 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade }) => {
         </div>
       </div>
       
-      <div ref={quizRef} className="bg-white p-4 sm:p-8 border-t border-slate-200">
+      <div ref={quizRef} className="bg-white p-4 sm:p-8 border-t border-slate-200/80">
         <header className="text-center mb-8">
             <h1 className="text-xl font-bold">Matematik Değerlendirme</h1>
             <p className="text-sm text-slate-600">{`${grade} / Ünite ${firstQuestion.unite_no}: ${firstQuestion.unite_adi}`}</p>
@@ -204,6 +205,7 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade }) => {
         @media print {
             body {
                 background-color: white !important;
+                background-image: none !important;
             }
             .non-printable {
                 display: none !important;
@@ -213,6 +215,8 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade }) => {
                 border: none !important;
                 padding: 0 !important;
                 margin: 0 !important;
+                backdrop-filter: none !important;
+                background-color: white !important;
             }
             .bg-blue-50 {
                 background-color: #eff6ff !important;
