@@ -1,18 +1,21 @@
+export type QuestionType = 'coktan_secmeli' | 'dogru_yanlis' | 'bosluk_doldurma';
+
 export interface DetailedQuestion {
   sinif: number;
   unite_adi: string;
   unite_no: number;
   kazanim_kodu: string;
   kazanim_metni: string;
+  soru_tipi: QuestionType;
   soru_metni: string;
-  secenekler: {
+  secenekler?: {
     A: string;
     B: string;
     C: string;
     D: string;
   };
-  dogru_cevap: 'A' | 'B' | 'C' | 'D';
-  yanlis_secenek_tipleri: string[];
+  dogru_cevap: string;
+  yanlis_secenek_tipleri?: string[];
   gercek_yasam_baglantisi: string;
   seviye: 'temel' | 'orta' | 'ileri';
   cozum_anahtari: string;

@@ -142,16 +142,33 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade }) => {
           {questions.map((q, index) => (
             <li key={index} className="text-slate-800">
               <p className="font-semibold mb-3 inline">{q.soru_metni}</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 mt-2 pl-2">
-                {Object.entries(q.secenekler).map(([key, optionText]) => {
-                  const isCorrect = showAnswers && key === q.dogru_cevap;
-                  return (
-                    <div key={key} className={`p-2 rounded-md transition-colors ${isCorrect ? 'bg-green-100 text-green-800 font-bold' : ''}`}>
-                      <span>{key}) {optionText}</span>
-                    </div>
-                  );
-                })}
-              </div>
+              
+              {q.soru_tipi === 'coktan_secmeli' && q.secenekler && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 mt-2 pl-2">
+                  {Object.entries(q.secenekler).map(([key, optionText]) => {
+                    const isCorrect = showAnswers && key === q.dogru_cevap;
+                    return (
+                      <div key={key} className={`p-2 rounded-md transition-colors ${isCorrect ? 'bg-green-100 text-green-800 font-bold' : ''}`}>
+                        <span>{key}) {optionText}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {q.soru_tipi === 'dogru_yanlis' && (
+                <div className="flex items-center gap-4 mt-2 pl-2">
+                    <div className={`p-2 rounded-md transition-colors border w-24 text-center ${showAnswers && q.dogru_cevap === 'Doğru' ? 'bg-green-100 text-green-800 font-bold border-green-200' : 'bg-slate-50 border-slate-200'}`}>Doğru</div>
+                    <div className={`p-2 rounded-md transition-colors border w-24 text-center ${showAnswers && q.dogru_cevap === 'Yanlış' ? 'bg-green-100 text-green-800 font-bold border-green-200' : 'bg-slate-50 border-slate-200'}`}>Yanlış</div>
+                </div>
+              )}
+
+              {q.soru_tipi === 'bosluk_doldurma' && showAnswers && (
+                <div className="mt-2 pl-2">
+                    <p className="p-2 rounded-md bg-green-100 text-green-800 font-bold inline-block">Cevap: {q.dogru_cevap}</p>
+                </div>
+              )}
+
               {showAnswers && isTeacherView && (
                 <div className="mt-4 ml-6 p-3 bg-blue-50 border border-blue-200 rounded-lg space-y-2">
                     <h4 className="font-semibold text-sm text-blue-800 flex items-center gap-2"><SparklesIcon className="w-4 h-4"/> Öğretmen Notu</h4>
@@ -160,14 +177,16 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade }) => {
                     <div className="pt-2 border-t border-blue-100">
                         <p className="text-sm text-blue-700"><strong>Gerçek Yaşam Bağlantısı:</strong> {q.gercek_yasam_baglantisi}</p>
                     </div>
-                    <div className="pt-2 border-t border-blue-100">
-                        <strong className="text-sm text-blue-700">Çeldirici Analizi:</strong>
-                        <ul className="list-disc list-inside pl-4 text-sm text-blue-600">
-                            {q.yanlis_secenek_tipleri.map((tip, i) => (
-                                <li key={i}>{tip}</li>
-                            ))}
-                        </ul>
-                    </div>
+                    {q.soru_tipi === 'coktan_secmeli' && q.yanlis_secenek_tipleri && q.yanlis_secenek_tipleri.length > 0 && (
+                        <div className="pt-2 border-t border-blue-100">
+                            <strong className="text-sm text-blue-700">Çeldirici Analizi:</strong>
+                            <ul className="list-disc list-inside pl-4 text-sm text-blue-600">
+                                {q.yanlis_secenek_tipleri.map((tip, i) => (
+                                    <li key={i}>{tip}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
                 </div>
               )}
             </li>

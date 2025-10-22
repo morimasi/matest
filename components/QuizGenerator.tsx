@@ -6,13 +6,14 @@ import QuizView from './QuizView';
 import { CURRICULUM_DATA } from '../constants';
 import { generateQuiz } from '../services/geminiService';
 import { saveQuiz as saveQuizToStorage } from '../services/storageService';
-import { DetailedQuestion, SavedQuiz } from '../types';
+import { DetailedQuestion, SavedQuiz, QuestionType } from '../types';
 
 const QuizGenerator: React.FC = () => {
     const [selectedGrade, setSelectedGrade] = useState<number | null>(null);
     const [selectedUnit, setSelectedUnit] = useState<string | null>(null);
     const [selectedKazanim, setSelectedKazanim] = useState<string | null>(null);
     const [numQuestions, setNumQuestions] = useState(5);
+    const [questionType, setQuestionType] = useState<QuestionType>('coktan_secmeli');
 
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -33,7 +34,7 @@ const QuizGenerator: React.FC = () => {
         setGeneratedQuiz(null);
 
         try {
-            const generatedQuestions = await generateQuiz(gradeData.name, unitData.name, kazanimData, numQuestions);
+            const generatedQuestions = await generateQuiz(gradeData.name, unitData.name, kazanimData, numQuestions, questionType);
             if (generatedQuestions && generatedQuestions.length > 0) {
                  const quizData = {
                     gradeName: gradeData.name,
@@ -65,6 +66,8 @@ const QuizGenerator: React.FC = () => {
                     setSelectedKazanim={setSelectedKazanim}
                     numQuestions={numQuestions}
                     setNumQuestions={setNumQuestions}
+                    questionType={questionType}
+                    setQuestionType={setQuestionType}
                     onGenerate={handleGenerateQuiz}
                     isLoading={isLoading}
                 />
