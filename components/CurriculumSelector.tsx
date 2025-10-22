@@ -51,7 +51,7 @@ const CurriculumSelector: React.FC<CurriculumSelectorProps> = ({
   const canGenerate = selectedGrade && selectedUnit && selectedKazanim && !isLoading;
 
   return (
-    <div className="bg-white/70 backdrop-blur-lg p-6 sm:p-8 rounded-2xl shadow-xl border-t border-white/80">
+    <div className="bg-white/50 backdrop-blur-xl p-6 sm:p-8 rounded-3xl shadow-2xl border border-white/50 animate-fade-in-up" style={{ animationDelay: '200ms' }}>
       <h2 className="text-xl font-bold text-slate-800 mb-6 text-center">Sınav Parametreleri</h2>
       <div className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -62,7 +62,7 @@ const CurriculumSelector: React.FC<CurriculumSelectorProps> = ({
               id="grade-select"
               value={selectedGrade ?? ''}
               onChange={handleGradeChange}
-              className="w-full p-2.5 bg-white/80 border border-slate-300/70 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+              className="w-full p-2.5 bg-white/60 border border-slate-300/50 rounded-md shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-300"
             >
               <option value="" disabled>Sınıf seçin...</option>
               {curriculumData.map(grade => (
@@ -79,7 +79,7 @@ const CurriculumSelector: React.FC<CurriculumSelectorProps> = ({
               value={selectedUnit ?? ''}
               onChange={handleUnitChange}
               disabled={!selectedGrade}
-              className="w-full p-2.5 bg-white/80 border border-slate-300/70 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition disabled:bg-slate-100/50"
+              className="w-full p-2.5 bg-white/60 border border-slate-300/50 rounded-md shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-300 disabled:bg-slate-100/50"
             >
               <option value="" disabled>Ünite seçin...</option>
               {currentGradeData?.units.map(unit => (
@@ -96,7 +96,7 @@ const CurriculumSelector: React.FC<CurriculumSelectorProps> = ({
               value={selectedKazanim ?? ''}
               onChange={(e) => setSelectedKazanim(e.target.value)}
               disabled={!selectedUnit}
-              className="w-full p-2.5 bg-white/80 border border-slate-300/70 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition disabled:bg-slate-100/50"
+              className="w-full p-2.5 bg-white/60 border border-slate-300/50 rounded-md shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-300 disabled:bg-slate-100/50"
             >
               <option value="" disabled>Kazanım seçin...</option>
               {currentUnitData?.kazanimlar.map(kazanim => (
@@ -113,7 +113,7 @@ const CurriculumSelector: React.FC<CurriculumSelectorProps> = ({
               id="question-count-select"
               value={numQuestions}
               onChange={(e) => setNumQuestions(parseInt(e.target.value, 10))}
-              className="w-full p-2.5 bg-white/80 border border-slate-300/70 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+              className="w-full p-2.5 bg-white/60 border border-slate-300/50 rounded-md shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-300"
             >
               <option value={5}>5 Soru</option>
               <option value={10}>10 Soru</option>
@@ -128,7 +128,7 @@ const CurriculumSelector: React.FC<CurriculumSelectorProps> = ({
               id="question-type-select"
               value={questionType}
               onChange={(e) => setQuestionType(e.target.value as QuestionType)}
-              className="w-full p-2.5 bg-white/80 border border-slate-300/70 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+              className="w-full p-2.5 bg-white/60 border border-slate-300/50 rounded-md shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-300"
             >
               <option value="coktan_secmeli">Çoktan Seçmeli</option>
               <option value="dogru_yanlis">Doğru/Yanlış</option>
@@ -141,7 +141,7 @@ const CurriculumSelector: React.FC<CurriculumSelectorProps> = ({
         <button
           onClick={onGenerate}
           disabled={!canGenerate}
-          className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold py-3 px-4 rounded-lg shadow-lg hover:shadow-xl disabled:bg-slate-400 disabled:shadow-md disabled:from-slate-400 disabled:to-slate-400 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-[1.02]"
+          className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white font-semibold py-3 px-4 rounded-lg shadow-lg hover:shadow-2xl disabled:bg-slate-400 disabled:shadow-md disabled:from-slate-400 disabled:to-slate-400 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105"
         >
           {isLoading ? (
             <>

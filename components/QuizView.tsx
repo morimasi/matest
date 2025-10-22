@@ -92,15 +92,15 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade }) => {
   };
 
   return (
-    <div className="bg-white/70 backdrop-blur-lg p-6 sm:p-8 rounded-2xl shadow-xl border-t border-white/80 mt-8 printable-area">
+    <div className="bg-white/50 backdrop-blur-xl p-6 sm:p-8 rounded-3xl shadow-2xl border border-white/50 mt-8 printable-area">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 print:hidden non-printable">
         <div>
             <h2 className="text-2xl font-bold text-slate-800">Oluşturulan Sınav</h2>
             <p className="text-slate-500 max-w-md">{`${grade} | ${firstQuestion.unite_adi} | ${firstQuestion.kazanim_kodu}`}</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-          <button onClick={handlePrint} title="Yazdır" className="p-2 rounded-full hover:bg-slate-200/50 transition-colors"><PrintIcon className="w-6 h-6 text-slate-600" /></button>
-          <button onClick={handleDownloadPdf} disabled={isDownloading} title="PDF Olarak İndir" className="p-2 rounded-full hover:bg-slate-200/50 transition-colors disabled:opacity-50">
+          <button onClick={handlePrint} title="Yazdır" className="p-2 rounded-full hover:bg-black/10 transition-all duration-300"><PrintIcon className="w-6 h-6 text-slate-600" /></button>
+          <button onClick={handleDownloadPdf} disabled={isDownloading} title="PDF Olarak İndir" className="p-2 rounded-full hover:bg-black/10 transition-all duration-300 disabled:opacity-50">
             {isDownloading ? (
                 <svg className="animate-spin h-6 w-6 text-slate-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -110,7 +110,7 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade }) => {
                 <DownloadIcon className="w-6 h-6 text-slate-600" />
             )}
             </button>
-          <button onClick={handleShare} title="Paylaş" className="p-2 rounded-full hover:bg-slate-200/50 transition-colors"><ShareIcon className="w-6 h-6 text-slate-600" /></button>
+          <button onClick={handleShare} title="Paylaş" className="p-2 rounded-full hover:bg-black/10 transition-all duration-300"><ShareIcon className="w-6 h-6 text-slate-600" /></button>
           <div className="flex items-center gap-4 ml-4 border-l border-slate-300/70 pl-4">
             <label className="flex items-center cursor-pointer">
               <span className="mr-2 text-sm font-medium text-slate-700">Cevapları Göster</span>
@@ -126,7 +126,7 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade }) => {
         </div>
       </div>
       
-      <div ref={quizRef} className="bg-white p-4 sm:p-8 border-t border-slate-200/80">
+      <div ref={quizRef} className="bg-white p-4 sm:p-8 border-t border-slate-200/80 rounded-b-2xl">
         <header className="text-center mb-8">
             <h1 className="text-xl font-bold">Matematik Değerlendirme</h1>
             <p className="text-sm text-slate-600">{`${grade} / Ünite ${firstQuestion.unite_no}: ${firstQuestion.unite_adi}`}</p>
@@ -148,7 +148,7 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade }) => {
                   {Object.entries(q.secenekler).map(([key, optionText]) => {
                     const isCorrect = showAnswers && key === q.dogru_cevap;
                     return (
-                      <div key={key} className={`p-2 rounded-md transition-colors ${isCorrect ? 'bg-green-100 text-green-800 font-bold' : ''}`}>
+                      <div key={key} className={`p-2 rounded-md transition-all duration-300 ${isCorrect ? 'bg-green-100 text-green-800 font-bold' : ''}`}>
                         <span>{key}) {optionText}</span>
                       </div>
                     );
@@ -158,8 +158,8 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade }) => {
 
               {q.soru_tipi === 'dogru_yanlis' && (
                 <div className="flex items-center gap-4 mt-2 pl-2">
-                    <div className={`p-2 rounded-md transition-colors border w-24 text-center ${showAnswers && q.dogru_cevap === 'Doğru' ? 'bg-green-100 text-green-800 font-bold border-green-200' : 'bg-slate-50 border-slate-200'}`}>Doğru</div>
-                    <div className={`p-2 rounded-md transition-colors border w-24 text-center ${showAnswers && q.dogru_cevap === 'Yanlış' ? 'bg-green-100 text-green-800 font-bold border-green-200' : 'bg-slate-50 border-slate-200'}`}>Yanlış</div>
+                    <div className={`p-2 rounded-md transition-all duration-300 border w-24 text-center ${showAnswers && q.dogru_cevap === 'Doğru' ? 'bg-green-100 text-green-800 font-bold border-green-200' : 'bg-slate-50 border-slate-200'}`}>Doğru</div>
+                    <div className={`p-2 rounded-md transition-all duration-300 border w-24 text-center ${showAnswers && q.dogru_cevap === 'Yanlış' ? 'bg-green-100 text-green-800 font-bold border-green-200' : 'bg-slate-50 border-slate-200'}`}>Yanlış</div>
                 </div>
               )}
 
@@ -170,7 +170,7 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade }) => {
               )}
 
               {showAnswers && isTeacherView && (
-                <div className="mt-4 ml-6 p-3 bg-blue-50 border border-blue-200 rounded-lg space-y-2">
+                <div className="mt-4 ml-6 p-3 bg-blue-900/10 backdrop-blur-sm border border-blue-500/20 rounded-xl space-y-2">
                     <h4 className="font-semibold text-sm text-blue-800 flex items-center gap-2"><SparklesIcon className="w-4 h-4"/> Öğretmen Notu</h4>
                     <p className="text-sm text-blue-700"><strong>Çözüm:</strong> {q.cozum_anahtari}</p>
                     <p className="text-sm text-blue-700"><strong>Seviye:</strong> <span className="capitalize px-2 py-0.5 bg-blue-200 text-blue-800 rounded-full text-xs">{q.seviye}</span></p>
@@ -202,7 +202,7 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade }) => {
             border-radius: 9999px;
             position: relative;
             cursor: pointer;
-            transition: background-color 0.2s ease-in-out;
+            transition: all 0.3s ease-in-out;
         }
         .toggle-checkbox::before {
             content: '';
@@ -213,10 +213,10 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade }) => {
             position: absolute;
             top: 2px;
             left: 2px;
-            transition: transform 0.2s ease-in-out;
+            transition: all 0.3s ease-in-out;
         }
         .toggle-checkbox:checked {
-            background-color: #2563eb;
+            background-color: #6366f1;
         }
         .toggle-checkbox:checked::before {
             transform: translateX(20px);
