@@ -1,5 +1,3 @@
-
-
 import React, { useRef, useState } from 'react';
 import { DetailedQuestion } from '../types';
 import { DownloadIcon, PrintIcon, ShareIcon, SparklesIcon } from './icons';
@@ -25,10 +23,12 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade }) => {
   const handleDownloadPdf = async () => {
     if (!quizRef.current) return;
     setIsDownloading(true);
+    const wasShowingAnswers = showAnswers;
+    const wasTeacherView = isTeacherView;
     try {
-        const wasShowingAnswers = showAnswers;
         // Create a student version by default
         setShowAnswers(false);
+        setIsTeacherView(false);
         await new Promise(resolve => setTimeout(resolve, 100)); // Allow DOM to update
 
         const canvas = await html2canvas(quizRef.current, { scale: 2 });
@@ -62,12 +62,13 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade }) => {
         }
 
         pdf.save(`${grade}-${firstQuestion.kazanim_kodu}-sinav.pdf`);
-        setShowAnswers(wasShowingAnswers); // Restore previous state
-
     } catch (error) {
         console.error("Error generating PDF:", error);
         alert("PDF oluşturulurken bir hata oluştu.");
     } finally {
+        // Restore previous state
+        setShowAnswers(wasShowingAnswers); 
+        setIsTeacherView(wasTeacherView);
         setIsDownloading(false);
     }
   };
@@ -140,7 +141,7 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade }) => {
 
         <ol className="space-y-8 list-decimal list-inside">
           {questions.map((q, index) => (
-            <li key={index} className="text-slate-800">
+            <li key={index} className="text-slate-800 break-inside-avoid">
               <p className="font-semibold mb-3 inline">{q.soru_metni}</p>
               
               {q.soru_tipi === 'coktan_secmeli' && q.secenekler && (
@@ -246,6 +247,9 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade }) => {
                  background-color: #dcfce7 !important;
                 -webkit-print-color-adjust: exact;
                 color-adjust: exact;
+            }
+            .break-inside-avoid {
+                break-inside: avoid;
             }
         }
       `}</style>

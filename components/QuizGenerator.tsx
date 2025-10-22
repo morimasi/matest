@@ -1,5 +1,3 @@
-
-
 import React, { useState } from 'react';
 import CurriculumSelector from './CurriculumSelector';
 import QuizView from './QuizView';
@@ -14,6 +12,7 @@ const QuizGenerator: React.FC = () => {
     const [selectedKazanim, setSelectedKazanim] = useState<string | null>(null);
     const [numQuestions, setNumQuestions] = useState(5);
     const [questionType, setQuestionType] = useState<QuestionType>('coktan_secmeli');
+    const [customPrompt, setCustomPrompt] = useState('');
 
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -34,7 +33,7 @@ const QuizGenerator: React.FC = () => {
         setGeneratedQuiz(null);
 
         try {
-            const generatedQuestions = await generateQuiz(gradeData.name, unitData.name, kazanimData, numQuestions, questionType);
+            const generatedQuestions = await generateQuiz(gradeData.name, unitData.name, kazanimData, numQuestions, questionType, customPrompt);
             if (generatedQuestions && generatedQuestions.length > 0) {
                  const quizData = {
                     gradeName: gradeData.name,
@@ -68,6 +67,8 @@ const QuizGenerator: React.FC = () => {
                     setNumQuestions={setNumQuestions}
                     questionType={questionType}
                     setQuestionType={setQuestionType}
+                    customPrompt={customPrompt}
+                    setCustomPrompt={setCustomPrompt}
                     onGenerate={handleGenerateQuiz}
                     isLoading={isLoading}
                 />

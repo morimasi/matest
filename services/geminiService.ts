@@ -8,10 +8,15 @@ if (!API_KEY) {
 
 const ai = new GoogleGenAI({ apiKey: API_KEY });
 
-const getPromptAndSchema = (grade: string, unit: string, kazanim: Kazanim, questionCount: number, questionType: QuestionType) => {
+const getPromptAndSchema = (grade: string, unit: string, kazanim: Kazanim, questionCount: number, questionType: QuestionType, customPrompt?: string) => {
     
+    const customPromptSection = customPrompt 
+        ? `\n\nKullanıcının Ek Talimatları:\n${customPrompt}\nBu talimatlara harfiyen uyulmalıdır.`
+        : '';
+
     const basePrompt = `
 Görevin, 2025 yılı itibarıyla yürürlükte olan Türkiye Millî Eğitim Bakanlığı İlkokul Matematik dersi öğretim programına (müfredata) sadık kalarak, belirtilen sınıf ve kazanıma uygun, ${questionCount} adet soru üretmektir.
+${customPromptSection}
 
 Sınıf: ${grade}
 Ünite: ${unit}
@@ -149,9 +154,9 @@ Lütfen çıktı olarak sadece soruları içeren bir JSON nesnesi döndür. Her 
     return { prompt: finalPrompt, schema: finalSchema };
 };
 
-export const generateQuiz = async (grade: string, unit: string, kazanim: Kazanim, questionCount: number = 5, questionType: QuestionType): Promise<DetailedQuestion[] | null> => {
+export const generateQuiz = async (grade: string, unit: string, kazanim: Kazanim, questionCount: number = 5, questionType: QuestionType, customPrompt?: string): Promise<DetailedQuestion[] | null> => {
     try {
-        const { prompt, schema } = getPromptAndSchema(grade, unit, kazanim, questionCount, questionType);
+        const { prompt, schema } = getPromptAndSchema(grade, unit, kazanim, questionCount, questionType, customPrompt);
 
         const response = await ai.models.generateContent({
             model: "gemini-2.5-flash",
