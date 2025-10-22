@@ -1,6 +1,8 @@
-import React, { useRef, useState } from 'react';
+
+
+import React, { useRef, useState, useEffect } from 'react';
 import { DetailedQuestion } from '../types';
-import { DownloadIcon, PrintIcon, ShareIcon, SparklesIcon, SettingsIcon } from './icons';
+import { DownloadIcon, PrintIcon, ShareIcon, SparklesIcon, SettingsIcon, CopyIcon } from './icons';
 
 // Make sure to declare jspdf and html2canvas from the window object
 declare const jspdf: any;
@@ -9,23 +11,59 @@ declare const html2canvas: any;
 interface QuizViewProps {
   questions: DetailedQuestion[];
   grade: string;
+  quizId: string;
 }
 
-const QuizView: React.FC<QuizViewProps> = ({ questions, grade }) => {
+const VIEW_SETTINGS_KEY = 'quizViewSettings';
+const NOTES_PREFIX = 'quizNotes_';
+
+const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId }) => {
   const quizRef = useRef<HTMLDivElement>(null);
   const [showAnswers, setShowAnswers] = useState(false);
   const [isTeacherView, setIsTeacherView] = useState(true);
   const [isDownloading, setIsDownloading] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [settings, setSettings] = useState({
-    fontFamily: "'Inter', sans-serif",
-    fontSize: 12, // pt
-    columns: 1,
-    textAlign: 'left',
-    pageStyle: 'normal',
-    showBorder: false,
-    textColor: '#1e293b',
+  const [copyStatus, setCopyStatus] = useState('Bağlantıyı Kopyala');
+
+  const [settings, setSettings] = useState(() => {
+    // FIX: Moved initialSettings out of try block to be accessible in catch block.
+    const initialSettings = {
+        fontFamily: "'Inter', sans-serif",
+        fontSize: 12, // pt
+        columns: 1,
+        textAlign: 'left',
+        pageStyle: 'normal',
+        showBorder: false,
+        textColor: '#1e293b',
+    };
+    try {
+        const savedSettings = localStorage.getItem(VIEW_SETTINGS_KEY);
+        return savedSettings ? { ...initialSettings, ...JSON.parse(savedSettings) } : initialSettings;
+    } catch {
+        return initialSettings;
+    }
   });
+
+  const [customTeacherNotes, setCustomTeacherNotes] = useState<Record<number, string>>(() => {
+    try {
+      const savedNotes = localStorage.getItem(`${NOTES_PREFIX}${quizId}`);
+      return savedNotes ? JSON.parse(savedNotes) : {};
+    } catch {
+        return {};
+    }
+  });
+
+  useEffect(() => {
+    localStorage.setItem(VIEW_SETTINGS_KEY, JSON.stringify(settings));
+  }, [settings]);
+
+  useEffect(() => {
+    localStorage.setItem(`${NOTES_PREFIX}${quizId}`, JSON.stringify(customTeacherNotes));
+  }, [customTeacherNotes, quizId]);
+
+  const handleNoteChange = (index: number, text: string) => {
+    setCustomTeacherNotes(prev => ({ ...prev, [index]: text }));
+  };
 
   const firstQuestion = questions[0];
   if (!firstQuestion) return null;
@@ -36,8 +74,8 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade }) => {
     const wasShowingAnswers = showAnswers;
     const wasTeacherView = isTeacherView;
     try {
-        setShowAnswers(false);
-        setIsTeacherView(false);
+        setShowAnswers(true);
+        setIsTeacherView(true);
         await new Promise(resolve => setTimeout(resolve, 100));
 
         const canvas = await html2canvas(quizRef.current, { scale: 2, windowWidth: quizRef.current.scrollWidth, windowHeight: quizRef.current.scrollHeight });
@@ -96,6 +134,18 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade }) => {
     }
   };
 
+  const handleCopyLink = () => {
+    const url = `${window.location.origin}${window.location.pathname}#/history/${quizId}`;
+    navigator.clipboard.writeText(url).then(() => {
+        setCopyStatus('Kopyalandı!');
+        setTimeout(() => setCopyStatus('Bağlantıyı Kopyala'), 2000);
+    }).catch(err => {
+        console.error('Failed to copy: ', err);
+        setCopyStatus('Hata oluştu!');
+        setTimeout(() => setCopyStatus('Bağlantıyı Kopyala'), 2000);
+    });
+  };
+
   // FIX: Allow CSS custom properties (variables) in the style object by extending the type.
   const quizContentStyle: React.CSSProperties & { [key: `--${string}`]: string | number } = {
     '--text-color': settings.textColor,
@@ -129,6 +179,8 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade }) => {
             )}
           </button>
           <button onClick={handleShare} title="Paylaş" className="p-2 rounded-full hover:bg-black/10 transition-all duration-300"><ShareIcon className="w-6 h-6 text-slate-600" /></button>
+          <button onClick={handleCopyLink} title={copyStatus} className="p-2 rounded-full hover:bg-black/10 transition-all duration-300"><CopyIcon className="w-6 h-6 text-slate-600" /></button>
+
           <div className="relative">
              <button onClick={() => setIsSettingsOpen(!isSettingsOpen)} title="Yazdırma Ayarları" className="p-2 rounded-full hover:bg-black/10 transition-all duration-300">
                 <SettingsIcon className="w-6 h-6 text-slate-600" />
@@ -261,6 +313,17 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade }) => {
                             </ul>
                         </div>
                     )}
+                    <div className="pt-2 border-t border-blue-100">
+                        <label htmlFor={`teacher-note-${index}`} className="text-sm font-semibold text-blue-800">Ek Notlar / İpuçları:</label>
+                        <textarea
+                            id={`teacher-note-${index}`}
+                            rows={3}
+                            className="w-full mt-1 p-2 text-sm bg-white/60 border border-blue-300/50 rounded-md shadow-sm focus:ring-1 focus:ring-blue-500 transition-all duration-200 note-textarea"
+                            placeholder="Öğrenciler için ipuçları veya ek açıklamalar ekleyin..."
+                            value={customTeacherNotes[index] || ''}
+                            onChange={(e) => handleNoteChange(index, e.target.value)}
+                        />
+                    </div>
                 </div>
               )}
             </li>
@@ -304,6 +367,12 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade }) => {
             }
             .bg-green-100 { background-color: #dcfce7 !important; -webkit-print-color-adjust: exact; color-adjust: exact; }
             .break-inside-avoid { break-inside: avoid; }
+            .note-textarea {
+                border: 1px dashed #93c5fd !important;
+                background-color: #eff6ff !important;
+                -webkit-print-color-adjust: exact;
+                color-adjust: exact;
+            }
         }
       `}</style>
     </div>

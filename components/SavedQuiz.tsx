@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getQuiz } from '../services/storageService';
@@ -38,7 +39,7 @@ const SavedQuiz: React.FC = () => {
         );
     }
     
-    return <QuizView questions={quiz.questions} grade={quiz.gradeName} />;
+    return <QuizView questions={quiz.questions} grade={quiz.gradeName} quizId={quiz.id} />;
 };
 
 export default SavedQuiz;
