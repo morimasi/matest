@@ -1,4 +1,5 @@
 
+
 import { SavedQuiz, DetailedQuestion, ArchiveQuiz } from '../types';
 
 const STORAGE_KEY = 'ai-quiz-history';
@@ -106,5 +107,29 @@ export const saveQuizToArchive = (quiz: SavedQuiz): void => {
   } catch (error) {
      console.error("Error saving to archive in local storage", error);
      throw error;
+  }
+};
+
+export const deleteQuizFromArchive = (kazanimCode: string): void => {
+  try {
+    const currentArchive = getArchivedQuizzes();
+    if (currentArchive[kazanimCode]) {
+      delete currentArchive[kazanimCode];
+      localStorage.setItem(ARCHIVE_STORAGE_KEY, JSON.stringify(currentArchive));
+    }
+  } catch (error) {
+    console.error("Error deleting from archive", error);
+    throw error;
+  }
+};
+
+export const updateArchivedQuiz = (kazanimCode: string, updatedQuiz: ArchiveQuiz): void => {
+  try {
+    const currentArchive = getArchivedQuizzes();
+    currentArchive[kazanimCode] = updatedQuiz;
+    localStorage.setItem(ARCHIVE_STORAGE_KEY, JSON.stringify(currentArchive));
+  } catch (error) {
+    console.error("Error updating archive", error);
+    throw error;
   }
 };
