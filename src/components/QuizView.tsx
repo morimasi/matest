@@ -63,9 +63,13 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
   const handleNoteChange = (index: number, text: string) => {
     setCustomTeacherNotes(prev => ({ ...prev, [index]: text }));
   };
+  
+  if (!questions || questions.length === 0) return null;
 
+  const uniqueUnitNames = [...new Set(questions.map(q => q.unite_adi))].join(' & ');
+  const uniqueKazanimCodes = [...new Set(questions.map(q => q.kazanim_kodu))].join(', ');
   const firstQuestion = questions[0];
-  if (!firstQuestion) return null;
+  
 
  const handleDownloadPdf = async () => {
     if (isDownloading || !quizRef.current) return;
@@ -123,7 +127,7 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
             heightLeft -= (pdfHeight - (margin * 2));
         }
         
-        pdf.save(`${grade}-${firstQuestion.kazanim_kodu}-sinav.pdf`);
+        pdf.save(`${grade}-${uniqueUnitNames}-sinav.pdf`);
 
     } catch (error) {
         console.error("Error generating PDF:", error);
@@ -144,7 +148,7 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
       try {
         await navigator.share({
           title: 'AI ile Oluşturulmuş Sınav',
-          text: `İşte ${grade} - ${firstQuestion.kazanim_kodu} konusu için hazırladığım sınav!`,
+          text: `İşte ${grade} - ${uniqueUnitNames} konusu için hazırladığım sınav!`,
         });
       } catch (error) { console.error('Error sharing:', error); }
     } else {
@@ -182,7 +186,7 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 print:hidden non-printable">
         <div>
             <h2 className="text-2xl font-bold text-slate-800">Oluşturulan Sınav</h2>
-            <p className="text-slate-500 max-w-md">{`${grade} | ${firstQuestion.unite_adi} | ${questions.map(q => q.kazanim_kodu).filter((v, i, a) => a.indexOf(v) === i).join(', ')}`}</p>
+            <p className="text-slate-500 max-w-md">{`${grade} | ${uniqueUnitNames} | ${uniqueKazanimCodes}`}</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <button onClick={handlePrint} title="Yazdır" className="p-2 rounded-full hover:bg-black/10 transition-all duration-300"><PrintIcon className="w-6 h-6 text-slate-600" /></button>
@@ -275,8 +279,8 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
       <div id="quiz-paper" ref={quizRef} style={quizContentStyle} className={`p-4 sm:p-8 bg-white border-t border-slate-200/80 rounded-b-2xl quiz-paper ${settings.showBorder ? 'bordered' : ''} ${settings.pageStyle}`}>
         <header className="text-center mb-8">
             <h1 className="text-xl font-bold">Matematik Değerlendirme</h1>
-            <p className="text-sm opacity-80">{`${grade} / Ünite ${firstQuestion.unite_no}: ${firstQuestion.unite_adi}`}</p>
-            <p className="text-sm opacity-70 mt-1"><strong>Kazanım(lar):</strong> {questions.map(q => q.kazanim_kodu).filter((v, i, a) => a.indexOf(v) === i).join(', ')}</p>
+            <p className="text-sm opacity-80">{`${grade} / Ünite(ler): ${uniqueUnitNames}`}</p>
+            <p className="text-sm opacity-70 mt-1"><strong>Kazanım(lar):</strong> {uniqueKazanimCodes}</p>
             <div className="grid grid-cols-3 gap-4 mt-6 border-t border-b py-2 text-left">
                 <p><strong>Adı Soyadı:</strong> ....................................</p>
                 <p><strong>Tarih:</strong> ..... / ..... / ..........</p>

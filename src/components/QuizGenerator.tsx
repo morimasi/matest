@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import CurriculumSelector from './CurriculumSelector';
 import QuizView from './QuizView';
@@ -33,7 +34,7 @@ const usePersistentState = <T,>(key: string, defaultValue: T): [T, React.Dispatc
 const QuizGenerator: React.FC = () => {
     // FIX: Added explicit types to state hooks that can be null to avoid type inference issues.
     const [selectedGrade, setSelectedGrade] = usePersistentState<number | null>('qg_selectedGrade', null);
-    const [selectedUnit, setSelectedUnit] = usePersistentState<string | null>('qg_selectedUnit', null);
+    const [selectedUnits, setSelectedUnits] = usePersistentState<string[]>('qg_selectedUnits', []);
     const [selectedKazanims, setSelectedKazanims] = usePersistentState<string[]>('qg_selectedKazanims', []);
     const [numQuestions, setNumQuestions] = usePersistentState('qg_numQuestions', 5);
     const [questionType, setQuestionType] = usePersistentState<QuestionType>('qg_questionType', 'coktan_secmeli');
@@ -47,16 +48,20 @@ const QuizGenerator: React.FC = () => {
 
 
     const handleGenerateQuiz = async () => {
-        if (!selectedGrade || !selectedUnit) return;
+        if (!selectedGrade || selectedUnits.length === 0) return;
 
         const gradeData = CURRICULUM_DATA.find(g => g.id === selectedGrade);
-        const unitData = gradeData?.units.find(u => u.id === selectedUnit);
+        const unitsData = gradeData?.units.filter(u => selectedUnits.includes(u.id));
+        
+        if (!gradeData || !unitsData || unitsData.length === 0) return;
+
+        const allKazanimsFromSelectedUnits = unitsData.flatMap(u => u.kazanimlar);
         
         const kazanimData = selectedKazanims.length > 0
-            ? unitData?.kazanimlar.filter(k => selectedKazanims.includes(k.id))
-            : unitData?.kazanimlar; // If no specific kazanims are selected, use all from the unit.
+            ? allKazanimsFromSelectedUnits.filter(k => selectedKazanims.includes(k.id))
+            : allKazanimsFromSelectedUnits;
 
-        if (!gradeData || !unitData || !kazanimData || kazanimData.length === 0) return;
+        if (!kazanimData || kazanimData.length === 0) return;
 
         setIsLoading(true);
         setError(null);
@@ -64,12 +69,14 @@ const QuizGenerator: React.FC = () => {
         setFeedbackSent(false);
 
         try {
-            const generatedQuestions = await generateQuiz(gradeData.name, unitData.name, kazanimData, numQuestions, questionType, customPrompt);
+            const unitNames = unitsData.map(u => u.name).join(', ');
+            const generatedQuestions = await generateQuiz(gradeData.name, unitNames, kazanimData, numQuestions, questionType, customPrompt);
+            
             if (generatedQuestions && generatedQuestions.length > 0) {
                  const quizData = {
                     gradeName: gradeData.name,
                     questions: generatedQuestions,
-                    kazanimId: selectedKazanims.length > 0 && kazanimData ? kazanimData.map(k => k.id).join(',') : unitData.id,
+                    kazanimId: selectedUnits.join(','),
                 };
                 const newQuiz = saveQuizToStorage(quizData);
                 setGeneratedQuiz(newQuiz);
@@ -91,14 +98,11 @@ const QuizGenerator: React.FC = () => {
                     selectedGrade={selectedGrade}
                     setSelectedGrade={(grade) => {
                         setSelectedGrade(grade);
-                        setSelectedUnit(null);
+                        setSelectedUnits([]);
                         setSelectedKazanims([]);
                     }}
-                    selectedUnit={selectedUnit}
-                    setSelectedUnit={(unit) => {
-                        setSelectedUnit(unit);
-                        setSelectedKazanims([]);
-                    }}
+                    selectedUnits={selectedUnits}
+                    setSelectedUnits={setSelectedUnits}
                     selectedKazanims={selectedKazanims}
                     setSelectedKazanims={setSelectedKazanims}
                     numQuestions={numQuestions}

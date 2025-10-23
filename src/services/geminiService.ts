@@ -6,7 +6,7 @@ import { DetailedQuestion, Kazanim, QuestionType } from '../types';
 // The key is assumed to be present in the environment.
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
-const getPromptAndSchema = (grade: string, unit: string, kazanims: Kazanim[], questionCount: number, questionType: QuestionType, customPrompt?: string) => {
+const getPromptAndSchema = (grade: string, units: string, kazanims: Kazanim[], questionCount: number, questionType: QuestionType, customPrompt?: string) => {
     
     const customPromptSection = customPrompt 
         ? `\n\nKullanıcının Ek Talimatları:\n${customPrompt}\nBu talimatlara harfiyen uyulmalıdır.`
@@ -15,11 +15,11 @@ const getPromptAndSchema = (grade: string, unit: string, kazanims: Kazanim[], qu
     const kazanimList = kazanims.map(k => `- ${k.id}: ${k.name}`).join('\n');
 
     const basePrompt = `
-Görevin, 2025 yılı itibarıyla yürürlükte olan Türkiye Millî Eğitim Bakanlığı İlkokul Matematik dersi öğretim programına (müfredata) sadık kalarak, belirtilen sınıf ve kazanımlara uygun, ${questionCount} adet soru üretmektir. Soruları, sağlanan kazanımlar listesi arasında adil ve dengeli bir şekilde dağıtmalısın.
+Görevin, 2025 yılı itibarıyla yürürlükte olan Türkiye Millî Eğitim Bakanlığı İlkokul Matematik dersi öğretim programına (müfredata) sadık kalarak, belirtilen sınıf, üniteler ve kazanımlara uygun, ${questionCount} adet soru üretmektir. Soruları, sağlanan kazanımlar listesi arasında adil ve dengeli bir şekilde dağıtmalısın. Eğer birden fazla ünite seçilmişse, soruları bu üniteler arasında da dengeli bir şekilde dağıtmalısın.
 ${customPromptSection}
 
 Sınıf: ${grade}
-Ünite: ${unit}
+Üniteler: ${units}
 İlgili Kazanımlar:
 ${kazanimList}
 
@@ -130,9 +130,9 @@ Lütfen çıktı olarak sadece soruları içeren bir JSON nesnesi döndür. Her 
     return { prompt: finalPrompt, schema: multipleQuestionSchema, singleSchema: singleQuestionSchema };
 };
 
-export const generateQuiz = async (grade: string, unit: string, kazanims: Kazanim[], questionCount: number = 5, questionType: QuestionType, customPrompt?: string): Promise<DetailedQuestion[] | null> => {
+export const generateQuiz = async (grade: string, units: string, kazanims: Kazanim[], questionCount: number = 5, questionType: QuestionType, customPrompt?: string): Promise<DetailedQuestion[] | null> => {
     try {
-        const { prompt, schema } = getPromptAndSchema(grade, unit, kazanims, questionCount, questionType, customPrompt);
+        const { prompt, schema } = getPromptAndSchema(grade, units, kazanims, questionCount, questionType, customPrompt);
 
         const response = await ai.models.generateContent({
             model: "gemini-2.5-flash",
@@ -160,6 +160,7 @@ export const generateQuiz = async (grade: string, unit: string, kazanims: Kazani
 
 export const generateSingleQuestion = async (grade: string, unit: string, kazanim: Kazanim, questionType: QuestionType, existingQuestionText: string): Promise<DetailedQuestion | null> => {
     try {
+        // Pass unit as a string, since this function handles a single question from a single unit context
         const { prompt: basePrompt, singleSchema } = getPromptAndSchema(grade, unit, [kazanim], 1, questionType, "");
         const remixPrompt = `${basePrompt}\n\nÖNEMLİ KURAL: Üreteceğin yeni soru, aşağıdaki sorudan MUTLAKA farklı olmalıdır:\n"${existingQuestionText}"`;
 

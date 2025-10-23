@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Grade, Unit, QuestionType } from '../types';
 import { SparklesIcon } from './icons';
@@ -6,8 +7,8 @@ interface CurriculumSelectorProps {
   curriculumData: Grade[];
   selectedGrade: number | null;
   setSelectedGrade: (grade: number | null) => void;
-  selectedUnit: string | null;
-  setSelectedUnit: (unit: string | null) => void;
+  selectedUnits: string[];
+  setSelectedUnits: (units: string[]) => void;
   selectedKazanims: string[];
   setSelectedKazanims: (kazanims: string[]) => void;
   numQuestions: number;
@@ -24,8 +25,8 @@ const CurriculumSelector: React.FC<CurriculumSelectorProps> = ({
   curriculumData,
   selectedGrade,
   setSelectedGrade,
-  selectedUnit,
-  setSelectedUnit,
+  selectedUnits,
+  setSelectedUnits,
   selectedKazanims,
   setSelectedKazanims,
   numQuestions,
@@ -37,11 +38,16 @@ const CurriculumSelector: React.FC<CurriculumSelectorProps> = ({
   onGenerate,
   isLoading,
 }) => {
+  const [isUnitOpen, setIsUnitOpen] = useState(false);
   const [isKazanimOpen, setIsKazanimOpen] = useState(false);
+  const unitSelectorRef = useRef<HTMLDivElement>(null);
   const kazanimSelectorRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
+      if (unitSelectorRef.current && !unitSelectorRef.current.contains(event.target as Node)) {
+        setIsUnitOpen(false);
+      }
       if (kazanimSelectorRef.current && !kazanimSelectorRef.current.contains(event.target as Node)) {
         setIsKazanimOpen(false);
       }
@@ -53,14 +59,24 @@ const CurriculumSelector: React.FC<CurriculumSelectorProps> = ({
   const handleGradeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const gradeId = parseInt(e.target.value, 10);
     setSelectedGrade(gradeId);
-    setSelectedUnit(null);
+    setSelectedUnits([]);
     setSelectedKazanims([]);
   };
 
-  const handleUnitChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedUnit(e.target.value);
-    setSelectedKazanims([]);
+  const handleUnitToggle = (unitId: string) => {
+    const newSelectedUnits = selectedUnits.includes(unitId)
+      ? selectedUnits.filter(id => id !== unitId)
+      : [...selectedUnits, unitId];
+    setSelectedUnits(newSelectedUnits);
+    
+    // Deselect kazanims that are not in the newly selected units
+    const currentGradeData = curriculumData.find(g => g.id === selectedGrade);
+    const allowedKazanimIds = currentGradeData?.units
+        .filter(u => newSelectedUnits.includes(u.id))
+        .flatMap(u => u.kazanimlar.map(k => k.id)) || [];
+    setSelectedKazanims(selectedKazanims.filter(kId => allowedKazanimIds.includes(kId)));
   };
+
 
   const handleKazanimToggle = (kazanimId: string) => {
     setSelectedKazanims(
@@ -71,9 +87,9 @@ const CurriculumSelector: React.FC<CurriculumSelectorProps> = ({
   };
 
   const currentGradeData = curriculumData.find(g => g.id === selectedGrade);
-  const currentUnitData = currentGradeData?.units.find(u => u.id === selectedUnit);
+  const currentUnitsData = currentGradeData?.units.filter(u => selectedUnits.includes(u.id));
 
-  const canGenerate = selectedGrade && selectedUnit && !isLoading;
+  const canGenerate = selectedGrade && selectedUnits.length > 0 && !isLoading;
 
   return (
     <div className="bg-white/50 backdrop-blur-xl p-6 sm:p-8 rounded-3xl shadow-2xl border border-white/50 animate-fade-in-up" style={{ animationDelay: '200ms' }}>
@@ -97,20 +113,36 @@ const CurriculumSelector: React.FC<CurriculumSelectorProps> = ({
           </div>
 
           {/* Ünite Seçimi */}
-          <div>
-            <label htmlFor="unit-select" className="block text-sm font-medium text-slate-600 mb-1">Ünite</label>
-            <select
-              id="unit-select"
-              value={selectedUnit ?? ''}
-              onChange={handleUnitChange}
-              disabled={!selectedGrade}
-              className="w-full p-2.5 bg-white/60 border border-slate-300/50 rounded-md shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-300 disabled:bg-slate-100/50"
-            >
-              <option value="" disabled>Ünite seçin...</option>
-              {currentGradeData?.units.map(unit => (
-                <option key={unit.id} value={unit.id}>{unit.name}</option>
-              ))}
-            </select>
+          <div className="relative" ref={unitSelectorRef}>
+             <label htmlFor="unit-select" className="block text-sm font-medium text-slate-600 mb-1">Ünite(ler)</label>
+              <button
+                id="unit-select"
+                onClick={() => setIsUnitOpen(!isUnitOpen)}
+                disabled={!selectedGrade}
+                className="w-full text-left p-2.5 bg-white/60 border border-slate-300/50 rounded-md shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-300 disabled:bg-slate-100/50 flex justify-between items-center"
+              >
+                <span className="truncate">
+                    {selectedUnits.length === 0 && 'Ünite seçin...'}
+                    {selectedUnits.length === 1 && `1 ünite seçildi`}
+                    {selectedUnits.length > 1 && `${selectedUnits.length} ünite seçildi`}
+                </span>
+                 <svg className={`w-4 h-4 text-slate-500 transition-transform ${isUnitOpen ? 'rotate-180' : ''}`} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
+              </button>
+               {isUnitOpen && (
+                <div className="absolute top-full mt-1 w-full bg-white/80 backdrop-blur-lg border border-slate-300/50 rounded-md shadow-lg z-20 max-h-60 overflow-y-auto">
+                    {currentGradeData?.units.map(unit => (
+                    <label key={unit.id} className="flex items-center gap-3 p-2 hover:bg-purple-500/10 cursor-pointer text-sm">
+                        <input
+                        type="checkbox"
+                        className="h-4 w-4 rounded border-slate-300 text-purple-600 focus:ring-purple-500"
+                        checked={selectedUnits.includes(unit.id)}
+                        onChange={() => handleUnitToggle(unit.id)}
+                        />
+                        <span className="text-slate-700">{unit.name}</span>
+                    </label>
+                    ))}
+                </div>
+                )}
           </div>
 
           {/* Kazanım Seçimi */}
@@ -119,7 +151,7 @@ const CurriculumSelector: React.FC<CurriculumSelectorProps> = ({
             <button
               id="kazanim-select"
               onClick={() => setIsKazanimOpen(!isKazanimOpen)}
-              disabled={!selectedUnit}
+              disabled={selectedUnits.length === 0}
               className="w-full text-left p-2.5 bg-white/60 border border-slate-300/50 rounded-md shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-300 disabled:bg-slate-100/50 flex justify-between items-center"
             >
               <span className="truncate">
@@ -131,16 +163,21 @@ const CurriculumSelector: React.FC<CurriculumSelectorProps> = ({
             </button>
             {isKazanimOpen && (
               <div className="absolute top-full mt-1 w-full bg-white/80 backdrop-blur-lg border border-slate-300/50 rounded-md shadow-lg z-10 max-h-60 overflow-y-auto">
-                {currentUnitData?.kazanimlar.map(kazanim => (
-                  <label key={kazanim.id} className="flex items-center gap-3 p-2 hover:bg-purple-500/10 cursor-pointer text-sm">
-                    <input
-                      type="checkbox"
-                      className="h-4 w-4 rounded border-slate-300 text-purple-600 focus:ring-purple-500"
-                      checked={selectedKazanims.includes(kazanim.id)}
-                      onChange={() => handleKazanimToggle(kazanim.id)}
-                    />
-                    <span className="text-slate-700">{kazanim.id} - {kazanim.name}</span>
-                  </label>
+                {currentUnitsData?.map(unit => (
+                    <div key={`unit-group-${unit.id}`}>
+                        <h5 className="font-bold text-xs text-slate-500 uppercase bg-slate-100/70 p-2 sticky top-0">{unit.name}</h5>
+                        {unit.kazanimlar.map(kazanim => (
+                        <label key={kazanim.id} className="flex items-center gap-3 p-2 hover:bg-purple-500/10 cursor-pointer text-sm">
+                            <input
+                            type="checkbox"
+                            className="h-4 w-4 rounded border-slate-300 text-purple-600 focus:ring-purple-500"
+                            checked={selectedKazanims.includes(kazanim.id)}
+                            onChange={() => handleKazanimToggle(kazanim.id)}
+                            />
+                            <span className="text-slate-700">{kazanim.id} - {kazanim.name}</span>
+                        </label>
+                        ))}
+                    </div>
                 ))}
               </div>
             )}
