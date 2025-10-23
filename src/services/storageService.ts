@@ -157,3 +157,16 @@ export const updateArchivedQuiz = (kazanimCode: string, templateId: string, upda
     throw error;
   }
 };
+
+export const renameQuiz = (id: string, newName: string): void => {
+  try {
+    const history = getHistory();
+    const quizIndex = history.findIndex(quiz => quiz.id === id);
+    if (quizIndex > -1) {
+      history[quizIndex].customName = newName;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+    }
+  } catch (error) {
+    console.error("Error renaming quiz in local storage", error);
+  }
+};

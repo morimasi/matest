@@ -43,6 +43,7 @@ export interface SavedQuiz {
   createdAt: string;
   gradeName: string;
   questions: DetailedQuestion[];
+  customName?: string;
 }
 
 export interface QuizTemplate {

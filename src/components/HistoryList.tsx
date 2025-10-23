@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { getHistory, deleteQuiz, saveQuizToArchive } from '../services/storageService';
+import { getHistory, deleteQuiz, saveQuizToArchive, renameQuiz } from '../services/storageService';
 import { SavedQuiz } from '../types';
-import { HistoryIcon, TrashIcon, ArchiveAddIcon, CheckIcon } from './icons';
+import { HistoryIcon, TrashIcon, ArchiveAddIcon, CheckIcon, EditIcon, DocumentTextIcon } from './icons';
 
 const HistoryList: React.FC = () => {
     const [history, setHistory] = useState<SavedQuiz[]>([]);
     const [archivedStatus, setArchivedStatus] = useState<Record<string, boolean>>({});
+    
+    // State for renaming
+    const [editingQuizId, setEditingQuizId] = useState<string | null>(null);
+    const [editingName, setEditingName] = useState('');
 
     useEffect(() => {
         setHistory(getHistory());
@@ -29,6 +33,25 @@ const HistoryList: React.FC = () => {
         }
     };
 
+    const handleStartEditing = (quiz: SavedQuiz) => {
+        setEditingQuizId(quiz.id);
+        const firstQuestion = quiz.questions[0];
+        const defaultTitle = `${quiz.gradeName} - ${firstQuestion.unite_adi}`;
+        setEditingName(quiz.customName || defaultTitle);
+    };
+
+    const handleRename = (quizId: string) => {
+        if (editingName.trim() === '') {
+            alert("Sınav adı boş olamaz.");
+            return;
+        }
+        renameQuiz(quizId, editingName);
+        setHistory(prev => prev.map(q => q.id === quizId ? { ...q, customName: editingName } : q));
+        setEditingQuizId(null);
+        setEditingName('');
+    };
+
+
     if (history.length === 0) {
         return (
             <div className="text-center mt-12 p-8 bg-white/50 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/50 animate-fade-in-up">
@@ -44,48 +67,92 @@ const HistoryList: React.FC = () => {
 
     return (
         <div className="bg-white/50 backdrop-blur-xl p-6 sm:p-8 rounded-3xl shadow-2xl border border-white/50 animate-fade-in-up">
-            <h2 className="text-2xl font-bold text-slate-800 mb-4">Geçmiş Sınavlar</h2>
-            <ul className="divide-y divide-white/20">
+            <h2 className="text-2xl font-bold text-slate-800 mb-6">Geçmiş Sınavlar</h2>
+            <div className="space-y-4">
                 {history.map((quiz) => {
                     const firstQuestion = quiz.questions[0];
-                    const quizTitle = `${quiz.gradeName} - ${firstQuestion.unite_adi}`;
+                    const quizTitle = quiz.customName || `${quiz.gradeName} - ${firstQuestion.unite_adi}`;
+                    const isEditing = editingQuizId === quiz.id;
+
                     return (
-                        <li key={quiz.id} className="py-3 flex items-center justify-between group">
-                            <Link to={`/history/${quiz.id}`} className="flex-grow block hover:bg-white/20 p-3 rounded-lg transition-all duration-300">
-                                <div>
-                                    <p className="font-semibold text-blue-700">{quizTitle}</p>
-                                    <p className="text-sm text-slate-600">{firstQuestion.kazanim_kodu}: {firstQuestion.kazanim_metni}</p>
-                                    <div className="flex items-center gap-4 mt-2 text-xs text-slate-500">
-                                        <span>
-                                            {new Date(quiz.createdAt).toLocaleString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric' })}
-                                        </span>
-                                        <span className="bg-slate-200/80 text-slate-700 px-2 py-0.5 rounded-full font-medium">
-                                            {quiz.questions.length} Soru
-                                        </span>
+                        <div key={quiz.id} className="bg-white/60 p-4 rounded-xl shadow-sm transition-all hover:shadow-lg group flex items-center gap-4">
+                            <div className="flex-shrink-0 p-3 bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg hidden sm:flex items-center justify-center">
+                                <DocumentTextIcon className="w-6 h-6 text-blue-600" />
+                            </div>
+
+                            <div className="flex-grow w-full overflow-hidden">
+                                {isEditing ? (
+                                    <div className="flex items-center gap-2">
+                                        <input 
+                                            type="text"
+                                            value={editingName}
+                                            onChange={(e) => setEditingName(e.target.value)}
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter') handleRename(quiz.id);
+                                                if (e.key === 'Escape') setEditingQuizId(null);
+                                            }}
+                                            className="w-full font-semibold text-lg text-blue-800 bg-white/80 border border-blue-300 rounded-md px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                            autoFocus
+                                        />
+                                        <button onClick={() => handleRename(quiz.id)} title="Kaydet" className="p-2 rounded-full text-green-600 hover:bg-green-100">
+                                            <CheckIcon className="w-5 h-5" />
+                                        </button>
+                                        <button onClick={() => setEditingQuizId(null)} title="İptal" className="p-2 rounded-full text-slate-500 hover:bg-slate-100">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                                        </button>
                                     </div>
+                                ) : (
+                                    <Link to={`/history/${quiz.id}`} className="block group/link">
+                                        <p className="font-semibold text-lg text-blue-800 group-hover/link:underline truncate" title={quizTitle}>{quizTitle}</p>
+                                    </Link>
+                                )}
+                                
+                                <div className="flex items-center flex-wrap gap-2 mt-2">
+                                    <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full font-medium">
+                                        {quiz.gradeName}
+                                    </span>
+                                    <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full font-medium truncate" title={firstQuestion.unite_adi}>
+                                        {firstQuestion.unite_adi}
+                                    </span>
+                                    <span className="text-xs bg-slate-200 text-slate-700 px-2 py-1 rounded-full font-medium">
+                                        {quiz.questions.length} Soru
+                                    </span>
                                 </div>
-                            </Link>
-                            <div className="ml-4 shrink-0 flex items-center gap-2">
+                                <p className="text-xs text-slate-500 mt-2">
+                                    Oluşturulma: {new Date(quiz.createdAt).toLocaleString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                </p>
+                            </div>
+
+                            <div className="shrink-0 flex items-center gap-1 self-center opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-300 focus-within:opacity-100">
+                                {!isEditing && (
+                                    <button
+                                        onClick={() => handleStartEditing(quiz)}
+                                        title="Sınavı Yeniden Adlandır"
+                                        className="p-2 rounded-full text-slate-500 hover:bg-blue-500/10 hover:text-blue-600"
+                                    >
+                                        <EditIcon className="w-5 h-5" />
+                                    </button>
+                                )}
                                 <button
                                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleArchive(quiz); }}
                                     disabled={archivedStatus[quiz.id]}
                                     title={archivedStatus[quiz.id] ? "Arşivlendi" : "Sınavı Arşive Ekle"}
-                                    className="p-2 rounded-full text-slate-500 hover:bg-purple-500/10 hover:text-purple-600 transition-all duration-300 disabled:text-green-600 disabled:cursor-not-allowed"
+                                    className="p-2 rounded-full text-slate-500 hover:bg-purple-500/10 hover:text-purple-600 disabled:text-green-600 disabled:cursor-not-allowed"
                                 >
                                     {archivedStatus[quiz.id] ? <CheckIcon className="w-5 h-5" /> : <ArchiveAddIcon className="w-5 h-5" />}
                                 </button>
                                 <button
                                     onClick={() => handleDelete(quiz.id, quizTitle)}
                                     title="Sınavı Sil"
-                                    className="p-2 rounded-full text-slate-400 hover:bg-red-500/20 hover:text-red-600 transition-all duration-300 opacity-0 group-hover:opacity-100 focus:opacity-100"
+                                    className="p-2 rounded-full text-slate-500 hover:bg-red-500/10 hover:text-red-600"
                                 >
                                     <TrashIcon className="w-5 h-5" />
                                 </button>
                             </div>
-                        </li>
+                        </div>
                     )
                 })}
-            </ul>
+            </div>
         </div>
     );
 };
