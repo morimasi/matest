@@ -1,1 +1,1 @@
-/// <reference types="vite/client" />
+// This file is intentionally left blank to resolve a TypeScript error.
