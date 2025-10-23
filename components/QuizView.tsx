@@ -77,6 +77,10 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
 
     const quizElement = quizRef.current;
     
+    // Hide remix buttons before capture
+    const remixButtons = quizElement.querySelectorAll('button[title="Bu soruyu yeniden oluştur"]') as NodeListOf<HTMLButtonElement>;
+    remixButtons.forEach(button => button.style.display = 'none');
+
     // Temporarily apply styles for better PDF capture
     const originalStyles = {
         columnCount: quizElement.style.columnCount,
@@ -137,6 +141,10 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
         quizElement.style.columnCount = originalStyles.columnCount;
         quizElement.style.width = originalStyles.width;
         quizElement.style.boxShadow = originalStyles.boxShadow;
+        
+        // Show remix buttons again
+        remixButtons.forEach(button => button.style.display = '');
+
         setIsDownloading(false);
     }
   };
