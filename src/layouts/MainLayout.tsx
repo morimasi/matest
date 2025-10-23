@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
-import { SparklesIcon, HistoryIcon, ArchiveIcon } from '../components/icons';
+import { SparklesIcon, HistoryIcon, ArchiveIcon, QuestionCircleIcon } from '../components/icons';
 
 const MainLayout: React.FC = () => (
     <div className="min-h-screen bg-gradient-to-br from-sky-200 to-violet-300 font-sans text-slate-800 flex flex-col">
@@ -47,6 +47,17 @@ const MainLayout: React.FC = () => (
                         >
                             <HistoryIcon className="w-5 h-5" />
                             <span className="hidden sm:inline">Geçmiş</span>
+                        </NavLink>
+                        <NavLink 
+                            to="/how-to-use" 
+                            className={({ isActive }) => 
+                                `flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full font-semibold transition-all duration-300 text-sm ${
+                                    isActive ? 'bg-white shadow text-blue-600' : 'hover:bg-white/60 text-slate-600'
+                                }`
+                            }
+                        >
+                            <QuestionCircleIcon className="w-5 h-5" />
+                            <span className="hidden sm:inline">Nasıl Kullanılır?</span>
                         </NavLink>
                     </nav>
                      <div className="w-24 hidden sm:block"></div> {/* Spacer for symmetry */}
