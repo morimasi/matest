@@ -45,9 +45,16 @@ export interface SavedQuiz {
   questions: DetailedQuestion[];
 }
 
+export interface QuizTemplate {
+  id: string;
+  createdAt: string;
+  questions: DetailedQuestion[];
+  isSystemTemplate?: boolean;
+}
+
 export interface ArchiveQuiz {
   gradeName: string;
   unitName: string;
   kazanimName: string;
-  questions: DetailedQuestion[];
+  templates: QuizTemplate[];
 }

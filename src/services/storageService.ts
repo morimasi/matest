@@ -1,6 +1,4 @@
-
-
-import { SavedQuiz, DetailedQuestion, ArchiveQuiz } from '../types';
+import { SavedQuiz, DetailedQuestion, ArchiveQuiz, QuizTemplate } from '../types';
 
 const STORAGE_KEY = 'ai-quiz-history';
 const ARCHIVE_STORAGE_KEY = 'ai-quiz-user-archive';
@@ -81,40 +79,57 @@ export const getArchivedQuizzes = (): Record<string, ArchiveQuiz> => {
 export const saveQuizToArchive = (quiz: SavedQuiz): void => {
   try {
     const currentArchive = getArchivedQuizzes();
-    
-    // Use a map to handle quizzes that might cover the same kazanım multiple times,
-    // ensuring we only create one archive entry per kazanım.
-    const uniqueKazanims = new Map<string, DetailedQuestion>();
-    quiz.questions.forEach(q => {
-        if (!uniqueKazanims.has(q.kazanim_kodu)) {
-            uniqueKazanims.set(q.kazanim_kodu, q);
-        }
-    });
 
-    // Create an archive entry for each unique kazanım found in the quiz
-    uniqueKazanims.forEach((question, kazanimCode) => {
-        const archiveEntry: ArchiveQuiz = {
-            gradeName: quiz.gradeName,
-            unitName: question.unite_adi,
-            kazanimName: question.kazanim_metni,
-            questions: quiz.questions // Save the full quiz for this kazanım
+    const questionsByKazanım = quiz.questions.reduce((acc, question) => {
+      const code = question.kazanim_kodu;
+      if (!acc[code]) {
+        acc[code] = [];
+      }
+      acc[code].push(question);
+      return acc;
+    }, {} as Record<string, DetailedQuestion[]>);
+
+    Object.entries(questionsByKazanım).forEach(([kazanimCode, questionsInGroup]) => {
+      if (questionsInGroup.length > 0) {
+        const firstQuestion = questionsInGroup[0];
+
+        const newTemplate: QuizTemplate = {
+          id: `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+          createdAt: new Date().toISOString(),
+          questions: questionsInGroup,
+          isSystemTemplate: false,
         };
-        currentArchive[kazanimCode] = archiveEntry;
-    });
-    
-    localStorage.setItem(ARCHIVE_STORAGE_KEY, JSON.stringify(currentArchive));
 
+        if (currentArchive[kazanimCode]) {
+          currentArchive[kazanimCode].templates.push(newTemplate);
+        } else {
+          currentArchive[kazanimCode] = {
+            gradeName: quiz.gradeName,
+            unitName: firstQuestion.unite_adi,
+            kazanimName: firstQuestion.kazanim_metni,
+            templates: [newTemplate],
+          };
+        }
+      }
+    });
+
+    localStorage.setItem(ARCHIVE_STORAGE_KEY, JSON.stringify(currentArchive));
   } catch (error) {
-     console.error("Error saving to archive in local storage", error);
-     throw error;
+    console.error("Error saving to archive in local storage", error);
+    throw error;
   }
 };
 
-export const deleteQuizFromArchive = (kazanimCode: string): void => {
+
+export const deleteQuizFromArchive = (kazanimCode: string, templateId: string): void => {
   try {
     const currentArchive = getArchivedQuizzes();
-    if (currentArchive[kazanimCode]) {
-      delete currentArchive[kazanimCode];
+    const archiveEntry = currentArchive[kazanimCode];
+    if (archiveEntry) {
+      archiveEntry.templates = archiveEntry.templates.filter(t => t.id !== templateId);
+      if (archiveEntry.templates.length === 0) {
+        delete currentArchive[kazanimCode];
+      }
       localStorage.setItem(ARCHIVE_STORAGE_KEY, JSON.stringify(currentArchive));
     }
   } catch (error) {
@@ -123,11 +138,15 @@ export const deleteQuizFromArchive = (kazanimCode: string): void => {
   }
 };
 
-export const updateArchivedQuiz = (kazanimCode: string, updatedQuiz: ArchiveQuiz): void => {
+export const updateArchivedQuiz = (kazanimCode: string, templateId: string, updatedQuestions: DetailedQuestion[]): void => {
   try {
     const currentArchive = getArchivedQuizzes();
-    currentArchive[kazanimCode] = updatedQuiz;
-    localStorage.setItem(ARCHIVE_STORAGE_KEY, JSON.stringify(currentArchive));
+    const archiveEntry = currentArchive[kazanimCode];
+    const template = archiveEntry?.templates.find(t => t.id === templateId);
+    if (template) {
+      template.questions = updatedQuestions;
+      localStorage.setItem(ARCHIVE_STORAGE_KEY, JSON.stringify(currentArchive));
+    }
   } catch (error) {
     console.error("Error updating archive", error);
     throw error;

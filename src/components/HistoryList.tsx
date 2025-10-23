@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { getHistory, deleteQuiz } from '../services/storageService';
+import { getHistory, deleteQuiz, saveQuizToArchive } from '../services/storageService';
 import { SavedQuiz } from '../types';
-import { HistoryIcon, TrashIcon } from './icons';
+import { HistoryIcon, TrashIcon, ArchiveAddIcon, CheckIcon } from './icons';
 
 const HistoryList: React.FC = () => {
     const [history, setHistory] = useState<SavedQuiz[]>([]);
+    const [archivedStatus, setArchivedStatus] = useState<Record<string, boolean>>({});
 
     useEffect(() => {
         setHistory(getHistory());
@@ -15,6 +16,16 @@ const HistoryList: React.FC = () => {
         if (window.confirm(`'${quizName}' sınavını silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.`)) {
             deleteQuiz(quizId);
             setHistory(prevHistory => prevHistory.filter(quiz => quiz.id !== quizId));
+        }
+    };
+
+    const handleArchive = (quiz: SavedQuiz) => {
+        try {
+            saveQuizToArchive(quiz);
+            setArchivedStatus(prev => ({ ...prev, [quiz.id]: true }));
+        } catch (error) {
+            alert("Sınav arşive eklenirken bir hata oluştu.");
+            console.error(error);
         }
     };
 
@@ -54,7 +65,15 @@ const HistoryList: React.FC = () => {
                                     </div>
                                 </div>
                             </Link>
-                            <div className="ml-4 shrink-0">
+                            <div className="ml-4 shrink-0 flex items-center gap-2">
+                                <button
+                                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleArchive(quiz); }}
+                                    disabled={archivedStatus[quiz.id]}
+                                    title={archivedStatus[quiz.id] ? "Arşivlendi" : "Sınavı Arşive Ekle"}
+                                    className="p-2 rounded-full text-slate-500 hover:bg-purple-500/10 hover:text-purple-600 transition-all duration-300 disabled:text-green-600 disabled:cursor-not-allowed"
+                                >
+                                    {archivedStatus[quiz.id] ? <CheckIcon className="w-5 h-5" /> : <ArchiveAddIcon className="w-5 h-5" />}
+                                </button>
                                 <button
                                     onClick={() => handleDelete(quiz.id, quizTitle)}
                                     title="Sınavı Sil"
