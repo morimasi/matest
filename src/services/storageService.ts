@@ -1,4 +1,3 @@
-
 import { SavedQuiz, DetailedQuestion } from '../types';
 
 const STORAGE_KEY = 'ai-quiz-history';
