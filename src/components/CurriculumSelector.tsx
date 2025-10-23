@@ -1,4 +1,5 @@
 
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Grade, Unit, QuestionType } from '../types';
 import { SparklesIcon } from './icons';
@@ -19,6 +20,8 @@ interface CurriculumSelectorProps {
   setCustomPrompt: (prompt: string) => void;
   includeCharts: boolean;
   setIncludeCharts: (include: boolean) => void;
+  numOperations: number;
+  setNumOperations: (num: number) => void;
   onGenerate: () => void;
   isLoading: boolean;
 }
@@ -39,6 +42,8 @@ const CurriculumSelector: React.FC<CurriculumSelectorProps> = ({
   setCustomPrompt,
   includeCharts,
   setIncludeCharts,
+  numOperations,
+  setNumOperations,
   onGenerate,
   isLoading,
 }) => {
@@ -196,7 +201,7 @@ const CurriculumSelector: React.FC<CurriculumSelectorProps> = ({
             )}
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Soru Sayısı Seçimi */}
           <div>
             <label htmlFor="question-count-select" className="block text-sm font-medium text-slate-600 mb-1">Soru Sayısı</label>
@@ -228,6 +233,22 @@ const CurriculumSelector: React.FC<CurriculumSelectorProps> = ({
               <option value="coktan_secmeli">Çoktan Seçmeli</option>
               <option value="dogru_yanlis">Doğru/Yanlış</option>
               <option value="bosluk_doldurma">Boşluk Doldurma</option>
+            </select>
+          </div>
+
+          {/* İşlem Sayısı Seçimi */}
+          <div>
+            <label htmlFor="operation-count-select" className="block text-sm font-medium text-slate-600 mb-1">Problem Tipi</label>
+            <select
+                id="operation-count-select"
+                value={numOperations}
+                onChange={(e) => setNumOperations(parseInt(e.target.value, 10))}
+                className="w-full p-2.5 bg-white/60 border border-slate-300/50 rounded-md shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-300"
+            >
+                <option value={0}>Otomatik (Karışık)</option>
+                <option value={1}>1 İşlemli Problem</option>
+                <option value={2}>2 İşlemli Problem</option>
+                <option value={3}>3 İşlemli Problem</option>
             </select>
           </div>
         </div>

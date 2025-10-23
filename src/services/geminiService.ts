@@ -1,4 +1,5 @@
 
+
 import { GoogleGenAI, Type } from "@google/genai";
 import { DetailedQuestion, Kazanim, QuestionType } from '../types';
 
@@ -6,11 +7,51 @@ import { DetailedQuestion, Kazanim, QuestionType } from '../types';
 // The key is assumed to be present in the environment.
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
-const getPromptAndSchema = (grade: string, units: string, kazanims: Kazanim[], questionCount: number, questionType: QuestionType, customPrompt?: string, includeCharts?: boolean) => {
+const getPromptAndSchema = (grade: string, units: string, kazanims: Kazanim[], questionCount: number, questionType: QuestionType, customPrompt?: string, includeCharts?: boolean, numOperations?: number) => {
     
     const chartInstruction = includeCharts
-        ? `\n\nÖNEMLİ GRAFİK/TABLO KURALI: Eğer bir kazanım "çetele tablosu", "sıklık tablosu", "nesne grafiği" veya "sütun grafiği" oluşturma veya okuma ile ilgiliyse, soru metni ("soru_metni" alanı) İÇERİSİNDE bu grafiği veya tabloyu metin formatında (ASCII karakterler kullanarak) OLUŞTURMALISIN. Örneğin, bir çetele tablosunu '|' karakterleriyle, bir sütun grafiğini ise '█' karakteriyle temsil edebilirsin. Bu, sorunun anlaşılması için zorunludur ve bu kurala mutlaka uymalısın.`
-        : '';
+    ? `\n\nÖNEMLİ GRAFİK/TABLO KURALI:
+Eğer bir kazanım "çetele tablosu", "sıklık tablosu", "nesne grafiği" veya "sütun grafiği" ile ilgiliyse, soru metni ("soru_metni" alanı) İÇERİSİNDE, sorunun başında bu grafiği veya tabloyu zengin ve çok satırlı bir metin formatında (ASCII karakterler kullanarak) OLUŞTURMALISIN. Bu görsel bölüm, sorunun geri kalanından açıkça ayrılmalıdır.
+
+Örnek Formatlar:
+1.  **Sıklık Tablosu Örneği:**
+    Aşağıdaki sıklık tablosunda bir manavdaki meyve sayıları verilmiştir.
+    +-----------+--------+
+    | Meyve     | Sayısı |
+    +-----------+--------+
+    | Elma      |   12   |
+    | Armut     |    8   |
+    | Çilek     |   15   |
+    +-----------+--------+
+    Tabloya göre manavda en çok hangi meyve vardır?
+
+2.  **Sütun Grafiği Örneği:**
+    Bir sınıftaki öğrencilerin en sevdiği dersler grafikte gösterilmiştir.
+    Matematik: ████████ (8)
+    Türkçe   : ██████ (6)
+    Hayat B. : █████ (5)
+    Grafiğe göre en az sevilen ders hangisidir?
+
+3.  **Çetele Tablosu Örneği:**
+    Aşağıdaki çetele tablosu, bir otoparktaki araba renklerini göstermektedir.
+    Kırmızı: ||||| ||
+    Beyaz  : ||||| ||||
+    Siyah  : |||||
+    Tabloya göre otoparkta toplam kaç araba vardır?
+
+Bu kurala mutlaka uymalısın. Grafik veya tablo, sorunun anlaşılması için ZORUNLUDUR.
+`
+    : '';
+
+    let operationPrompt = '';
+    if (numOperations && numOperations > 0) {
+        const stepText = numOperations === 1 
+            ? 'tek bir matematiksel işlem (toplama, çıkarma, çarpma, bölme) ile çözülebilmelidir.' 
+            : `tam olarak ${numOperations} adet matematiksel işlem gerektirmelidir.`;
+        
+        operationPrompt = `\n\nÖNEMLİ PROBLEM TİPİ KURALI:
+Üreteceğin her soru, ilgili kazanımın doğası elverdiği sürece, ${stepText} Bu kural, özellikle problem çözme becerisini ölçen kazanımlar için geçerlidir. Çözüm adımları net ve mantıksal olmalıdır.`;
+    }
 
     const customPromptSection = customPrompt 
         ? `\n\nKullanıcının Ek Talimatları:\n${customPrompt}\nBu talimatlara harfiyen uyulmalıdır.`
@@ -20,7 +61,7 @@ const getPromptAndSchema = (grade: string, units: string, kazanims: Kazanim[], q
 
     const basePrompt = `
 Görevin, 2025 yılı itibarıyla yürürlükte olan Türkiye Millî Eğitim Bakanlığı İlkokul Matematik dersi öğretim programına (müfredata) sadık kalarak, belirtilen sınıf, üniteler ve kazanımlara uygun, ${questionCount} adet soru üretmektir. Soruları, sağlanan kazanımlar listesi arasında adil ve dengeli bir şekilde dağıtmalısın. Eğer birden fazla ünite seçilmişse, soruları bu üniteler arasında da dengeli bir şekilde dağıtmalısın.
-${chartInstruction}${customPromptSection}
+${operationPrompt}${chartInstruction}${customPromptSection}
 
 Sınıf: ${grade}
 Üniteler: ${units}
@@ -134,9 +175,9 @@ Lütfen çıktı olarak sadece soruları içeren bir JSON nesnesi döndür. Her 
     return { prompt: finalPrompt, schema: multipleQuestionSchema, singleSchema: singleQuestionSchema };
 };
 
-export const generateQuiz = async (grade: string, units: string, kazanims: Kazanim[], questionCount: number = 5, questionType: QuestionType, customPrompt?: string, includeCharts?: boolean): Promise<DetailedQuestion[] | null> => {
+export const generateQuiz = async (grade: string, units: string, kazanims: Kazanim[], questionCount: number = 5, questionType: QuestionType, customPrompt?: string, includeCharts?: boolean, numOperations?: number): Promise<DetailedQuestion[] | null> => {
     try {
-        const { prompt, schema } = getPromptAndSchema(grade, units, kazanims, questionCount, questionType, customPrompt, includeCharts);
+        const { prompt, schema } = getPromptAndSchema(grade, units, kazanims, questionCount, questionType, customPrompt, includeCharts, numOperations);
 
         const response = await ai.models.generateContent({
             model: "gemini-2.5-flash",

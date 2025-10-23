@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect } from 'react';
 import CurriculumSelector from './CurriculumSelector';
 import QuizView from './QuizView';
@@ -40,6 +41,8 @@ const QuizGenerator: React.FC = () => {
     const [questionType, setQuestionType] = usePersistentState<QuestionType>('qg_questionType', 'coktan_secmeli');
     const [customPrompt, setCustomPrompt] = usePersistentState('qg_customPrompt', '');
     const [includeCharts, setIncludeCharts] = usePersistentState<boolean>('qg_includeCharts', false);
+    const [numOperations, setNumOperations] = usePersistentState<number>('qg_numOperations', 0);
+
 
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -71,7 +74,7 @@ const QuizGenerator: React.FC = () => {
 
         try {
             const unitNames = unitsData.map(u => u.name).join(', ');
-            const generatedQuestions = await generateQuiz(gradeData.name, unitNames, kazanimData, numQuestions, questionType, customPrompt, includeCharts);
+            const generatedQuestions = await generateQuiz(gradeData.name, unitNames, kazanimData, numQuestions, questionType, customPrompt, includeCharts, numOperations);
             
             if (generatedQuestions && generatedQuestions.length > 0) {
                  const quizData = {
@@ -114,6 +117,8 @@ const QuizGenerator: React.FC = () => {
                     setCustomPrompt={setCustomPrompt}
                     includeCharts={includeCharts}
                     setIncludeCharts={setIncludeCharts}
+                    numOperations={numOperations}
+                    setNumOperations={setNumOperations}
                     onGenerate={handleGenerateQuiz}
                     isLoading={isLoading}
                 />
