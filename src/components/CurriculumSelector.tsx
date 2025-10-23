@@ -98,7 +98,9 @@ const CurriculumSelector: React.FC<CurriculumSelectorProps> = ({
   const currentGradeData = curriculumData.find(g => g.id === selectedGrade);
   const currentUnitsData = currentGradeData?.units.filter(u => selectedUnits.includes(u.id));
   
-  const showChartOption = currentUnitsData?.some(unit => unit.name === 'Veri İşleme') ?? false;
+  const showChartOption = currentGradeData?.units
+      .filter(u => selectedUnits.includes(u.id))
+      .some(unit => unit.name === 'Veri İşleme') ?? false;
 
   useEffect(() => {
     if (!showChartOption) {

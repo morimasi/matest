@@ -2,8 +2,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { DetailedQuestion } from '../types';
 import { DownloadIcon, PrintIcon, ShareIcon, SparklesIcon, SettingsIcon, CopyIcon, CheckIcon, RefreshCwIcon } from './icons';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
 
 
 interface QuizViewProps {
@@ -72,6 +70,9 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
  const handleDownloadPdf = async () => {
     if (isDownloading || !quizRef.current) return;
     setIsDownloading(true);
+
+    const { default: jsPDF } = await import('jspdf');
+    const { default: html2canvas } = await import('html2canvas');
 
     const quizElement = quizRef.current;
     
