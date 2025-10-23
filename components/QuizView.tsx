@@ -1,12 +1,10 @@
 
-
 import React, { useRef, useState, useEffect } from 'react';
 import { DetailedQuestion } from '../types';
 import { DownloadIcon, PrintIcon, ShareIcon, SparklesIcon, SettingsIcon, CopyIcon, CheckIcon, RefreshCwIcon } from './icons';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
-// Make sure to declare jspdf and html2canvas from the window object
-declare const jspdf: any;
-declare const html2canvas: any;
 
 interface QuizViewProps {
   questions: DetailedQuestion[];
@@ -96,7 +94,6 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
         });
 
         const imgData = canvas.toDataURL('image/png');
-        const { jsPDF } = jspdf;
         const pdf = new jsPDF({
             orientation: 'p',
             unit: 'pt',

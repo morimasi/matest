@@ -1,12 +1,10 @@
+
 import { GoogleGenAI, Type } from "@google/genai";
 import { DetailedQuestion, Kazanim, QuestionType } from '../types';
 
-const API_KEY = process.env.API_KEY;
-if (!API_KEY) {
-    throw new Error("API_KEY environment variable not set");
-}
-
-const ai = new GoogleGenAI({ apiKey: API_KEY });
+// FIX: Initialize ai directly with process.env.API_KEY as per the guidelines.
+// The key is assumed to be present in the environment.
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 const getPromptAndSchema = (grade: string, unit: string, kazanims: Kazanim[], questionCount: number, questionType: QuestionType, customPrompt?: string) => {
     
