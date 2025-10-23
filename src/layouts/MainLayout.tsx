@@ -82,4 +82,5 @@ const MainLayout: React.FC = () => (
     </div>
 );
 
+// FIX: Added default export to the component.
 export default MainLayout;
