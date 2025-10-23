@@ -1,8 +1,10 @@
 
+
 import React, { useState } from 'react';
 import { CURRICULUM_DATA } from '../constants';
-import { ARCHIVE_DATA, ArchiveQuiz } from '../archiveData';
-import { Grade, Unit, Kazanim } from '../types';
+// FIX: Import ArchiveQuiz from types.ts instead of archiveData.ts
+import { ARCHIVE_DATA } from '../archiveData';
+import { Grade, Unit, Kazanim, ArchiveQuiz } from '../types';
 import QuizView from './QuizView';
 import { ArchiveIcon } from './icons';
 

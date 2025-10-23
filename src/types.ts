@@ -44,3 +44,11 @@ export interface SavedQuiz {
   gradeName: string;
   questions: DetailedQuestion[];
 }
+
+// FIX: Export ArchiveQuiz type to be used in other files.
+export interface ArchiveQuiz {
+  gradeName: string;
+  unitName: string;
+  kazanimName: string;
+  questions: DetailedQuestion[];
+}
