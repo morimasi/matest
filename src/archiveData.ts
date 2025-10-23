@@ -496,19 +496,20 @@ export const ARCHIVE_DATA: Record<string, ArchiveQuiz> = {
   "M.2.1.2.1": {
     gradeName: "2. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Toplamları 100’e kadar (100 dâhil) olan doğal sayılarla eldesiz ve eldeli toplama işlemini yapar.",
     templates: [{ id: 'system-default-M.2.1.2.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
-        const num1 = 25 + i * 3;
-        const num2 = 38 + i * 2;
-        // FIX: Stored the result of createNumericOptions in a variable to be reused.
-        const options = createNumericOptions(25 + 38, 10);
+        const num1 = 28 + i * 3;
+        const num2 = 35 + i * 2;
+        const answer = num1 + num2;
+        const options = createNumericOptions(answer, 10);
+        const correctAnswerKey = Object.keys(options).find(k => options[k as keyof typeof options] === String(answer))!;
         return {
             sinif: 2, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.2.1.2.1", kazanim_metni: "Toplamları 100’e kadar (100 dâhil) olan doğal sayılarla eldesiz ve eldeli toplama işlemini yapar.",
             soru_tipi: 'coktan_secmeli',
-            soru_metni: `Ayşe'nin 25 çiçeği vardı. Arkadaşı ona 38 çiçek daha verdi. Ayşe'nin toplam kaç çiçeği oldu?`,
+            soru_metni: `Ayşe'nin ${num1} çiçeği vardı. Arkadaşı ona ${num2} çiçek daha verdi. Ayşe'nin toplam kaç çiçeği oldu?`,
             secenekler: options,
-            dogru_cevap: Object.keys(options).find(k => options[k as keyof typeof options] === '63')!,
+            dogru_cevap: correctAnswerKey,
             yanlis_secenek_tipleri: ["Eldeyi eklememe hatası", "Yanlış toplama", "Çıkarma yapma"],
             gercek_yasam_baglantisi: "İki farklı poşetteki misketleri birleştirince toplam misket sayısını bulmak için toplama yaparız.",
-            seviye: 'orta', cozum_anahtari: "25 ile 38'i toplarken önce birlikler (5+8=13), sonra onluklar toplanır (20+30=50). Elde edilen 1 onluk da eklenince (50+10+3) sonuç 63 olur."
+            seviye: 'orta', cozum_anahtari: `${num1} ile ${num2}'i toplarken önce birlikler, sonra onluklar toplanır. Eldeye dikkat edilmelidir. Sonuç ${answer} olur.`
         }
     })}]
   },
@@ -533,20 +534,20 @@ export const ARCHIVE_DATA: Record<string, ArchiveQuiz> = {
   "M.2.1.2.3": {
     gradeName: "2. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Zihinden toplama işlemi yapar.",
     templates: [{ id: 'system-default-M.2.1.2.3', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
-        const num1 = 40 + i*10;
+        const num1 = 40 + i*5;
         const num2 = 25 + i;
         const answer = num1 + num2;
-        // FIX: Stored the result of createNumericOptions in a variable to be reused.
         const options = createNumericOptions(answer, 5);
+        const correctAnswerKey = Object.keys(options).find(k => options[k as keyof typeof options] === String(answer))!;
         return {
             sinif: 2, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.2.1.2.3", kazanim_metni: "Zihinden toplama işlemi yapar.",
             soru_tipi: 'coktan_secmeli',
-            soru_metni: `40 + ${25+i} işleminin zihinden yapılışı sonucu kaçtır?`,
+            soru_metni: `${num1} + ${num2} işleminin zihinden yapılışı sonucu kaçtır?`,
             secenekler: options,
-            dogru_cevap: Object.keys(options).find(k => options[k as keyof typeof options] === String(answer))!,
+            dogru_cevap: correctAnswerKey,
             yanlis_secenek_tipleri: ["Onlukları yanlış toplama", "Birlikleri yanlış toplama"],
             gercek_yasam_baglantisi: "Oyun oynarken iki zarda gelen sayıları hızlıca toplamak için zihinden işlem yaparız.",
-            seviye: 'orta', cozum_anahtari: `Önce onluklar toplanır (40+20=60), sonra birlikler eklenir (60+${5+i}=${answer}).`
+            seviye: 'orta', cozum_anahtari: `Önce onluklar toplanır (${num1}+${Math.floor(num2/10)*10}), sonra birlikler eklenir.`
         }
     })}]
   },
@@ -556,14 +557,14 @@ export const ARCHIVE_DATA: Record<string, ArchiveQuiz> = {
         const num1 = 45 + i;
         const num2 = 27 + i;
         const answer = num1 + num2;
-        // FIX: Stored the result of createNumericOptions in a variable to be reused.
         const options = createNumericOptions(answer, 10);
+        const correctAnswerKey = Object.keys(options).find(k => options[k as keyof typeof options] === String(answer))!;
         return {
             sinif: 2, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.2.1.2.4", kazanim_metni: "Toplama işlemi gerektiren problemleri çözer.",
             soru_tipi: 'coktan_secmeli',
             soru_metni: `Bir otobüste ${num1} yolcu vardı. İlk durakta ${num2} yolcu daha bindi. Otobüste toplam kaç yolcu oldu?`,
             secenekler: options,
-            dogru_cevap: Object.keys(options).find(k => options[k as keyof typeof options] === String(answer))!,
+            dogru_cevap: correctAnswerKey,
             yanlis_secenek_tipleri: ["Sayıları yanlış toplama", "Çıkarma yapma"],
             gercek_yasam_baglantisi: "Doğum günü partisine gelen misafirlerin sayısını hesaplamak için toplama problemi çözeriz.",
             seviye: 'ileri', cozum_anahtari: `Otobüsteki yolcu sayısı arttığı için toplama işlemi yapılır. ${num1} + ${num2} = ${answer}.`
@@ -576,14 +577,14 @@ export const ARCHIVE_DATA: Record<string, ArchiveQuiz> = {
         const num1 = 73 + i;
         const num2 = 25 + i;
         const answer = num1 - num2;
-        // FIX: Stored the result of createNumericOptions in a variable to be reused.
         const options = createNumericOptions(answer, 10);
+        const correctAnswerKey = Object.keys(options).find(k => options[k as keyof typeof options] === String(answer))!;
         return {
             sinif: 2, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.2.1.3.1", kazanim_metni: "100’e kadar olan doğal sayılarla onluk bozmayı gerektiren ve gerektirmeyen çıkarma işlemini yapar.",
             soru_tipi: 'coktan_secmeli',
             soru_metni: `Bir manavda ${num1} elma vardı. Bunların ${num2} tanesi satıldı. Geriye kaç elma kaldı?`,
             secenekler: options,
-            dogru_cevap: Object.keys(options).find(k => options[k as keyof typeof options] === String(answer))!,
+            dogru_cevap: correctAnswerKey,
             yanlis_secenek_tipleri: ["Onluk bozmadan çıkarma", "Toplama yapma", "Küçükten büyüğü çıkarma"],
             gercek_yasam_baglantisi: "Harçlığımızdan bir şey aldığımızda ne kadar paramız kaldığını çıkarma işlemiyle buluruz.",
             seviye: 'orta', cozum_anahtari: `Satış yapıldığı için elma sayısı azalır, çıkarma yapılır. ${num1} - ${num2} = ${answer}. Onluk bozmak gerekir.`
@@ -611,20 +612,20 @@ export const ARCHIVE_DATA: Record<string, ArchiveQuiz> = {
   "M.2.1.3.3": {
     gradeName: "2. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Zihinden çıkarma işlemi yapar.",
     templates: [{ id: 'system-default-M.2.1.3.3', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
-        const num1 = 80;
+        const num1 = 80 + i;
         const num2 = 35 + i;
         const answer = num1 - num2;
-        // FIX: Stored the result of createNumericOptions in a variable to be reused.
         const options = createNumericOptions(answer, 5);
+        const correctAnswerKey = Object.keys(options).find(k => options[k as keyof typeof options] === String(answer))!;
         return {
             sinif: 2, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.2.1.3.3", kazanim_metni: "Zihinden çıkarma işlemi yapar.",
             soru_tipi: 'coktan_secmeli',
-            soru_metni: `80 - ${num2} işleminin zihinden yapılışı sonucu kaçtır?`,
+            soru_metni: `${num1} - ${num2} işleminin zihinden yapılışı sonucu kaçtır?`,
             secenekler: options,
-            dogru_cevap: Object.keys(options).find(k => options[k as keyof typeof options] === String(answer))!,
+            dogru_cevap: correctAnswerKey,
             yanlis_secenek_tipleri: ["Onlukları yanlış çıkarma", "Geriye yanlış sayma"],
             gercek_yasam_baglantisi: "Para üstü alırken doğru alıp almadığımızı kontrol etmek için zihinden çıkarma yaparız.",
-            seviye: 'orta', cozum_anahtari: `80'den önce 30 çıkarılır (50), sonra kalan 5 çıkarılır (45). Sonuç ${answer}.`
+            seviye: 'orta', cozum_anahtari: `${num1}'den önce 30 çıkarılır (${num1-30}), sonra kalan 5 çıkarılır (${num1-30-5}). Sonuç ${answer}.`
         }
     })}]
   },
@@ -634,14 +635,14 @@ export const ARCHIVE_DATA: Record<string, ArchiveQuiz> = {
         const num1 = 92 - i;
         const num2 = 58 - i;
         const answer = num1 - num2;
-        // FIX: Stored the result of createNumericOptions in a variable to be reused.
         const options = createNumericOptions(answer, 10);
+        const correctAnswerKey = Object.keys(options).find(k => options[k as keyof typeof options] === String(answer))!;
         return {
             sinif: 2, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.2.1.3.4", kazanim_metni: "Çıkarma işlemi gerektiren problemleri çözer.",
             soru_tipi: 'coktan_secmeli',
             soru_metni: `Bir ağaçta ${num1} kuş vardı. Bir süre sonra ${num2} kuş uçup gitti. Ağaçta kaç kuş kaldı?`,
             secenekler: options,
-            dogru_cevap: Object.keys(options).find(k => options[k as keyof typeof options] === String(answer))!,
+            dogru_cevap: correctAnswerKey,
             yanlis_secenek_tipleri: ["Sayıları yanlış çıkarma", "Toplama yapma"],
             gercek_yasam_baglantisi: "Okuduğumuz bir kitabın kaç sayfasının kaldığını bulmak için çıkarma problemi çözeriz.",
             seviye: 'ileri', cozum_anahtari: `Ağaçtaki kuş sayısı azaldığı için çıkarma işlemi yapılır. ${num1} - ${num2} = ${answer}.`
@@ -672,17 +673,17 @@ export const ARCHIVE_DATA: Record<string, ArchiveQuiz> = {
         const num1 = 3 + (i % 7);
         const num2 = 5 + (i % 5);
         const answer = num1 * num2;
-        // FIX: Stored the result of createNumericOptions in a variable to be reused.
-        const options = createNumericOptions(5*num1, 5);
+        const options = createNumericOptions(answer, 5);
+        const correctAnswerKey = Object.keys(options).find(k => options[k as keyof typeof options] === String(answer))!;
         return {
             sinif: 2, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.2.1.4.2", kazanim_metni: "Çarpım tablosunu oluşturur.",
             soru_tipi: 'coktan_secmeli',
-            soru_metni: `5 x ${num1} işleminin sonucu kaçtır?`,
+            soru_metni: `${num1} x ${num2} işleminin sonucu kaçtır?`,
             secenekler: options,
-            dogru_cevap: Object.keys(options).find(k => options[k as keyof typeof options] === String(5*num1))!,
+            dogru_cevap: correctAnswerKey,
             yanlis_secenek_tipleri: ["Yakın çarpım sonucu", "Toplama yapma"],
             gercek_yasam_baglantisi: "Çarpım tablosunu bilmek, alışverişte veya yemek tariflerinde miktarları hesaplarken bize hız kazandırır.",
-            seviye: 'orta', cozum_anahtari: `5 kere ${num1}, ${5*num1} eder. Bu, çarpım tablosundaki temel bir bilgidir.`
+            seviye: 'orta', cozum_anahtari: `${num1} kere ${num2}, ${answer} eder. Bu, çarpım tablosundaki temel bir bilgidir.`
         }
     })}]
   },
@@ -692,17 +693,17 @@ export const ARCHIVE_DATA: Record<string, ArchiveQuiz> = {
         const num1 = 6 + i;
         const num2 = 5;
         const answer = num1 * num2;
-        // FIX: Stored the result of createNumericOptions in a variable to be reused.
         const options = createNumericOptions(answer, num1);
+        const correctAnswerKey = Object.keys(options).find(k => options[k as keyof typeof options] === String(answer))!;
         return {
             sinif: 2, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.2.1.4.3", kazanim_metni: "Çarpma işlemi gerektiren problemleri çözer.",
             soru_tipi: 'coktan_secmeli',
-            soru_metni: `Bir kutuda ${num1} kalem vardır. 5 kutuda toplam kaç kalem olur?`,
+            soru_metni: `Bir kutuda ${num1} kalem vardır. ${num2} kutuda toplam kaç kalem olur?`,
             secenekler: options,
-            dogru_cevap: Object.keys(options).find(k => options[k as keyof typeof options] === String(answer))!,
+            dogru_cevap: correctAnswerKey,
             yanlis_secenek_tipleri: ["Toplama yapma", "Yanlış çarpma"],
             gercek_yasam_baglantisi: "Her arkadaşımıza eşit sayıda şeker vermek istediğimizde toplam kaç şekere ihtiyacımız olduğunu çarparak buluruz.",
-            seviye: 'ileri', cozum_anahtari: `Her kutuda eşit sayıda kalem olduğu için toplamı bulmak için çarpma yapılır. 5 x ${num1} = ${answer}.`
+            seviye: 'ileri', cozum_anahtari: `Her kutuda eşit sayıda kalem olduğu için toplamı bulmak için çarpma yapılır. ${num2} x ${num1} = ${answer}.`
         }
     })}]
   },
@@ -729,14 +730,14 @@ export const ARCHIVE_DATA: Record<string, ArchiveQuiz> = {
         const groups = 4 + (i%3);
         const answer = 5 + i;
         const total = groups * answer;
-        // FIX: Stored the result of createNumericOptions in a variable to be reused.
         const options = createNumericOptions(answer, 3);
+        const correctAnswerKey = Object.keys(options).find(k => options[k as keyof typeof options] === String(answer))!;
         return {
             sinif: 2, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.2.1.5.2", kazanim_metni: "Bölme işlemi gerektiren problemleri çözer.",
             soru_tipi: 'coktan_secmeli',
             soru_metni: `${total} ceviz, ${groups} tabağa eşit olarak paylaştırılırsa her tabakta kaç ceviz olur?`,
             secenekler: options,
-            dogru_cevap: Object.keys(options).find(k => options[k as keyof typeof options] === String(answer))!,
+            dogru_cevap: correctAnswerKey,
             yanlis_secenek_tipleri: ["Çarpma yapma", "Yanlış bölme"],
             gercek_yasam_baglantisi: "Bir deste kalemi kardeşimizle eşit paylaşmak için bölme problemi çözeriz.",
             seviye: 'ileri', cozum_anahtari: `Eşit paylaştırma olduğu için bölme yapılır. ${total} / ${groups} = ${answer}.`
@@ -746,148 +747,4 @@ export const ARCHIVE_DATA: Record<string, ArchiveQuiz> = {
   "M.2.2.1.1": {
     gradeName: "2. Sınıf", unitName: "Geometri", kazanimName: "Geometrik şekilleri kenar ve köşe sayılarına göre sınıflandırır.",
     templates: [{ id: 'system-default-M.2.2.1.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
-        const shapes = [{name: 'Kare', sides: 4}, {name: 'Üçgen', sides: 3}, {name: 'Beşgen', sides: 5}, {name: 'Altıgen', sides: 6}];
-        const shape = shapes[i % 4];
-        // FIX: Stored the options object in a variable to be reused.
-        const options = {A: shapes[0].name, B: shapes[1].name, C: shapes[2].name, D: shapes[3].name};
-        return {
-            sinif: 2, unite_adi: "Geometri", unite_no: 2, kazanim_kodu: "M.2.2.1.1", kazanim_metni: "Geometrik şekilleri kenar ve köşe sayılarına göre sınıflandırır.",
-            soru_tipi: 'coktan_secmeli',
-            soru_metni: `Aşağıdaki geometrik şekillerden hangisinin ${shape.sides} kenarı vardır?`,
-            secenekler: options,
-            dogru_cevap: Object.keys(options).find(k => options[k as keyof typeof options] === shape.name)!,
-            yanlis_secenek_tipleri: ["Farklı kenar sayısına sahip şekiller"],
-            gercek_yasam_baglantisi: "Trafik levhalarını şekillerine göre (üçgen, sekizgen) tanıyabilir ve ne anlama geldiklerini anlayabiliriz.",
-            seviye: 'temel', cozum_anahtari: `${shape.name}in ${shape.sides} kenarı ve ${shape.sides} köşesi vardır.`
-        }
-    })}]
-  },
-  "M.2.2.2.1": {
-    gradeName: "2. Sınıf", unitName: "Geometri", kazanimName: "Bir örüntüdeki ilişkiyi belirler ve örüntüyü tamamlar.",
-    templates: [{ id: 'system-default-M.2.2.2.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => ({
-        sinif: 2, unite_adi: "Geometri", unite_no: 2, kazanim_kodu: "M.2.2.2.1", kazanim_metni: "Bir örüntüdeki ilişkiyi belirler ve örüntüyü tamamlar.",
-        soru_tipi: 'coktan_secmeli',
-        soru_metni: `▲, ●, ●, ▲, ●, ●, ?  şekil örüntüsünde '?' yerine hangi şekil gelmelidir?`,
-        secenekler: { A: "▲", B: "●", C: "■", D: "▲●" },
-        dogru_cevap: 'A',
-        yanlis_secenek_tipleri: ["Örüntünün ikinci elemanı", "Örüntüde olmayan şekil", "Kuralı yanlış anlama"],
-        gercek_yasam_baglantisi: "Kaldırım taşlarının dizilişi veya bir şarkının nakaratı gibi tekrarlayan durumlar birer örüntüdür.",
-        seviye: 'orta', cozum_anahtari: "Örüntünün kuralı 'bir üçgen, iki daire' şeklindedir. İki daireden sonra tekrar üçgen gelmelidir."
-    }))}]
-  },
-  "M.2.3.1.1": {
-    gradeName: "2. Sınıf", unitName: "Ölçme", kazanimName: "Standart uzunluk ölçme birimlerini tanır.",
-    templates: [{ id: 'system-default-M.2.3.1.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => ({
-        sinif: 2, unite_adi: "Ölçme", unite_no: 3, kazanim_kodu: "M.2.3.1.1", kazanim_metni: "Standart uzunluk ölçme birimlerini tanır.",
-        soru_tipi: 'coktan_secmeli',
-        soru_metni: `Sınıfımızın kapısının boyunu ölçmek için en uygun ölçme aracı hangisidir?`,
-        secenekler: { A: "Cetvel", B: "Metre", C: "Karış", D: "Adım" },
-        dogru_cevap: 'B',
-        yanlis_secenek_tipleri: ["Çok küçük standart birim", "Standart olmayan birimler"],
-        gercek_yasam_baglantisi: "Terziler kumaşı metre ile, marangozlar tahtayı metre ile ölçer. Standart birimler herkesin aynı sonucu bulmasını sağlar.",
-        seviye: 'temel', cozum_anahtari: "Kapı gibi büyük nesneleri ölçmek için en uygun standart ölçme aracı metredir."
-    }))}]
-  },
-  "M.2.3.1.2": {
-    gradeName: "2. Sınıf", unitName: "Ölçme", kazanimName: "Metre ve santimetre arasındaki ilişkiyi açıklar.",
-    templates: [{ id: 'system-default-M.2.3.1.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
-        const meters = i + 1;
-        const answer = meters * 100;
-        return {
-            sinif: 2, unite_adi: "Ölçme", unite_no: 3, kazanim_kodu: "M.2.3.1.2", kazanim_metni: "Metre ve santimetre arasındaki ilişkiyi açıklar.",
-            soru_tipi: 'coktan_secmeli',
-            soru_metni: `${meters} metre kaç santimetredir?`,
-            secenekler: {A: `${meters}`, B: `${meters*10}`, C: `${answer}`, D: `${answer+10}`},
-            dogru_cevap: 'C',
-            yanlis_secenek_tipleri: ["Birimleri karıştırma", "10 ile çarpma hatası"],
-            gercek_yasam_baglantisi: "Boyumuzu ölçerken '1 metre 25 santimetre' gibi ifadeler kullanarak metre ve santimetreyi birlikte kullanırız.",
-            seviye: 'orta', cozum_anahtari: "1 metre 100 santimetreye eşittir. Bu nedenle, ${meters} metre ${answer} santimetredir."
-        }
-    })}]
-  },
-  "M.2.3.2.1": {
-    gradeName: "2. Sınıf", unitName: "Ölçme", kazanimName: "Tam, yarım ve çeyrek saatleri okur.",
-    templates: [{ id: 'system-default-M.2.3.2.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
-        const hour = 3 + i;
-        return {
-            sinif: 2, unite_adi: "Ölçme", unite_no: 3, kazanim_kodu: "M.2.3.2.1", kazanim_metni: "Tam, yarım ve çeyrek saatleri okur.",
-            soru_tipi: 'coktan_secmeli',
-            soru_metni: `Saat ${hour}'i çeyrek geçiyorsa, yelkovan hangi sayının üzerinde olmalıdır?`,
-            secenekler: {A: "12", B: "3", C: "6", D: "9"},
-            dogru_cevap: 'B',
-            yanlis_secenek_tipleri: ["Tam saat", "Yarım saat", "Çeyrek var"],
-            gercek_yasam_baglantisi: "Okuldan çıkış saatimizin 'üç buçuk' olduğunu bilmek, zamanımızı doğru planlamamıza yardımcı olur.",
-            seviye: 'orta', cozum_anahtari: "Bir saati çeyrek geçmesi demek 15 dakika geçmesi demektir. Bu durumda yelkovan 3'ün üzerinde olur."
-        }
-    })}]
-  },
-  "M.2.3.3.1": {
-    gradeName: "2. Sınıf", unitName: "Ölçme", kazanimName: "Paralarımızla ilgili problemleri çözer.",
-    templates: [{ id: 'system-default-M.2.3.3.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
-        const price = 35 + i*5;
-        const paid = 50 + i*5;
-        const change = paid - price;
-        // FIX: Stored the result of createNumericOptions in a variable to be reused.
-        const options = createNumericOptions(change, 5);
-        return {
-            sinif: 2, unite_adi: "Ölçme", unite_no: 3, kazanim_kodu: "M.2.3.3.1", kazanim_metni: "Paralarımızla ilgili problemleri çözer.",
-            soru_tipi: 'coktan_secmeli',
-            soru_metni: `Tanesi ${price} TL olan bir kitaptan alan Ali, satıcıya ${paid} TL vermiştir. Ali ne kadar para üstü almalıdır?`,
-            secenekler: options,
-            dogru_cevap: Object.keys(options).find(k => options[k as keyof typeof options] === String(change))!,
-            yanlis_secenek_tipleri: ["Toplama yapma", "Yanlış çıkarma"],
-            gercek_yasam_baglantisi: "Kantinden alışveriş yaptığımızda ne kadar para üstü alacağımızı hesaplamak için problem çözeriz.",
-            seviye: 'ileri', cozum_anahtari: `Para üstünü bulmak için ödenen paradan ürünün fiyatı çıkarılır. ${paid} - ${price} = ${change} TL.`
-        }
-    })}]
-  },
-  "M.2.3.4.1": {
-    gradeName: "2. Sınıf", unitName: "Ölçme", kazanimName: "Nesneleri gram ve kilogram birimleriyle tartar.",
-    templates: [{ id: 'system-default-M.2.3.4.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => ({
-        sinif: 2, unite_adi: "Ölçme", unite_no: 3, kazanim_kodu: "M.2.3.4.1", kazanim_metni: "Nesneleri gram ve kilogram birimleriyle tartar.",
-        soru_tipi: 'coktan_secmeli',
-        soru_metni: `Bir çuval patatesin kütlesini ölçmek için hangi birimi kullanmak daha uygundur?`,
-        secenekler: {A: "Gram", B: "Kilogram", C: "Metre", D: "Litre"},
-        dogru_cevap: 'B',
-        yanlis_secenek_tipleri: ["Çok küçük ağırlık birimi", "Uzunluk birimi", "Sıvı ölçüm birimi"],
-        gercek_yasam_baglantisi: "Manavdan elma alırken kilogram, kuyumcudan altın alırken gram birimini kullanırız.",
-        seviye: 'temel', cozum_anahtari: "Patates gibi ağır nesnelerin kütlesi kilogram ile ölçülür. Gram, daha hafif nesneler için kullanılır."
-    }))}]
-  },
-  "M.2.4.1.1": {
-    gradeName: "2. Sınıf", unitName: "Veri İşleme", kazanimName: "Veri toplar ve çetele tablosu oluşturur.",
-    templates: [{ id: 'system-default-M.2.4.1.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
-        const red = 7 + i;
-        const blue = 5 + i;
-        return {
-            sinif: 2, unite_adi: "Veri İşleme", unite_no: 4, kazanim_kodu: "M.2.4.1.1", kazanim_metni: "Veri toplar ve çetele tablosu oluşturur.",
-            soru_tipi: 'coktan_secmeli',
-            soru_metni: `Bir kutuda ${red} kırmızı ve ${blue} mavi top vardır. Bu durumu gösteren çetele tablosu hangisidir?\n\nKırmızı: ||||| ||\nMavi: |||||`,
-            secenekler: { A: "Kırmızı: ||||| ||, Mavi: |||||", B: "Kırmızı: |||||, Mavi: ||||| ||", C: "Kırmızı: ||||, Mavi: |||", D: "Kırmızı: ||||| |, Mavi: ||||" },
-            dogru_cevap: 'A',
-            yanlis_secenek_tipleri: ["Sayıları karıştırma", "Yanlış sayma"],
-            gercek_yasam_baglantisi: "Sınıf başkanlığı seçiminde adayların aldığı oyları saymak için çetele tablosu kullanabiliriz.",
-            seviye: 'orta', cozum_anahtari: `${red} sayısı çetele tablosunda bir 5'lik grup ve 2 çizgi ile, ${blue} sayısı ise bir 5'lik grup ile gösterilir.`
-        }
-    })}]
-  },
-  "M.2.4.1.2": {
-    gradeName: "2. Sınıf", unitName: "Veri İşleme", kazanimName: "Nesne ve şekil grafiği oluşturur.",
-    templates: [{ id: 'system-default-M.2.4.1.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
-        const elma = 4 + (i%3);
-        const armut = 3 + (i%2);
-        // FIX: Stored the result of createNumericOptions in a variable to be reused.
-        const options = createNumericOptions(elma+armut, 2);
-        return {
-            sinif: 2, unite_adi: "Veri İşleme", unite_no: 4, kazanim_kodu: "M.2.4.1.2", kazanim_metni: "Nesne ve şekil grafiği oluşturur.",
-            soru_tipi: 'coktan_secmeli',
-            soru_metni: `Aşağıdaki şekil grafiğinde bir manavdaki meyveler gösterilmiştir. Her şekil 1 meyveyi temsil etmektedir.\n\nElma: 🍎🍎🍎🍎\nArmut: 🍐🍐🍐\n\nManavda toplam kaç meyve vardır?`,
-            secenekler: options,
-            dogru_cevap: Object.keys(options).find(k => options[k as keyof typeof options] === String(elma+armut))!,
-            yanlis_secenek_tipleri: ["Sadece bir meyveyi sayma", "Yanlış toplama"],
-            gercek_yasam_baglantisi: "Hava durumu takibi yaparken güneşli ve yağmurlu günleri saymak için şekil grafiği kullanabiliriz.",
-            seviye: 'orta', cozum_anahtari: "Grafikte ${elma} elma ve ${armut} armut şekli vardır. Toplamda ${elma} + ${armut} = ${elma+armut} meyve bulunur."
-        }
-    })}]
-  }
-};
+        const shapes = [{name: 'Kare', sides: 4
