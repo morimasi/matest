@@ -4,9 +4,9 @@ import React, { useState } from 'react';
 import CurriculumSelector from './CurriculumSelector';
 import QuizView from './QuizView';
 import { CURRICULUM_DATA } from '../constants';
-import { generateQuiz } from '../services/geminiService';
+import { generateQuizStream } from '../services/geminiService';
 import { saveQuiz as saveQuizToStorage, saveQuizToArchive } from '../services/storageService';
-import { SavedQuiz, QuestionType } from '../types';
+import { SavedQuiz, QuestionType, DetailedQuestion } from '../types';
 
 const usePersistentState = <T,>(key: string, defaultValue: T): [T, React.Dispatch<React.SetStateAction<T>>] => {
     const [state, setState] = React.useState<T>(() => {
@@ -46,6 +46,9 @@ const QuizGenerator: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     
     const [generatedQuiz, setGeneratedQuiz] = useState<SavedQuiz | null>(null);
+    const [questionsForView, setQuestionsForView] = useState<DetailedQuestion[]>([]);
+    const [currentGradeName, setCurrentGradeName] = useState<string>('');
+
     const [feedbackSent, setFeedbackSent] = useState(false);
     const [isArchived, setIsArchived] = useState(false);
 
@@ -69,17 +72,34 @@ const QuizGenerator: React.FC = () => {
         setIsLoading(true);
         setError(null);
         setGeneratedQuiz(null);
+        setQuestionsForView([]);
+        setCurrentGradeName(gradeData.name);
         setFeedbackSent(false);
         setIsArchived(false);
 
+        const allQuestions: DetailedQuestion[] = [];
+
         try {
             const unitNames = unitsData.map(u => u.name).join(', ');
-            const generatedQuestions = await generateQuiz(gradeData.name, unitNames, kazanimData, numQuestions, questionType, customPrompt, includeCharts, numOperations);
+            await generateQuizStream(
+                gradeData.name, 
+                unitNames, 
+                kazanimData, 
+                numQuestions, 
+                questionType, 
+                customPrompt, 
+                includeCharts, 
+                numOperations,
+                (chunk) => {
+                    allQuestions.push(...chunk);
+                    setQuestionsForView(prev => [...prev, ...chunk]);
+                }
+            );
             
-            if (generatedQuestions && generatedQuestions.length > 0) {
+            if (allQuestions.length > 0) {
                  const quizData = {
                     gradeName: gradeData.name,
-                    questions: generatedQuestions,
+                    questions: allQuestions,
                     kazanimId: selectedUnits.join(','),
                 };
                 const newQuiz = saveQuizToStorage(quizData);
@@ -104,6 +124,8 @@ const QuizGenerator: React.FC = () => {
         }
     };
     
+    const hasQuizToShow = questionsForView.length > 0 || generatedQuiz;
+
     return (
         <>
             <div className="non-printable">
@@ -141,42 +163,42 @@ const QuizGenerator: React.FC = () => {
                 </div>
             )}
 
-            {generatedQuiz ? (
+            {hasQuizToShow ? (
                  <div className="animate-fade-in-up">
                     <QuizView 
-                        questions={generatedQuiz.questions} 
-                        grade={generatedQuiz.gradeName} 
-                        quizId={generatedQuiz.id}
-                        onArchive={handleArchiveQuiz}
+                        questions={generatedQuiz ? generatedQuiz.questions : questionsForView} 
+                        grade={generatedQuiz ? generatedQuiz.gradeName : currentGradeName} 
+                        quizId={generatedQuiz ? generatedQuiz.id : 'generating'}
+                        onArchive={generatedQuiz ? handleArchiveQuiz : undefined}
                         isArchived={isArchived}
                     />
-
-                    <div className="mt-8 bg-white/50 backdrop-blur-xl p-6 sm:p-8 rounded-3xl shadow-2xl border border-white/50 non-printable">
-                        <h3 className="text-xl font-semibold text-slate-700 text-center">Üretilen Soru Hakkında Geri Bildirim</h3>
-                        {feedbackSent ? (
-                             <div className="text-center mt-4 p-4 bg-green-500/20 text-green-800 rounded-xl">
-                                <p className="font-semibold">Teşekkürler!</p>
-                                <p className="text-sm">Geri bildiriminiz sınav asistanını geliştirmemize yardımcı oluyor.</p>
-                            </div>
-                        ) : (
-                            <>
-                            <p className="text-slate-500 mt-2 text-center text-sm">Üretilen soruların kalitesini artırmamıza yardımcı olun.</p>
-                            <div className="mt-4 flex flex-wrap justify-center gap-3">
-                                <button onClick={() => setFeedbackSent(true)} className="px-4 py-2 text-sm bg-white/60 border border-slate-300/50 rounded-full hover:bg-white/80 transition-all">Soru Hatalı</button>
-                                <button onClick={() => setFeedbackSent(true)} className="px-4 py-2 text-sm bg-white/60 border border-slate-300/50 rounded-full hover:bg-white/80 transition-all">Zorluk Seviyesi Uygun Değil</button>
-                                <button onClick={() => setFeedbackSent(true)} className="px-4 py-2 text-sm bg-white/60 border border-slate-300/50 rounded-full hover:bg-white/80 transition-all">Bağlantı Zayıf</button>
-                            </div>
-                             <div className="mt-4">
-                                <textarea rows={2} placeholder="Diğer yorumlarınız..." className="w-full p-2.5 text-sm bg-white/60 border border-slate-300/50 rounded-md shadow-sm focus:ring-1 focus:ring-purple-500"></textarea>
-                                <button onClick={() => setFeedbackSent(true)} className="w-full mt-2 bg-purple-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-purple-600 transition-all">
-                                    Gönder
-                                </button>
-                            </div>
-                            </>
-                        )}
-                       
-                    </div>
-
+                    
+                    {generatedQuiz && (
+                         <div className="mt-8 bg-white/50 backdrop-blur-xl p-6 sm:p-8 rounded-3xl shadow-2xl border border-white/50 non-printable">
+                            <h3 className="text-xl font-semibold text-slate-700 text-center">Üretilen Soru Hakkında Geri Bildirim</h3>
+                            {feedbackSent ? (
+                                <div className="text-center mt-4 p-4 bg-green-500/20 text-green-800 rounded-xl">
+                                    <p className="font-semibold">Teşekkürler!</p>
+                                    <p className="text-sm">Geri bildiriminiz sınav asistanını geliştirmemize yardımcı oluyor.</p>
+                                </div>
+                            ) : (
+                                <>
+                                <p className="text-slate-500 mt-2 text-center text-sm">Üretilen soruların kalitesini artırmamıza yardımcı olun.</p>
+                                <div className="mt-4 flex flex-wrap justify-center gap-3">
+                                    <button onClick={() => setFeedbackSent(true)} className="px-4 py-2 text-sm bg-white/60 border border-slate-300/50 rounded-full hover:bg-white/80 transition-all">Soru Hatalı</button>
+                                    <button onClick={() => setFeedbackSent(true)} className="px-4 py-2 text-sm bg-white/60 border border-slate-300/50 rounded-full hover:bg-white/80 transition-all">Zorluk Seviyesi Uygun Değil</button>
+                                    <button onClick={() => setFeedbackSent(true)} className="px-4 py-2 text-sm bg-white/60 border border-slate-300/50 rounded-full hover:bg-white/80 transition-all">Bağlantı Zayıf</button>
+                                </div>
+                                <div className="mt-4">
+                                    <textarea rows={2} placeholder="Diğer yorumlarınız..." className="w-full p-2.5 text-sm bg-white/60 border border-slate-300/50 rounded-md shadow-sm focus:ring-1 focus:ring-purple-500"></textarea>
+                                    <button onClick={() => setFeedbackSent(true)} className="w-full mt-2 bg-purple-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-purple-600 transition-all">
+                                        Gönder
+                                    </button>
+                                </div>
+                                </>
+                            )}
+                        </div>
+                    )}
                  </div>
             ) : !isLoading && !error && (
                  <div className="text-center mt-12 p-8 bg-white/50 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/50 animate-fade-in-up" style={{ animationDelay: '300ms' }}>

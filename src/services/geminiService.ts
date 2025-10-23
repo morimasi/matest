@@ -175,30 +175,59 @@ Lütfen çıktı olarak sadece soruları içeren bir JSON nesnesi döndür. Her 
     return { prompt: finalPrompt, schema: multipleQuestionSchema, singleSchema: singleQuestionSchema };
 };
 
-export const generateQuiz = async (grade: string, units: string, kazanims: Kazanim[], questionCount: number = 5, questionType: QuestionType, customPrompt?: string, includeCharts?: boolean, numOperations?: number): Promise<DetailedQuestion[] | null> => {
+export const generateQuizStream = async (
+    grade: string,
+    units: string,
+    kazanims: Kazanim[],
+    questionCount: number = 5,
+    questionType: QuestionType,
+    customPrompt: string | undefined,
+    includeCharts: boolean | undefined,
+    numOperations: number | undefined,
+    onChunk: (chunk: DetailedQuestion[]) => void
+): Promise<void> => {
     try {
-        const { prompt, schema } = getPromptAndSchema(grade, units, kazanims, questionCount, questionType, customPrompt, includeCharts, numOperations);
+        const CHUNK_SIZE = 5;
+        let remainingQuestions = questionCount;
+        const promises: Promise<void>[] = [];
 
-        const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: prompt,
-            config: {
-                responseMimeType: "application/json",
-                responseSchema: schema,
-            }
-        });
+        while (remainingQuestions > 0) {
+            const currentChunkSize = Math.min(CHUNK_SIZE, remainingQuestions);
 
-        const jsonText = response.text.trim();
-        const parsedData = JSON.parse(jsonText);
-        
-        if (parsedData && Array.isArray(parsedData.questions)) {
-            return parsedData.questions;
+            const { prompt, schema } = getPromptAndSchema(
+                grade,
+                units,
+                kazanims,
+                currentChunkSize,
+                questionType,
+                customPrompt,
+                includeCharts,
+                numOperations
+            );
+
+            const promise = ai.models.generateContent({
+                model: "gemini-2.5-flash",
+                contents: prompt,
+                config: {
+                    responseMimeType: "application/json",
+                    responseSchema: schema,
+                },
+            }).then(response => {
+                const jsonText = response.text.trim();
+                const parsedData = JSON.parse(jsonText);
+                const questions = (parsedData?.questions || []) as DetailedQuestion[];
+                if (questions.length > 0) {
+                    onChunk(questions);
+                }
+            });
+
+            promises.push(promise);
+            remainingQuestions -= currentChunkSize;
         }
 
-        return null;
-
+        await Promise.all(promises);
     } catch (error) {
-        console.error("Error generating quiz:", error);
+        console.error("Error generating quiz stream:", error);
         throw new Error("Yapay zeka ile sınav oluşturulurken bir hata oluştu. Lütfen tekrar deneyin.");
     }
 };
