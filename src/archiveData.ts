@@ -479,8 +479,6 @@ export const ARCHIVE_DATA: Record<string, ArchiveQuiz> = {
         const answer = Math.round(num/10) * 10;
         const options = createNumericOptions(answer, 10);
         const correctAnswerKey = Object.keys(options).find(k=>options[k as keyof typeof options] === String(answer)) || 'A';
-        // FIX: The object being returned was incomplete, causing a TypeScript error.
-        // It has been updated to include all required fields from the DetailedQuestion type.
         return {
             sinif: 2,
             unite_adi: "Sayılar ve İşlemler",
@@ -497,4 +495,5 @@ export const ARCHIVE_DATA: Record<string, ArchiveQuiz> = {
             cozum_anahtari: `Bir sayının birler basamağı 5 veya daha büyükse sayı bir üst onluğa, 5'ten küçükse kendi onluğuna yuvarlanır. Bu nedenle ${num}, ${answer}'e yuvarlanır.`
         };
     })}]
-  },
+  }
+};
