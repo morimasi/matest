@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import CurriculumSelector from './CurriculumSelector';
 import QuizView from './QuizView';
 import { CURRICULUM_DATA } from '../constants';
-import { generateQuiz, generateSingleQuestion } from '../services/geminiService';
-import { saveQuiz as saveQuizToStorage, updateQuiz } from '../services/storageService';
+import { generateQuiz } from '../services/geminiService';
+import { saveQuiz as saveQuizToStorage } from '../services/storageService';
 import { DetailedQuestion, SavedQuiz, QuestionType } from '../types';
 
 // FIX: Made the hook generic to accept type arguments for better type safety.
@@ -45,8 +45,6 @@ const QuizGenerator: React.FC = () => {
     const [generatedQuiz, setGeneratedQuiz] = useState<SavedQuiz | null>(null);
     const [feedbackSent, setFeedbackSent] = useState(false);
 
-    const [remixingIndex, setRemixingIndex] = useState<number | null>(null);
-
 
     const handleGenerateQuiz = async () => {
         if (!selectedGrade || !selectedUnit) return;
@@ -85,40 +83,6 @@ const QuizGenerator: React.FC = () => {
         }
     };
     
-    const handleRemixQuestion = async (questionIndex: number) => {
-        if (!generatedQuiz) return;
-        setRemixingIndex(questionIndex);
-        setError(null);
-
-        try {
-            const oldQuestion = generatedQuiz.questions[questionIndex];
-            const gradeData = CURRICULUM_DATA.find(g => g.name === generatedQuiz.gradeName);
-            const unitData = gradeData?.units.find(u => u.name === oldQuestion.unite_adi);
-            const kazanimData = unitData?.kazanimlar.find(k => k.id === oldQuestion.kazanim_kodu);
-
-            if (!gradeData || !unitData || !kazanimData) {
-                throw new Error("Soru için müfredat verisi bulunamadı.");
-            }
-
-            const newQuestion = await generateSingleQuestion(gradeData.name, unitData.name, kazanimData, oldQuestion.soru_tipi, oldQuestion.soru_metni);
-
-            if (newQuestion) {
-                const newQuestions = [...generatedQuiz.questions];
-                newQuestions[questionIndex] = newQuestion;
-                const updatedQuiz = { ...generatedQuiz, questions: newQuestions };
-                
-                setGeneratedQuiz(updatedQuiz);
-                updateQuiz(generatedQuiz.id, newQuestions);
-            } else {
-                 throw new Error("Yapay zeka yeni bir soru üretemedi.");
-            }
-        } catch (err: any) {
-            setError(err.message || "Soru yenilenirken bir hata oluştu.");
-        } finally {
-            setRemixingIndex(null);
-        }
-    };
-
     return (
         <>
             <div className="non-printable">
@@ -157,13 +121,7 @@ const QuizGenerator: React.FC = () => {
 
             {generatedQuiz ? (
                  <div className="animate-fade-in-up">
-                    <QuizView 
-                        questions={generatedQuiz.questions} 
-                        grade={generatedQuiz.gradeName} 
-                        quizId={generatedQuiz.id} 
-                        onRemixQuestion={handleRemixQuestion}
-                        remixingIndex={remixingIndex}
-                    />
+                    <QuizView questions={generatedQuiz.questions} grade={generatedQuiz.gradeName} quizId={generatedQuiz.id} />
 
                     <div className="mt-8 bg-white/50 backdrop-blur-xl p-6 sm:p-8 rounded-3xl shadow-2xl border border-white/50 non-printable">
                         <h3 className="text-xl font-semibold text-slate-700 text-center">Üretilen Soru Hakkında Geri Bildirim</h3>
