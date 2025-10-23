@@ -6,8 +6,43 @@ import { DetailedQuestion, Kazanim, QuestionType } from '../types';
 // The key is assumed to be present in the environment.
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
-const getPromptAndSchema = (grade: string, unit: string, kazanims: Kazanim[], questionCount: number, questionType: QuestionType, customPrompt?: string) => {
+const getPromptAndSchema = (grade: string, units: string, kazanims: Kazanim[], questionCount: number, questionType: QuestionType, customPrompt?: string, includeCharts?: boolean) => {
     
+    const chartInstruction = includeCharts
+    ? `\n\nÖNEMLİ GRAFİK/TABLO KURALI:
+Eğer bir kazanım "çetele tablosu", "sıklık tablosu", "nesne grafiği" veya "sütun grafiği" ile ilgiliyse, soru metni ("soru_metni" alanı) İÇERİSİNDE, sorunun başında bu grafiği veya tabloyu zengin ve çok satırlı bir metin formatında (ASCII karakterler kullanarak) OLUŞTURMALISIN. Bu görsel bölüm, sorunun geri kalanından açıkça ayrılmalıdır.
+
+Örnek Formatlar:
+1.  **Sıklık Tablosu Örneği:**
+    Aşağıdaki sıklık tablosunda bir manavdaki meyve sayıları verilmiştir.
+    +-----------+--------+
+    | Meyve     | Sayısı |
+    +-----------+--------+
+    | Elma      |   12   |
+    | Armut     |    8   |
+    | Çilek     |   15   |
+    +-----------+--------+
+    Tabloya göre manavda en çok hangi meyve vardır?
+
+2.  **Sütun Grafiği Örneği:**
+    Bir sınıftaki öğrencilerin en sevdiği dersler grafikte gösterilmiştir.
+    Matematik: ████████ (8)
+    Türkçe   : ██████ (6)
+    Hayat B. : █████ (5)
+    Grafiğe göre en az sevilen ders hangisidir?
+
+3.  **Çetele Tablosu Örneği:**
+    Aşağıdaki çetele tablosu, bir otoparktaki araba renklerini göstermektedir.
+    Kırmızı: ||||| ||
+    Beyaz  : ||||| ||||
+    Siyah  : |||||
+    Tabloya göre otoparkta toplam kaç araba vardır?
+
+Bu kurala mutlaka uymalısın. Grafik veya tablo, sorunun anlaşılması için ZORUNLUDUR.
+`
+    : '';
+
+
     const customPromptSection = customPrompt 
         ? `\n\nKullanıcının Ek Talimatları:\n${customPrompt}\nBu talimatlara harfiyen uyulmalıdır.`
         : '';
@@ -15,11 +50,11 @@ const getPromptAndSchema = (grade: string, unit: string, kazanims: Kazanim[], qu
     const kazanimList = kazanims.map(k => `- ${k.id}: ${k.name}`).join('\n');
 
     const basePrompt = `
-Görevin, 2025 yılı itibarıyla yürürlükte olan Türkiye Millî Eğitim Bakanlığı İlkokul Matematik dersi öğretim programına (müfredata) sadık kalarak, belirtilen sınıf ve kazanımlara uygun, ${questionCount} adet soru üretmektir. Soruları, sağlanan kazanımlar listesi arasında adil ve dengeli bir şekilde dağıtmalısın.
-${customPromptSection}
+Görevin, 2025 yılı itibarıyla yürürlükte olan Türkiye Millî Eğitim Bakanlığı İlkokul Matematik dersi öğretim programına (müfredata) sadık kalarak, belirtilen sınıf, üniteler ve kazanımlara uygun, ${questionCount} adet soru üretmektir. Soruları, sağlanan kazanımlar listesi arasında adil ve dengeli bir şekilde dağıtmalısın. Eğer birden fazla ünite seçilmişse, soruları bu üniteler arasında da dengeli bir şekilde dağıtmalısın.
+${chartInstruction}${customPromptSection}
 
 Sınıf: ${grade}
-Ünite: ${unit}
+Üniteler: ${units}
 İlgili Kazanımlar:
 ${kazanimList}
 
@@ -130,9 +165,9 @@ Lütfen çıktı olarak sadece soruları içeren bir JSON nesnesi döndür. Her 
     return { prompt: finalPrompt, schema: multipleQuestionSchema, singleSchema: singleQuestionSchema };
 };
 
-export const generateQuiz = async (grade: string, unit: string, kazanims: Kazanim[], questionCount: number = 5, questionType: QuestionType, customPrompt?: string): Promise<DetailedQuestion[] | null> => {
+export const generateQuiz = async (grade: string, units: string, kazanims: Kazanim[], questionCount: number = 5, questionType: QuestionType, customPrompt?: string, includeCharts?: boolean): Promise<DetailedQuestion[] | null> => {
     try {
-        const { prompt, schema } = getPromptAndSchema(grade, unit, kazanims, questionCount, questionType, customPrompt);
+        const { prompt, schema } = getPromptAndSchema(grade, units, kazanims, questionCount, questionType, customPrompt, includeCharts);
 
         const response = await ai.models.generateContent({
             model: "gemini-2.5-flash",
@@ -160,7 +195,10 @@ export const generateQuiz = async (grade: string, unit: string, kazanims: Kazani
 
 export const generateSingleQuestion = async (grade: string, unit: string, kazanim: Kazanim, questionType: QuestionType, existingQuestionText: string): Promise<DetailedQuestion | null> => {
     try {
-        const { prompt: basePrompt, singleSchema } = getPromptAndSchema(grade, unit, [kazanim], 1, questionType, "");
+        // Remix işlemi sırasında, eğer kazanım metni 'tablo' veya 'grafik' içeriyorsa,
+        // tutarlılık için grafik/tablo kuralını otomatik olarak etkinleştir.
+        const isDataKazanim = kazanim.name.includes('tablo') || kazanim.name.includes('grafik');
+        const { prompt: basePrompt, singleSchema } = getPromptAndSchema(grade, unit, [kazanim], 1, questionType, "", isDataKazanim);
         const remixPrompt = `${basePrompt}\n\nÖNEMLİ KURAL: Üreteceğin yeni soru, aşağıdaki sorudan MUTLAKA farklı olmalıdır:\n"${existingQuestionText}"`;
 
         const response = await ai.models.generateContent({

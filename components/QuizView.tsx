@@ -1,9 +1,8 @@
 
+
 import React, { useRef, useState, useEffect } from 'react';
 import { DetailedQuestion } from '../types';
 import { DownloadIcon, PrintIcon, ShareIcon, SparklesIcon, SettingsIcon, CopyIcon, CheckIcon, RefreshCwIcon } from './icons';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
 
 
 interface QuizViewProps {
@@ -63,13 +62,18 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
   const handleNoteChange = (index: number, text: string) => {
     setCustomTeacherNotes(prev => ({ ...prev, [index]: text }));
   };
+  
+  if (!questions || questions.length === 0) return null;
 
-  const firstQuestion = questions[0];
-  if (!firstQuestion) return null;
-
+  const uniqueUnitNames = [...new Set(questions.map(q => q.unite_adi))].join(' & ');
+  const uniqueKazanimCodes = [...new Set(questions.map(q => q.kazanim_kodu))].join(', ');
+  
  const handleDownloadPdf = async () => {
     if (isDownloading || !quizRef.current) return;
     setIsDownloading(true);
+
+    const { default: jsPDF } = await import('jspdf');
+    const { default: html2canvas } = await import('html2canvas');
 
     const quizElement = quizRef.current;
     
@@ -123,7 +127,7 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
             heightLeft -= (pdfHeight - (margin * 2));
         }
         
-        pdf.save(`${grade}-${firstQuestion.kazanim_kodu}-sinav.pdf`);
+        pdf.save(`${grade}-${uniqueUnitNames}-sinav.pdf`);
 
     } catch (error) {
         console.error("Error generating PDF:", error);
@@ -144,7 +148,7 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
       try {
         await navigator.share({
           title: 'AI ile Oluşturulmuş Sınav',
-          text: `İşte ${grade} - ${firstQuestion.kazanim_kodu} konusu için hazırladığım sınav!`,
+          text: `İşte ${grade} - ${uniqueUnitNames} konusu için hazırladığım sınav!`,
         });
       } catch (error) { console.error('Error sharing:', error); }
     } else {
@@ -182,7 +186,7 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 print:hidden non-printable">
         <div>
             <h2 className="text-2xl font-bold text-slate-800">Oluşturulan Sınav</h2>
-            <p className="text-slate-500 max-w-md">{`${grade} | ${firstQuestion.unite_adi} | ${questions.map(q => q.kazanim_kodu).filter((v, i, a) => a.indexOf(v) === i).join(', ')}`}</p>
+            <p className="text-slate-500 max-w-md">{`${grade} | ${uniqueUnitNames} | ${uniqueKazanimCodes}`}</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <button onClick={handlePrint} title="Yazdır" className="p-2 rounded-full hover:bg-black/10 transition-all duration-300"><PrintIcon className="w-6 h-6 text-slate-600" /></button>
@@ -275,8 +279,8 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
       <div id="quiz-paper" ref={quizRef} style={quizContentStyle} className={`p-4 sm:p-8 bg-white border-t border-slate-200/80 rounded-b-2xl quiz-paper ${settings.showBorder ? 'bordered' : ''} ${settings.pageStyle}`}>
         <header className="text-center mb-8">
             <h1 className="text-xl font-bold">Matematik Değerlendirme</h1>
-            <p className="text-sm opacity-80">{`${grade} / Ünite ${firstQuestion.unite_no}: ${firstQuestion.unite_adi}`}</p>
-            <p className="text-sm opacity-70 mt-1"><strong>Kazanım(lar):</strong> {questions.map(q => q.kazanim_kodu).filter((v, i, a) => a.indexOf(v) === i).join(', ')}</p>
+            <p className="text-sm opacity-80">{`${grade} / Ünite(ler): ${uniqueUnitNames}`}</p>
+            <p className="text-sm opacity-70 mt-1"><strong>Kazanım(lar):</strong> {uniqueKazanimCodes}</p>
             <div className="grid grid-cols-3 gap-4 mt-6 border-t border-b py-2 text-left">
                 <p><strong>Adı Soyadı:</strong> ....................................</p>
                 <p><strong>Tarih:</strong> ..... / ..... / ..........</p>
@@ -288,7 +292,7 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
           {questions.map((q, index) => (
             <li key={index} className="text-slate-800 break-inside-avoid relative">
               <div className="flex justify-between items-start">
-                  <p className="font-semibold mb-3 inline flex-1" style={{color: 'inherit'}}>{q.soru_metni}</p>
+                  <p className="font-semibold mb-3 inline flex-1 whitespace-pre-wrap" style={{color: 'inherit'}}>{q.soru_metni}</p>
                   {onRemixQuestion && showAnswers && isTeacherView && (
                     <button 
                         onClick={() => onRemixQuestion(index)} 
@@ -371,17 +375,6 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
         </ol>
       </div>
        <style>{`
-        .toggle-checkbox {
-            appearance: none; width: 40px; height: 20px; background-color: #cbd5e1;
-            border-radius: 9999px; position: relative; cursor: pointer; transition: all 0.3s ease-in-out;
-        }
-        .toggle-checkbox::before {
-            content: ''; width: 16px; height: 16px; background-color: white; border-radius: 9999px;
-            position: absolute; top: 2px; left: 2px; transition: all 0.3s ease-in-out;
-        }
-        .toggle-checkbox:checked { background-color: #6366f1; }
-        .toggle-checkbox:checked::before { transform: translateX(20px); }
-        
         .quiz-paper { background-color: var(--bg-color); }
         .quiz-paper.notebook {
             background-image: linear-gradient(to bottom, #e2e8f0 1px, transparent 1px);
