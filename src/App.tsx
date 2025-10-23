@@ -1,9 +1,11 @@
+
 import React from 'react';
 import { HashRouter, Routes, Route } from 'react-router-dom';
 import QuizGenerator from './components/QuizGenerator';
 import HistoryList from './components/HistoryList';
 import SavedQuiz from './components/SavedQuiz';
 import MainLayout from './layouts/MainLayout';
+import Archive from './components/Archive';
 
 
 const App: React.FC = () => {
@@ -12,6 +14,7 @@ const App: React.FC = () => {
             <Routes>
                 <Route path="/" element={<MainLayout />}>
                     <Route index element={<QuizGenerator />} />
+                    <Route path="archive" element={<Archive />} />
                     <Route path="history" element={<HistoryList />} />
                     <Route path="history/:quizId" element={<SavedQuiz />} />
                 </Route>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
-import { SparklesIcon, HistoryIcon } from '../components/icons';
+import { SparklesIcon, HistoryIcon, ArchiveIcon } from '../components/icons';
 
 const MainLayout: React.FC = () => (
     <div className="min-h-screen bg-gradient-to-br from-sky-200 to-violet-300 font-sans text-slate-800 flex flex-col">
@@ -13,28 +13,40 @@ const MainLayout: React.FC = () => (
                         </div>
                         <h1 className="text-xl font-bold text-slate-900 hidden sm:block">AI Sınav Asistanı</h1>
                     </div>
-                    <nav className="flex items-center justify-center gap-2 p-1 bg-black/5 rounded-full">
+                    <nav className="flex items-center justify-center gap-1 sm:gap-2 p-1 bg-black/5 rounded-full">
                         <NavLink 
                             to="/" 
+                            end
                             className={({ isActive }) => 
-                                `flex items-center gap-2 px-4 py-2 rounded-full font-semibold transition-all duration-300 text-sm ${
+                                `flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full font-semibold transition-all duration-300 text-sm ${
                                     isActive ? 'bg-white shadow text-blue-600' : 'hover:bg-white/60 text-slate-600'
                                 }`
                             }
                         >
                             <SparklesIcon className="w-5 h-5" />
-                            Yeni Sınav
+                            <span className="hidden sm:inline">Yeni Sınav</span>
+                        </NavLink>
+                        <NavLink 
+                            to="/archive" 
+                            className={({ isActive }) => 
+                                `flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full font-semibold transition-all duration-300 text-sm ${
+                                    isActive ? 'bg-white shadow text-blue-600' : 'hover:bg-white/60 text-slate-600'
+                                }`
+                            }
+                        >
+                            <ArchiveIcon className="w-5 h-5" />
+                            <span className="hidden sm:inline">Arşiv</span>
                         </NavLink>
                         <NavLink 
                             to="/history" 
                             className={({ isActive }) => 
-                                `flex items-center gap-2 px-4 py-2 rounded-full font-semibold transition-all duration-300 text-sm ${
+                                `flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full font-semibold transition-all duration-300 text-sm ${
                                     isActive ? 'bg-white shadow text-blue-600' : 'hover:bg-white/60 text-slate-600'
                                 }`
                             }
                         >
                             <HistoryIcon className="w-5 h-5" />
-                            Geçmiş
+                            <span className="hidden sm:inline">Geçmiş</span>
                         </NavLink>
                     </nav>
                      <div className="w-24 hidden sm:block"></div> {/* Spacer for symmetry */}
