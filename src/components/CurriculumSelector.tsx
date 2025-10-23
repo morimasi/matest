@@ -17,6 +17,8 @@ interface CurriculumSelectorProps {
   setQuestionType: (type: QuestionType) => void;
   customPrompt: string;
   setCustomPrompt: (prompt: string) => void;
+  includeCharts: boolean;
+  setIncludeCharts: (include: boolean) => void;
   onGenerate: () => void;
   isLoading: boolean;
 }
@@ -35,6 +37,8 @@ const CurriculumSelector: React.FC<CurriculumSelectorProps> = ({
   setQuestionType,
   customPrompt,
   setCustomPrompt,
+  includeCharts,
+  setIncludeCharts,
   onGenerate,
   isLoading,
 }) => {
@@ -88,6 +92,15 @@ const CurriculumSelector: React.FC<CurriculumSelectorProps> = ({
 
   const currentGradeData = curriculumData.find(g => g.id === selectedGrade);
   const currentUnitsData = currentGradeData?.units.filter(u => selectedUnits.includes(u.id));
+  
+  const showChartOption = currentUnitsData?.some(unit => unit.name === 'Veri İşleme') ?? false;
+
+  useEffect(() => {
+    if (!showChartOption) {
+      setIncludeCharts(false);
+    }
+  }, [showChartOption, setIncludeCharts]);
+
 
   const canGenerate = selectedGrade && selectedUnits.length > 0 && !isLoading;
 
@@ -218,6 +231,22 @@ const CurriculumSelector: React.FC<CurriculumSelectorProps> = ({
             </select>
           </div>
         </div>
+        {showChartOption && (
+            <div className="pt-2 animate-fade-in-up">
+                <label className="p-3 flex items-center justify-between bg-white/60 border border-slate-300/50 rounded-md shadow-sm cursor-pointer hover:bg-white/80 transition-all duration-300">
+                    <div>
+                        <span className="font-semibold text-slate-700">Grafik/Tablo Ekle</span>
+                        <p className="text-xs text-slate-500 mt-1 pr-4">"Veri İşleme" kazanımları için sorulara metin tabanlı grafikler (çetele, sıklık vb.) ekler.</p>
+                    </div>
+                    <input
+                        type="checkbox"
+                        className="toggle-checkbox"
+                        checked={includeCharts}
+                        onChange={(e) => setIncludeCharts(e.target.checked)}
+                    />
+                </label>
+            </div>
+        )}
          <div className="pt-2">
             <label htmlFor="custom-prompt" className="block text-sm font-medium text-slate-600 mb-1">Ek Talimatlar (İsteğe Bağlı)</label>
             <textarea

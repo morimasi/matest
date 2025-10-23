@@ -39,6 +39,7 @@ const QuizGenerator: React.FC = () => {
     const [numQuestions, setNumQuestions] = usePersistentState('qg_numQuestions', 5);
     const [questionType, setQuestionType] = usePersistentState<QuestionType>('qg_questionType', 'coktan_secmeli');
     const [customPrompt, setCustomPrompt] = usePersistentState('qg_customPrompt', '');
+    const [includeCharts, setIncludeCharts] = usePersistentState<boolean>('qg_includeCharts', false);
 
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -70,7 +71,7 @@ const QuizGenerator: React.FC = () => {
 
         try {
             const unitNames = unitsData.map(u => u.name).join(', ');
-            const generatedQuestions = await generateQuiz(gradeData.name, unitNames, kazanimData, numQuestions, questionType, customPrompt);
+            const generatedQuestions = await generateQuiz(gradeData.name, unitNames, kazanimData, numQuestions, questionType, customPrompt, includeCharts);
             
             if (generatedQuestions && generatedQuestions.length > 0) {
                  const quizData = {
@@ -111,6 +112,8 @@ const QuizGenerator: React.FC = () => {
                     setQuestionType={setQuestionType}
                     customPrompt={customPrompt}
                     setCustomPrompt={setCustomPrompt}
+                    includeCharts={includeCharts}
+                    setIncludeCharts={setIncludeCharts}
                     onGenerate={handleGenerateQuiz}
                     isLoading={isLoading}
                 />

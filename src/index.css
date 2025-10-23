@@ -1,3 +1,19 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+  .toggle-checkbox {
+    @apply appearance-none w-10 h-5 bg-slate-300 rounded-full relative cursor-pointer transition-all duration-300 ease-in-out;
+  }
+  .toggle-checkbox::before {
+    content: '';
+    @apply w-4 h-4 bg-white rounded-full absolute top-0.5 left-0.5 transition-all duration-300 ease-in-out;
+  }
+  .toggle-checkbox:checked {
+    @apply bg-indigo-500;
+  }
+  .toggle-checkbox:checked::before {
+    transform: translateX(20px);
+  }
+}

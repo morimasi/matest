@@ -68,9 +68,7 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
 
   const uniqueUnitNames = [...new Set(questions.map(q => q.unite_adi))].join(' & ');
   const uniqueKazanimCodes = [...new Set(questions.map(q => q.kazanim_kodu))].join(', ');
-  const firstQuestion = questions[0];
   
-
  const handleDownloadPdf = async () => {
     if (isDownloading || !quizRef.current) return;
     setIsDownloading(true);
@@ -292,7 +290,7 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
           {questions.map((q, index) => (
             <li key={index} className="text-slate-800 break-inside-avoid relative">
               <div className="flex justify-between items-start">
-                  <p className="font-semibold mb-3 inline flex-1" style={{color: 'inherit'}}>{q.soru_metni}</p>
+                  <p className="font-semibold mb-3 inline flex-1 whitespace-pre-wrap" style={{color: 'inherit'}}>{q.soru_metni}</p>
                   {onRemixQuestion && showAnswers && isTeacherView && (
                     <button 
                         onClick={() => onRemixQuestion(index)} 
@@ -375,17 +373,6 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
         </ol>
       </div>
        <style>{`
-        .toggle-checkbox {
-            appearance: none; width: 40px; height: 20px; background-color: #cbd5e1;
-            border-radius: 9999px; position: relative; cursor: pointer; transition: all 0.3s ease-in-out;
-        }
-        .toggle-checkbox::before {
-            content: ''; width: 16px; height: 16px; background-color: white; border-radius: 9999px;
-            position: absolute; top: 2px; left: 2px; transition: all 0.3s ease-in-out;
-        }
-        .toggle-checkbox:checked { background-color: #6366f1; }
-        .toggle-checkbox:checked::before { transform: translateX(20px); }
-        
         .quiz-paper { background-color: var(--bg-color); }
         .quiz-paper.notebook {
             background-image: linear-gradient(to bottom, #e2e8f0 1px, transparent 1px);

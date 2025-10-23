@@ -6,8 +6,12 @@ import { DetailedQuestion, Kazanim, QuestionType } from '../types';
 // The key is assumed to be present in the environment.
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
-const getPromptAndSchema = (grade: string, units: string, kazanims: Kazanim[], questionCount: number, questionType: QuestionType, customPrompt?: string) => {
+const getPromptAndSchema = (grade: string, units: string, kazanims: Kazanim[], questionCount: number, questionType: QuestionType, customPrompt?: string, includeCharts?: boolean) => {
     
+    const chartInstruction = includeCharts
+        ? `\n\nÖNEMLİ GRAFİK/TABLO KURALI: Eğer bir kazanım "çetele tablosu", "sıklık tablosu", "nesne grafiği" veya "sütun grafiği" oluşturma veya okuma ile ilgiliyse, soru metni ("soru_metni" alanı) İÇERİSİNDE bu grafiği veya tabloyu metin formatında (ASCII karakterler kullanarak) OLUŞTURMALISIN. Örneğin, bir çetele tablosunu '|' karakterleriyle, bir sütun grafiğini ise '█' karakteriyle temsil edebilirsin. Bu, sorunun anlaşılması için zorunludur ve bu kurala mutlaka uymalısın.`
+        : '';
+
     const customPromptSection = customPrompt 
         ? `\n\nKullanıcının Ek Talimatları:\n${customPrompt}\nBu talimatlara harfiyen uyulmalıdır.`
         : '';
@@ -16,7 +20,7 @@ const getPromptAndSchema = (grade: string, units: string, kazanims: Kazanim[], q
 
     const basePrompt = `
 Görevin, 2025 yılı itibarıyla yürürlükte olan Türkiye Millî Eğitim Bakanlığı İlkokul Matematik dersi öğretim programına (müfredata) sadık kalarak, belirtilen sınıf, üniteler ve kazanımlara uygun, ${questionCount} adet soru üretmektir. Soruları, sağlanan kazanımlar listesi arasında adil ve dengeli bir şekilde dağıtmalısın. Eğer birden fazla ünite seçilmişse, soruları bu üniteler arasında da dengeli bir şekilde dağıtmalısın.
-${customPromptSection}
+${chartInstruction}${customPromptSection}
 
 Sınıf: ${grade}
 Üniteler: ${units}
@@ -130,9 +134,9 @@ Lütfen çıktı olarak sadece soruları içeren bir JSON nesnesi döndür. Her 
     return { prompt: finalPrompt, schema: multipleQuestionSchema, singleSchema: singleQuestionSchema };
 };
 
-export const generateQuiz = async (grade: string, units: string, kazanims: Kazanim[], questionCount: number = 5, questionType: QuestionType, customPrompt?: string): Promise<DetailedQuestion[] | null> => {
+export const generateQuiz = async (grade: string, units: string, kazanims: Kazanim[], questionCount: number = 5, questionType: QuestionType, customPrompt?: string, includeCharts?: boolean): Promise<DetailedQuestion[] | null> => {
     try {
-        const { prompt, schema } = getPromptAndSchema(grade, units, kazanims, questionCount, questionType, customPrompt);
+        const { prompt, schema } = getPromptAndSchema(grade, units, kazanims, questionCount, questionType, customPrompt, includeCharts);
 
         const response = await ai.models.generateContent({
             model: "gemini-2.5-flash",
@@ -160,8 +164,10 @@ export const generateQuiz = async (grade: string, units: string, kazanims: Kazan
 
 export const generateSingleQuestion = async (grade: string, unit: string, kazanim: Kazanim, questionType: QuestionType, existingQuestionText: string): Promise<DetailedQuestion | null> => {
     try {
-        // Pass unit as a string, since this function handles a single question from a single unit context
-        const { prompt: basePrompt, singleSchema } = getPromptAndSchema(grade, unit, [kazanim], 1, questionType, "");
+        // Remix işlemi sırasında, eğer kazanım metni 'tablo' veya 'grafik' içeriyorsa,
+        // tutarlılık için grafik/tablo kuralını otomatik olarak etkinleştir.
+        const isDataKazanim = kazanim.name.includes('tablo') || kazanim.name.includes('grafik');
+        const { prompt: basePrompt, singleSchema } = getPromptAndSchema(grade, unit, [kazanim], 1, questionType, "", isDataKazanim);
         const remixPrompt = `${basePrompt}\n\nÖNEMLİ KURAL: Üreteceğin yeni soru, aşağıdaki sorudan MUTLAKA farklı olmalıdır:\n"${existingQuestionText}"`;
 
         const response = await ai.models.generateContent({
