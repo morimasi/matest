@@ -1,18 +1,26 @@
 
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CURRICULUM_DATA } from '../constants';
-// FIX: Import ArchiveQuiz from types.ts instead of archiveData.ts
 import { ARCHIVE_DATA } from '../archiveData';
 import { Grade, Unit, Kazanim, ArchiveQuiz } from '../types';
 import QuizView from './QuizView';
 import { ArchiveIcon } from './icons';
+import { getArchivedQuizzes } from '../services/storageService';
 
 const Archive: React.FC = () => {
   const [selectedGrade, setSelectedGrade] = useState<Grade | null>(null);
   const [selectedUnit, setSelectedUnit] = useState<Unit | null>(null);
   const [selectedKazanim, setSelectedKazanim] = useState<Kazanim | null>(null);
   const [selectedQuiz, setSelectedQuiz] = useState<ArchiveQuiz | null>(null);
+  const [combinedArchive, setCombinedArchive] = useState<Record<string, ArchiveQuiz>>(ARCHIVE_DATA);
+
+  useEffect(() => {
+    const userArchive = getArchivedQuizzes();
+    // User archive overrides static archive
+    setCombinedArchive({ ...ARCHIVE_DATA, ...userArchive });
+  }, []);
+
 
   const handleGradeSelect = (grade: Grade) => {
     setSelectedGrade(grade);
@@ -29,7 +37,7 @@ const Archive: React.FC = () => {
 
   const handleKazanimSelect = (kazanim: Kazanim) => {
     setSelectedKazanim(kazanim);
-    const quizData = ARCHIVE_DATA[kazanim.id];
+    const quizData = combinedArchive[kazanim.id];
     if (quizData) {
       setSelectedQuiz(quizData);
     } else {

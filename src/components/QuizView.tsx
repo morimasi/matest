@@ -1,7 +1,8 @@
 
+
 import React, { useRef, useState, useEffect } from 'react';
 import { DetailedQuestion } from '../types';
-import { DownloadIcon, PrintIcon, ShareIcon, SparklesIcon, SettingsIcon, CopyIcon, CheckIcon, RefreshCwIcon } from './icons';
+import { DownloadIcon, PrintIcon, ShareIcon, SparklesIcon, SettingsIcon, CopyIcon, CheckIcon, RefreshCwIcon, ArchiveAddIcon } from './icons';
 
 
 interface QuizViewProps {
@@ -10,12 +11,14 @@ interface QuizViewProps {
   quizId: string;
   onRemixQuestion?: (questionIndex: number) => void;
   remixingIndex?: number | null;
+  onArchive?: () => void;
+  isArchived?: boolean;
 }
 
 const VIEW_SETTINGS_KEY = 'quizViewSettings';
 const NOTES_PREFIX = 'quizNotes_';
 
-const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQuestion, remixingIndex }) => {
+const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQuestion, remixingIndex, onArchive, isArchived }) => {
   const quizRef = useRef<HTMLDivElement>(null);
   const [showAnswers, setShowAnswers] = useState(false);
   const [isTeacherView, setIsTeacherView] = useState(true);
@@ -188,6 +191,26 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
             <p className="text-slate-500 max-w-md">{`${grade} | ${uniqueUnitNames} | ${uniqueKazanimCodes}`}</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
+          {onArchive && (
+            <button 
+                onClick={onArchive} 
+                disabled={isArchived}
+                title={isArchived ? "Bu sınav zaten arşivlendi" : "Bu sınavı arşive ekle"}
+                className="p-2 flex items-center gap-1.5 rounded-full hover:bg-black/10 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed text-slate-600 disabled:text-green-600"
+            >
+                {isArchived ? (
+                    <>
+                        <CheckIcon className="w-6 h-6" />
+                        <span className="text-sm font-semibold hidden sm:inline">Arşivlendi</span>
+                    </>
+                ) : (
+                    <>
+                        <ArchiveAddIcon className="w-6 h-6" />
+                        <span className="text-sm font-semibold hidden sm:inline">Arşive Ekle</span>
+                    </>
+                )}
+            </button>
+          )}
           <button onClick={handlePrint} title="Yazdır" className="p-2 rounded-full hover:bg-black/10 transition-all duration-300"><PrintIcon className="w-6 h-6 text-slate-600" /></button>
           <button onClick={handleDownloadPdf} disabled={isDownloading} title="PDF Olarak İndir" className="p-2 rounded-full hover:bg-black/10 transition-all duration-300 disabled:opacity-50">
             {isDownloading ? (

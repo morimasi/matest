@@ -1,14 +1,13 @@
 
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import CurriculumSelector from './CurriculumSelector';
 import QuizView from './QuizView';
 import { CURRICULUM_DATA } from '../constants';
 import { generateQuiz } from '../services/geminiService';
-import { saveQuiz as saveQuizToStorage } from '../services/storageService';
-import { DetailedQuestion, SavedQuiz, QuestionType } from '../types';
+import { saveQuiz as saveQuizToStorage, saveQuizToArchive } from '../services/storageService';
+import { SavedQuiz, QuestionType } from '../types';
 
-// FIX: Made the hook generic to accept type arguments for better type safety.
 const usePersistentState = <T,>(key: string, defaultValue: T): [T, React.Dispatch<React.SetStateAction<T>>] => {
     const [state, setState] = React.useState<T>(() => {
         try {
@@ -33,7 +32,6 @@ const usePersistentState = <T,>(key: string, defaultValue: T): [T, React.Dispatc
 
 
 const QuizGenerator: React.FC = () => {
-    // FIX: Added explicit types to state hooks that can be null to avoid type inference issues.
     const [selectedGrade, setSelectedGrade] = usePersistentState<number | null>('qg_selectedGrade', null);
     const [selectedUnits, setSelectedUnits] = usePersistentState<string[]>('qg_selectedUnits', []);
     const [selectedKazanims, setSelectedKazanims] = usePersistentState<string[]>('qg_selectedKazanims', []);
@@ -49,6 +47,7 @@ const QuizGenerator: React.FC = () => {
     
     const [generatedQuiz, setGeneratedQuiz] = useState<SavedQuiz | null>(null);
     const [feedbackSent, setFeedbackSent] = useState(false);
+    const [isArchived, setIsArchived] = useState(false);
 
 
     const handleGenerateQuiz = async () => {
@@ -71,6 +70,7 @@ const QuizGenerator: React.FC = () => {
         setError(null);
         setGeneratedQuiz(null);
         setFeedbackSent(false);
+        setIsArchived(false);
 
         try {
             const unitNames = unitsData.map(u => u.name).join(', ');
@@ -91,6 +91,16 @@ const QuizGenerator: React.FC = () => {
             setError(err.message || "Bilinmeyen bir hata oluştu.");
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    const handleArchiveQuiz = () => {
+        if (!generatedQuiz || isArchived) return;
+        try {
+            saveQuizToArchive(generatedQuiz);
+            setIsArchived(true);
+        } catch (err) {
+            setError("Sınav arşive eklenirken bir hata oluştu.");
         }
     };
     
@@ -133,7 +143,13 @@ const QuizGenerator: React.FC = () => {
 
             {generatedQuiz ? (
                  <div className="animate-fade-in-up">
-                    <QuizView questions={generatedQuiz.questions} grade={generatedQuiz.gradeName} quizId={generatedQuiz.id} />
+                    <QuizView 
+                        questions={generatedQuiz.questions} 
+                        grade={generatedQuiz.gradeName} 
+                        quizId={generatedQuiz.id}
+                        onArchive={handleArchiveQuiz}
+                        isArchived={isArchived}
+                    />
 
                     <div className="mt-8 bg-white/50 backdrop-blur-xl p-6 sm:p-8 rounded-3xl shadow-2xl border border-white/50 non-printable">
                         <h3 className="text-xl font-semibold text-slate-700 text-center">Üretilen Soru Hakkında Geri Bildirim</h3>

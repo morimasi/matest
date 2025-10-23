@@ -39,13 +39,12 @@ export interface Grade {
 }
 
 export interface SavedQuiz {
-  id: string;
+  id:string;
   createdAt: string;
   gradeName: string;
   questions: DetailedQuestion[];
 }
 
-// FIX: Export ArchiveQuiz type to be used in other files.
 export interface ArchiveQuiz {
   gradeName: string;
   unitName: string;

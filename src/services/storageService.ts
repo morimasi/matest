@@ -1,7 +1,8 @@
 
-import { SavedQuiz, DetailedQuestion } from '../types';
+import { SavedQuiz, DetailedQuestion, ArchiveQuiz } from '../types';
 
 const STORAGE_KEY = 'ai-quiz-history';
+const ARCHIVE_STORAGE_KEY = 'ai-quiz-user-archive';
 
 export const getHistory = (): SavedQuiz[] => {
   try {
@@ -63,5 +64,44 @@ export const deleteQuiz = (id: string): void => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(newHistory));
   } catch (error) {
     console.error("Error deleting from local storage", error);
+  }
+};
+
+export const getArchivedQuizzes = (): Record<string, ArchiveQuiz> => {
+  try {
+    const archiveJson = localStorage.getItem(ARCHIVE_STORAGE_KEY);
+    return archiveJson ? JSON.parse(archiveJson) : {};
+  } catch (error) {
+    console.error("Error reading archive from local storage", error);
+    return {};
+  }
+};
+
+export const saveQuizToArchive = (quiz: SavedQuiz): void => {
+  try {
+    const currentArchive = getArchivedQuizzes();
+    const uniqueKazanims = new Map<string, DetailedQuestion>();
+
+    quiz.questions.forEach(q => {
+        if (!uniqueKazanims.has(q.kazanim_kodu)) {
+            uniqueKazanims.set(q.kazanim_kodu, q);
+        }
+    });
+
+    uniqueKazanims.forEach((question, kazanimCode) => {
+        const archiveEntry: ArchiveQuiz = {
+            gradeName: quiz.gradeName,
+            unitName: question.unite_adi,
+            kazanimName: question.kazanim_metni,
+            questions: quiz.questions
+        };
+        currentArchive[kazanimCode] = archiveEntry;
+    });
+    
+    localStorage.setItem(ARCHIVE_STORAGE_KEY, JSON.stringify(currentArchive));
+
+  } catch (error) {
+     console.error("Error saving to archive in local storage", error);
+     throw error;
   }
 };

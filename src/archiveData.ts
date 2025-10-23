@@ -68,7 +68,6 @@ export const ARCHIVE_DATA: Record<string, ArchiveQuiz> = {
     questions: Array.from({ length: 20 }, (_, i) => {
         const num = 10 + (i % 10);
         const words = ["on", "on bir", "on iki", "on üç", "on dört", "on beş", "on altı", "on yedi", "on sekiz", "on dokuz"];
-        // FIX: Call createNumericOptions once to prevent inconsistent random results and fix type error.
         const options = createNumericOptions(num);
         const correctAnswerKey = Object.keys(options).find(key => options[key as keyof typeof options] === String(num)) || 'A';
         return {
@@ -129,7 +128,6 @@ export const ARCHIVE_DATA: Record<string, ArchiveQuiz> = {
     "M.1.1.2.2": {
     gradeName: "1. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Toplamları 20’ye kadar (20 dâhil) olan doğal sayılarla toplama işlemini yapar.",
     questions: Array.from({ length: 20 }, (_, i) => {
-        // FIX: Call createNumericOptions once to prevent inconsistent random results and fix type error.
         const answer = 15;
         const options = createNumericOptions(answer);
         const correctAnswerKey = Object.keys(options).find(k=>options[k as keyof typeof options] === String(answer)) || 'B';
@@ -179,7 +177,6 @@ export const ARCHIVE_DATA: Record<string, ArchiveQuiz> = {
   "M.2.1.2.1": {
     gradeName: "2. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Toplamları 100’e kadar (100 dâhil) olan doğal sayılarla eldesiz ve eldeli toplama işlemini yapar.",
     questions: Array.from({ length: 20 }, (_, i) => {
-        // FIX: Call createNumericOptions once to prevent inconsistent random results and fix type error.
         const answer = 72;
         const options = createNumericOptions(answer);
         const correctAnswerKey = Object.keys(options).find(k=>options[k as keyof typeof options] === String(answer)) || 'A';
@@ -294,7 +291,6 @@ export const ARCHIVE_DATA: Record<string, ArchiveQuiz> = {
         const baseNum = 200 + (i*20);
         const percentage = 25;
         const answer = (baseNum * percentage) / 100;
-        // FIX: Call createNumericOptions once to prevent inconsistent random results and fix type error.
         const options = createNumericOptions(answer);
         const correctAnswerKey = Object.keys(options).find(k=>options[k as keyof typeof options] === String(answer)) || 'B';
         return {
@@ -315,7 +311,6 @@ export const ARCHIVE_DATA: Record<string, ArchiveQuiz> = {
        questions: Array.from({length: 20}, (_, i) => {
            const scores = [60, 70, 80 + (i*2)];
            const avg = Math.round(scores.reduce((a,b)=>a+b,0) / scores.length);
-           // FIX: Call createNumericOptions once to prevent inconsistent random results and fix type error.
            const options = createNumericOptions(avg);
            const correctAnswerKey = Object.keys(options).find(k=>options[k as keyof typeof options] === String(avg)) || 'A';
            return {
