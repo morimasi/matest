@@ -80,20 +80,23 @@ export const getArchivedQuizzes = (): Record<string, ArchiveQuiz> => {
 export const saveQuizToArchive = (quiz: SavedQuiz): void => {
   try {
     const currentArchive = getArchivedQuizzes();
+    
+    // Use a map to handle quizzes that might cover the same kazanım multiple times,
+    // ensuring we only create one archive entry per kazanım.
     const uniqueKazanims = new Map<string, DetailedQuestion>();
-
     quiz.questions.forEach(q => {
         if (!uniqueKazanims.has(q.kazanim_kodu)) {
             uniqueKazanims.set(q.kazanim_kodu, q);
         }
     });
 
+    // Create an archive entry for each unique kazanım found in the quiz
     uniqueKazanims.forEach((question, kazanimCode) => {
         const archiveEntry: ArchiveQuiz = {
             gradeName: quiz.gradeName,
             unitName: question.unite_adi,
             kazanimName: question.kazanim_metni,
-            questions: quiz.questions
+            questions: quiz.questions // Save the full quiz for this kazanım
         };
         currentArchive[kazanimCode] = archiveEntry;
     });

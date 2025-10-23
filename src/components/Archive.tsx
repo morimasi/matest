@@ -17,7 +17,7 @@ const Archive: React.FC = () => {
 
   useEffect(() => {
     const userArchive = getArchivedQuizzes();
-    // User archive overrides static archive
+    // User's personal archive overrides the static default templates
     setCombinedArchive({ ...ARCHIVE_DATA, ...userArchive });
   }, []);
 
