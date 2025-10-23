@@ -36,6 +36,27 @@ const createNumericOptions = (correctAnswer: number, range = 5, count = 4) => {
   };
 };
 
+const numberToWordsTr = (num: number): string => {
+    const birler = ["", "bir", "iki", "üç", "dört", "beş", "altı", "yedi", "sekiz", "dokuz"];
+    const onlar = ["", "on", "yirmi", "otuz", "kırk", "elli", "altmış", "yetmiş", "seksen", "doksan"];
+    const yuzler = ["", "yüz", "iki yüz", "üç yüz", "dört yüz", "beş yüz", "altı yüz", "yedi yüz", "sekiz yüz", "dokuz yüz"];
+
+    if (num === 0) return "sıfır";
+    if (num >= 1000) return String(num); // Keep it simple for this context
+
+    let result = "";
+    const yuz = Math.floor(num / 100);
+    const on = Math.floor((num % 100) / 10);
+    const bir = num % 10;
+
+    if (yuz > 0) result += yuzler[yuz] + " ";
+    if (on > 0) result += onlar[on] + " ";
+    if (bir > 0) result += birler[bir];
+
+    return result.trim();
+};
+
+
 export const ARCHIVE_DATA: Record<string, ArchiveQuiz> = {
   // =================================================================
   // 1. SINIF
@@ -431,7 +452,6 @@ export const ARCHIVE_DATA: Record<string, ArchiveQuiz> = {
             gercek_yasam_baglantisi: "Para ile uğraşırken 52 TL'nin 5 onluk ve 2 birlikten oluştuğunu bilmek, doğru hesap yapmamızı sağlar.",
             seviye: 'orta', cozum_anahtari: `${num} sayısında ${tensDigit} rakamı onlar basamağında olduğu için basamak değeri ${tensDigit*10}'dur.`
         }
-// FIX: Corrected type assertion. `ArchiveQuiz` does not have a `questions` property. The correct type is `DetailedQuestion[]`.
     }).filter(Boolean) as DetailedQuestion[])}]
   },
     "M.2.1.1.3": {
@@ -450,7 +470,6 @@ export const ARCHIVE_DATA: Record<string, ArchiveQuiz> = {
             gercek_yasam_baglantisi: "Yarışma sonuçlarını veya fiyatları karşılaştırırken sayıları doğru sıralamak önemlidir.",
             seviye: 'orta', cozum_anahtari: "Sayıları karşılaştırırken önce onlar basamağına bakılır. Onlar basamağı büyük olan sayı daha büyüktür."
         }
-// FIX: Corrected type assertion. `ArchiveQuiz` does not have a `questions` property. The correct type is `DetailedQuestion[]`.
     }).filter(Boolean) as DetailedQuestion[])}]
   },
   "M.2.1.1.4": {
@@ -829,8 +848,6 @@ export const ARCHIVE_DATA: Record<string, ArchiveQuiz> = {
         };
         const leastPopular = Object.keys(data).reduce((a, b) => data[a as keyof typeof data] < data[b as keyof typeof data] ? a : b);
         
-        // FIX: Removed incorrect explicit type annotation `{ [key: string]: string }`. 
-        // Let TypeScript infer the type from the literal to match the `secenekler` property in `DetailedQuestion`.
         const options = { A: "Elma", B: "Armut", C: "Kiraz", D: "Muz" };
         const correctAnswerKey = Object.keys(options).find(key => options[key as keyof typeof options] === leastPopular) || 'A';
 
@@ -848,6 +865,462 @@ export const ARCHIVE_DATA: Record<string, ArchiveQuiz> = {
             gercek_yasam_baglantisi: "Oyuncaklarımızı türlerine göre gruplayıp bir şekil grafiği çizerek en çok hangi oyuncağımız olduğunu görebiliriz.",
             seviye: 'orta',
             cozum_anahtari: `Grafikte en az nesne (${data[leastPopular as keyof typeof data]} tane) ${leastPopular} meyvesinin sırasında olduğu için cevap ${leastPopular}'dir.`
+        }
+    })}]
+  },
+
+  // =================================================================
+  // 3. SINIF
+  // =================================================================
+  "M.3.1.1.1": {
+    gradeName: "3. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Üç basamaklı doğal sayıları okur ve yazar.",
+    templates: [{ id: 'system-default-M.3.1.1.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
+        const num = 100 + i * 13 + (i % 5) * 10;
+        const numInWords = numberToWordsTr(num);
+        const options = createNumericOptions(num, 20);
+        const correctAnswerKey = Object.keys(options).find(k=>options[k as keyof typeof options] === String(num))!;
+        return {
+            sinif: 3, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.3.1.1.1", kazanim_metni: "Üç basamaklı doğal sayıları okur ve yazar.",
+            soru_tipi: 'coktan_secmeli',
+            soru_metni: `Okunuşu "${numInWords}" olan sayı hangisidir?`,
+            secenekler: options,
+            dogru_cevap: correctAnswerKey,
+            yanlis_secenek_tipleri: ["Basamakları karıştırma", "Benzer okunuşlu sayı"],
+            gercek_yasam_baglantisi: "Alışverişte fiyat etiketlerini veya binalardaki daire numaralarını doğru okumak için bu beceri gereklidir.",
+            seviye: 'temel', cozum_anahtari: `"${numInWords}" sayısının rakamlarla yazılışı ${num} şeklindedir.`
+        }
+    })}]
+  },
+   "M.3.1.1.2": {
+    gradeName: "3. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Üç basamaklı doğal sayıların basamak adlarını, basamaklarındaki rakamların basamak değerlerini belirler.",
+    templates: [{ id: 'system-default-M.3.1.1.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
+        const hundreds = 1 + (i % 9);
+        const tens = (i % 8);
+        const ones = (i % 7);
+        const num = hundreds * 100 + tens * 10 + ones;
+        const targetDigit = i % 3 === 0 ? hundreds : (i % 3 === 1 ? tens : ones);
+        const targetValue = i % 3 === 0 ? hundreds * 100 : (i % 3 === 1 ? tens * 10 : ones);
+        const targetBasamak = i % 3 === 0 ? "yüzler" : (i % 3 === 1 ? "onlar" : "birler");
+        const options = createNumericOptions(targetValue, 50);
+        const correctAnswerKey = Object.keys(options).find(k=>options[k as keyof typeof options] === String(targetValue))!;
+        return {
+            sinif: 3, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.3.1.1.2", kazanim_metni: "Üç basamaklı doğal sayıların basamak adlarını, basamaklarındaki rakamların basamak değerlerini belirler.",
+            soru_tipi: 'coktan_secmeli',
+            soru_metni: `${num} sayısının ${targetBasamak} basamağındaki rakamın basamak değeri kaçtır?`,
+            secenekler: options,
+            dogru_cevap: correctAnswerKey,
+            yanlis_secenek_tipleri: ["Rakamın kendisi (sayı değeri)", "Diğer basamağın değeri"],
+            gercek_yasam_baglantisi: "Para hesaplarken 352 TL'nin 3 tane 100'lük, 5 tane 10'luk ve 2 tane 1'likten oluştuğunu bilmek önemlidir.",
+            seviye: 'orta', cozum_anahtari: `${num} sayısının ${targetBasamak} basamağında ${targetDigit} rakamı vardır ve basamak değeri ${targetValue}'dir.`
+        }
+    })}]
+  },
+  "M.3.1.2.1": {
+    gradeName: "3. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "En çok üç basamaklı sayılarla eldesiz ve eldeli toplama işlemini yapar.",
+    templates: [{ id: 'system-default-M.3.1.2.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
+        const num1 = 125 + i * 11;
+        const num2 = 238 + i * 7;
+        const answer = num1 + num2;
+        const options = createNumericOptions(answer, 20);
+        const correctAnswerKey = Object.keys(options).find(k=>options[k as keyof typeof options] === String(answer))!;
+        return {
+            sinif: 3, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.3.1.2.1", kazanim_metni: "En çok üç basamaklı sayılarla eldesiz ve eldeli toplama işlemini yapar.",
+            soru_tipi: 'coktan_secmeli',
+            soru_metni: `Bir çiftlikte ${num1} koyun ve ${num2} keçi bulunmaktadır. Bu çiftlikte toplam kaç hayvan vardır?`,
+            secenekler: options,
+            dogru_cevap: correctAnswerKey,
+            yanlis_secenek_tipleri: ["Eldeyi toplamayı unutma", "Basamakları yanlış toplama", "Çıkarma yapma"],
+            gercek_yasam_baglantisi: "İki farklı okulun öğrencilerinin toplam sayısını bulmak için toplama işlemi yaparız.",
+            seviye: 'orta', cozum_anahtari: `İki sayıyı alt alta yazıp birler, onlar ve yüzler basamağını sırayla toplayarak sonuç bulunur. ${num1} + ${num2} = ${answer}.`
+        }
+    })}]
+  },
+  "M.3.1.3.1": {
+    gradeName: "3. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "En çok üç basamaklı sayılardan, en çok üç basamaklı sayıları çıkarır.",
+    templates: [{ id: 'system-default-M.3.1.3.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
+        const num1 = 540 + i * 12;
+        const num2 = 215 + i * 9;
+        const answer = num1 - num2;
+        const options = createNumericOptions(answer, 20);
+        const correctAnswerKey = Object.keys(options).find(k=>options[k as keyof typeof options] === String(answer))!;
+        return {
+            sinif: 3, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.3.1.3.1", kazanim_metni: "En çok üç basamaklı sayılardan, en çok üç basamaklı sayıları çıkarır.",
+            soru_tipi: 'coktan_secmeli',
+            soru_metni: `Bir fırıncı gün içinde ürettiği ${num1} ekmeğin ${num2} tanesini satmıştır. Geriye kaç ekmek kalmıştır?`,
+            secenekler: options,
+            dogru_cevap: correctAnswerKey,
+            yanlis_secenek_tipleri: ["Onluk bozmayı unutma", "Küçük sayıdan büyüğü çıkarma", "Toplama yapma"],
+            gercek_yasam_baglantisi: "900 sayfalık bir kitabın bir kısmını okuduktan sonra kalan sayfa sayısını çıkarma ile buluruz.",
+            seviye: 'orta', cozum_anahtari: `Toplam ekmek sayısından satılan ekmek sayısı çıkarılır. Onluk bozma gerekebilir. ${num1} - ${num2} = ${answer}.`
+        }
+    })}]
+  },
+  "M.3.1.4.2": {
+    gradeName: "3. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Üç basamaklı bir doğal sayı ile bir basamaklı bir doğal sayıyı çarpar.",
+    templates: [{ id: 'system-default-M.3.1.4.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
+        const num1 = 105 + i * 4;
+        const num2 = 3 + (i % 7);
+        const answer = num1 * num2;
+        const options = createNumericOptions(answer, 50);
+        const correctAnswerKey = Object.keys(options).find(k=>options[k as keyof typeof options] === String(answer))!;
+        return {
+            sinif: 3, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.3.1.4.2", kazanim_metni: "Üç basamaklı bir doğal sayı ile bir basamaklı bir doğal sayıyı çarpar.",
+            soru_tipi: 'coktan_secmeli',
+            soru_metni: `Bir sinema salonunda ${num1} koltuk vardır. Bu salonda ${num2} seans film gösterilirse, toplam kaç bilet satılabilir?`,
+            secenekler: options,
+            dogru_cevap: correctAnswerKey,
+            yanlis_secenek_tipleri: ["Eldeyi unutma", "Basamak kaydırma hatası", "Toplama yapma"],
+            gercek_yasam_baglantisi: "Her birinde aynı sayıda bisküvi olan çok sayıda paketteki toplam bisküvi miktarını bulmak için çarpma kullanılır.",
+            seviye: 'orta', cozum_anahtari: `Koltuk sayısı ile seans sayısı çarpılır. ${num1} x ${num2} = ${answer}.`
+        }
+    })}]
+  },
+  "M.3.1.5.1": {
+    gradeName: "3. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "İki basamaklı bir doğal sayıyı bir basamaklı bir doğal sayıya böler.",
+    templates: [{ id: 'system-default-M.3.1.5.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
+        const divisor = 3 + (i % 6);
+        const quotient = 10 + (i % 10);
+        const dividend = divisor * quotient;
+        const options = createNumericOptions(quotient, 5);
+        const correctAnswerKey = Object.keys(options).find(k=>options[k as keyof typeof options] === String(quotient))!;
+        return {
+            sinif: 3, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.3.1.5.1", kazanim_metni: "İki basamaklı bir doğal sayıyı bir basamaklı bir doğal sayıya böler.",
+            soru_tipi: 'coktan_secmeli',
+            soru_metni: `${dividend} tane misket, ${divisor} çocuğa eşit olarak paylaştırılırsa her çocuğa kaç misket düşer?`,
+            secenekler: options,
+            dogru_cevap: correctAnswerKey,
+            yanlis_secenek_tipleri: ["Böleni cevap olarak verme", "Bölüneni cevap olarak verme", "Çarpma yapma"],
+            gercek_yasam_baglantisi: "Büyük bir paket şekeri arkadaşlarımızla eşit paylaşmak için bölme işlemi yaparız.",
+            seviye: 'orta', cozum_anahtari: `Toplam misket sayısı (${dividend}) çocuk sayısına (${divisor}) bölünür. ${dividend} ÷ ${divisor} = ${quotient}.`
+        }
+    })}]
+  },
+  "M.3.1.6.1": {
+    gradeName: "3. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Birim kesirleri tanır ve modellerle gösterir.",
+    templates: [{ id: 'system-default-M.3.1.6.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
+        const denominator = 2 + (i % 9);
+        return {
+            sinif: 3, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.3.1.6.1", kazanim_metni: "Birim kesirleri tanır ve modellerle gösterir.",
+            soru_tipi: 'coktan_secmeli',
+            soru_metni: `Bir bütünün ${denominator} eş parçasından birini gösteren kesir hangisidir?`,
+            secenekler: { A: `1/${denominator+1}`, B: `${denominator}/1`, C: `1/${denominator}`, D: `1/${denominator-1}` },
+            dogru_cevap: "C",
+            yanlis_secenek_tipleri: ["Pay ve paydayı karıştırma", "Paydayı yanlış sayma"],
+            gercek_yasam_baglantisi: "Bir pizzayı eşit dilimlere ayırdığımızda her bir dilim, pizzanın birim kesrini ifade eder.",
+            seviye: 'temel', cozum_anahtari: `Bir bütünün ${denominator} eş parçasından her biri 'bir bölü ${denominator}' (1/${denominator}) olarak ifade edilir. Buna birim kesir denir.`
+        }
+    })}]
+  },
+
+  // =================================================================
+  // 4. SINIF
+  // =================================================================
+  "M.4.1.1.1": {
+    gradeName: "4. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "4, 5 ve 6 basamaklı doğal sayıları okur ve yazar.",
+    templates: [{ id: 'system-default-M.4.1.1.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
+        const num = 1000 + i * 1521 + (i % 100);
+        const numInWords = `${numberToWordsTr(Math.floor(num/1000))} bin ${numberToWordsTr(num % 1000)}`;
+        const options = createNumericOptions(num, 1000);
+        const correctAnswerKey = Object.keys(options).find(k=>options[k as keyof typeof options] === String(num))!;
+        return {
+            sinif: 4, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.4.1.1.1", kazanim_metni: "4, 5 ve 6 basamaklı doğal sayıları okur ve yazar.",
+            soru_tipi: 'coktan_secmeli',
+            soru_metni: `Okunuşu "${numInWords}" olan sayı aşağıdakilerden hangisidir?`,
+            secenekler: options,
+            dogru_cevap: correctAnswerKey,
+            yanlis_secenek_tipleri: ["Bölükleri karıştırma", "Basamak hatası"],
+            gercek_yasam_baglantisi: "Bir arabanın fiyatını veya bir şehrin nüfusunu okurken büyük sayıları doğru okuma becerisi kullanılır.",
+            seviye: 'temel', cozum_anahtari: `Sayılar bölüklerine göre okunur. "${numInWords}" sayısının yazılışı ${num}'dir.`
+        }
+    })}]
+  },
+   "M.4.1.2.1": {
+    gradeName: "4. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "En çok dört basamaklı doğal sayılarla toplama işlemi yapar.",
+    templates: [{ id: 'system-default-M.4.1.2.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
+        const num1 = 1250 + i * 23;
+        const num2 = 3460 + i * 18;
+        const answer = num1 + num2;
+        const options = createNumericOptions(answer, 100);
+        const correctAnswerKey = Object.keys(options).find(k=>options[k as keyof typeof options] === String(answer))!;
+        return {
+            sinif: 4, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.4.1.2.1", kazanim_metni: "En çok dört basamaklı doğal sayılarla toplama işlemi yapar.",
+            soru_tipi: 'coktan_secmeli',
+            soru_metni: `Bir mağaza, birinci hafta ${num1} TL, ikinci hafta ${num2} TL ciro yapmıştır. Mağazanın iki haftalık toplam cirosu ne kadardır?`,
+            secenekler: options,
+            dogru_cevap: correctAnswerKey,
+            yanlis_secenek_tipleri: ["Eldeleri yanlış toplama", "Basamak kaydırma", "Çıkarma yapma"],
+            gercek_yasam_baglantisi: "Ailemizin aylık gelir ve giderlerini hesaplarken büyük sayılarla toplama işlemi yaparız.",
+            seviye: 'orta', cozum_anahtari: `İki haftanın cirosu toplanarak toplam ciro bulunur. ${num1} + ${num2} = ${answer}.`
+        }
+    })}]
+  },
+  "M.4.1.3.1": {
+    gradeName: "4. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "En çok dört basamaklı doğal sayılarla çıkarma işlemi yapar.",
+    templates: [{ id: 'system-default-M.4.1.3.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
+        const num1 = 8750 - i * 31;
+        const num2 = 4380 + i * 25;
+        const answer = num1 - num2;
+        const options = createNumericOptions(answer, 100);
+        const correctAnswerKey = Object.keys(options).find(k=>options[k as keyof typeof options] === String(answer))!;
+        return {
+            sinif: 4, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.4.1.3.1", kazanim_metni: "En çok dört basamaklı doğal sayılarla çıkarma işlemi yapar.",
+            soru_tipi: 'coktan_secmeli',
+            soru_metni: `${num1} nüfuslu bir ilçeden bir yılda ${num2} kişi göç etmiştir. İlçenin nüfusu kaç kişi kalmıştır?`,
+            secenekler: options,
+            dogru_cevap: correctAnswerKey,
+            yanlis_secenek_tipleri: ["Onluk bozma hatası", "Basamakları yanlış çıkarma", "Toplama yapma"],
+            gercek_yasam_baglantisi: "Birikimimizden bir miktar para harcadığımızda ne kadar kaldığını bulmak için çıkarma yaparız.",
+            seviye: 'orta', cozum_anahtari: `Başlangıçtaki nüfustan göç eden kişi sayısı çıkarılır. ${num1} - ${num2} = ${answer}.`
+        }
+    })}]
+  },
+  "M.4.1.4.1": {
+    gradeName: "4. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "En çok üç basamaklı bir doğal sayı ile en çok iki basamaklı bir doğal sayıyı çarpar.",
+    templates: [{ id: 'system-default-M.4.1.4.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
+        const num1 = 120 + i * 5;
+        const num2 = 25 + i;
+        const answer = num1 * num2;
+        const options = createNumericOptions(answer, 500);
+        const correctAnswerKey = Object.keys(options).find(k=>options[k as keyof typeof options] === String(answer))!;
+        return {
+            sinif: 4, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.4.1.4.1", kazanim_metni: "En çok üç basamaklı bir doğal sayı ile en çok iki basamaklı bir doğal sayıyı çarpar.",
+            soru_tipi: 'coktan_secmeli',
+            soru_metni: `Bir sitede her birinde ${num1} daire bulunan ${num2} blok vardır. Bu sitede toplam kaç daire vardır?`,
+            secenekler: options,
+            dogru_cevap: correctAnswerKey,
+            yanlis_secenek_tipleri: ["Basamak kaydırma hatası", "Sadece bir basamakla çarpma", "Toplama yapma"],
+            gercek_yasam_baglantisi: "Bir organizasyona katılacak kişi sayısını, otobüs sayısı ve her otobüsteki yolcu sayısını çarparak bulabiliriz.",
+            seviye: 'orta', cozum_anahtari: `Blok sayısı ile her bloktaki daire sayısı çarpılarak toplam daire sayısı bulunur. ${num1} x ${num2} = ${answer}.`
+        }
+    })}]
+  },
+  "M.4.1.5.1": {
+    gradeName: "4. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "En çok dört basamaklı bir doğal sayıyı en çok iki basamaklı bir doğal sayıya böler.",
+    templates: [{ id: 'system-default-M.4.1.5.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
+        const divisor = 12 + i;
+        const quotient = 35 + i * 2;
+        const dividend = divisor * quotient;
+        const options = createNumericOptions(quotient, 10);
+        const correctAnswerKey = Object.keys(options).find(k=>options[k as keyof typeof options] === String(quotient))!;
+        return {
+            sinif: 4, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.4.1.5.1", kazanim_metni: "En çok dört basamaklı bir doğal sayıyı en çok iki basamaklı bir doğal sayıya böler.",
+            soru_tipi: 'coktan_secmeli',
+            soru_metni: `Bir fabrika, ürettiği ${dividend} adet çikolatayı, her birinde ${divisor} adet olacak şekilde kutulara ayırıyor. Toplam kaç kutu çikolata elde edilir?`,
+            secenekler: options,
+            dogru_cevap: correctAnswerKey,
+            yanlis_secenek_tipleri: ["Kalanı yanlış bulma", "Çarpma yapma", "Bölüneni cevap verme"],
+            gercek_yasam_baglantisi: "Büyük bir miktar parayı belirli sayıda kişiye eşit olarak paylaştırmak için bölme işlemi kullanılır.",
+            seviye: 'orta', cozum_anahtari: `Toplam çikolata sayısı (${dividend}) bir kutudaki çikolata sayısına (${divisor}) bölünür. ${dividend} ÷ ${divisor} = ${quotient}.`
+        }
+    })}]
+  },
+   "M.4.1.6.3": {
+    gradeName: "4. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Bir çokluğun belirtilen basit kesir kadarını bulur.",
+    templates: [{ id: 'system-default-M.4.1.6.3', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
+        const denominator = 4 + (i % 5);
+        const numerator = 1 + (i % (denominator - 2));
+        const total = 20 + i * denominator;
+        const answer = (total / denominator) * numerator;
+        const options = createNumericOptions(answer, 5);
+        const correctAnswerKey = Object.keys(options).find(k=>options[k as keyof typeof options] === String(answer))!;
+        return {
+            sinif: 4, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.4.1.6.3", kazanim_metni: "Bir çokluğun belirtilen basit kesir kadarını bulur.",
+            soru_tipi: 'coktan_secmeli',
+            soru_metni: `${total} liranın ${numerator}/${denominator}'i kaç liradır?`,
+            secenekler: options,
+            dogru_cevap: correctAnswerKey,
+            yanlis_secenek_tipleri: ["Pay ile bölüp payda ile çarpma", "Sadece bölme yapma"],
+            gercek_yasam_baglantisi: "Bir maaşın belirli bir kesriyle (örneğin 1/4'ü ile) kira ödendiğinde, kiranın ne kadar olduğunu bu yöntemle hesaplarız.",
+            seviye: 'ileri', cozum_anahtari: `Çokluk (${total}) paydaya (${denominator}) bölünür, çıkan sonuç pay (${numerator}) ile çarpılır. (${total} ÷ ${denominator}) x ${numerator} = ${answer}.`
+        }
+    })}]
+  },
+
+  // =================================================================
+  // 5. SINIF
+  // =================================================================
+  "M.5.1.1.1": {
+    gradeName: "5. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Milyonlu sayıları okur ve yazar.",
+    templates: [{ id: 'system-default-M.5.1.1.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
+        const num = 1000000 + i * 123456 + (i % 1000);
+        const millions = Math.floor(num / 1000000);
+        const thousands = Math.floor((num % 1000000) / 1000);
+        const ones = num % 1000;
+        const numInWords = `${numberToWordsTr(millions)} milyon ${numberToWordsTr(thousands)} bin ${numberToWordsTr(ones)}`;
+        const options = createNumericOptions(num, 100000);
+        const correctAnswerKey = Object.keys(options).find(k=>options[k as keyof typeof options] === String(num))!;
+        return {
+            sinif: 5, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.5.1.1.1", kazanim_metni: "Milyonlu sayıları okur ve yazar.",
+            soru_tipi: 'coktan_secmeli',
+            soru_metni: `Okunuşu "${numInWords}" olan sayı hangisidir?`,
+            secenekler: options,
+            dogru_cevap: correctAnswerKey,
+            yanlis_secenek_tipleri: ["Bölükleri karıştırma", "Sıfırları eksik yazma"],
+            gercek_yasam_baglantisi: "Ülkelerin nüfusunu veya büyük şirketlerin gelirlerini okurken milyonlu sayıları anlama becerisi gerekir.",
+            seviye: 'temel', cozum_anahtari: `Milyonlar bölüğü, binler bölüğü ve birler bölüğü sırasıyla yazılarak sayı oluşturulur. Cevap: ${num}.`
+        }
+    })}]
+  },
+  "M.5.1.2.3": {
+    gradeName: "5. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Bir doğal sayının karesini ve küpünü hesaplar.",
+    templates: [{ id: 'system-default-M.5.1.2.3', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
+        const isSquare = i % 2 === 0;
+        const base = isSquare ? 5 + (i/2) : 3 + Math.floor(i/2);
+        const power = isSquare ? 2 : 3;
+        const answer = Math.pow(base, power);
+        const questionText = `${base} sayısının ${isSquare ? 'karesi' : 'küpü'} kaçtır?`;
+        const options = createNumericOptions(answer, 20);
+        const correctAnswerKey = Object.keys(options).find(k=>options[k as keyof typeof options] === String(answer))!;
+        return {
+            sinif: 5, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.5.1.2.3", kazanim_metni: "Bir doğal sayının karesini ve küpünü hesaplar.",
+            soru_tipi: 'coktan_secmeli',
+            soru_metni: questionText,
+            secenekler: options,
+            dogru_cevap: correctAnswerKey,
+            yanlis_secenek_tipleri: ["Sayıyı üs ile çarpma", "Yanlış üs alma"],
+            gercek_yasam_baglantisi: "Bir odanın alanını (kare) veya bir kutunun hacmini (küp) hesaplarken bu kavramları kullanırız.",
+            seviye: 'orta', cozum_anahtari: `Bir sayının karesi kendisiyle iki kez, küpü ise üç kez çarpılmasıdır. ${base}^${power} = ${answer}.`
+        }
+    })}]
+  },
+   "M.5.1.2.4": {
+    gradeName: "5. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Parantezli işlemleri yapar.",
+    templates: [{ id: 'system-default-M.5.1.2.4', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
+        const num1 = 10 + i;
+        const num2 = 3 + (i % 4);
+        const num3 = 5 + (i % 5);
+        const answer = num1 + (num2 * num3);
+        const wrongAnswer = (num1 + num2) * num3; // işlem önceliği hatası
+        const options = createNumericOptions(answer, 15);
+        options.C = String(wrongAnswer); // çeldirici
+        const correctAnswerKey = Object.keys(options).find(k=>options[k as keyof typeof options] === String(answer))!;
+        return {
+            sinif: 5, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.5.1.2.4", kazanim_metni: "Parantezli işlemleri yapar.",
+            soru_tipi: 'coktan_secmeli',
+            soru_metni: `${num1} + (${num2} x ${num3}) işleminin sonucu kaçtır?`,
+            secenekler: options,
+            dogru_cevap: correctAnswerKey,
+            yanlis_secenek_tipleri: ["İşlem önceliğini yok sayma", "Yanlış işlem yapma"],
+            gercek_yasam_baglantisi: "Birden fazla adımı olan bir problemi çözerken hangi işlemi önce yapacağımızı belirlemek için parantezler kullanılır.",
+            seviye: 'orta', cozum_anahtari: `İşlem önceliğine göre önce parantez içindeki işlem yapılır (${num2} x ${num3} = ${num2*num3}). Sonra toplama yapılır: ${num1} + ${num2*num3} = ${answer}.`
+        }
+    })}]
+  },
+  "M.5.1.3.2": {
+    gradeName: "5. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Tam sayılı kesri bileşik kesre, bileşik kesri tam sayılı kesre dönüştürür.",
+    templates: [{ id: 'system-default-M.5.1.3.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
+        const tam = 2 + (i % 5);
+        const payda = 3 + (i % 4);
+        const pay = 1 + (i % (payda - 1));
+        const bilesikPay = tam * payda + pay;
+        return {
+            sinif: 5, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.5.1.3.2", kazanim_metni: "Tam sayılı kesri bileşik kesre, bileşik kesri tam sayılı kesre dönüştürür.",
+            soru_tipi: 'coktan_secmeli',
+            soru_metni: `${tam} tam ${pay}/${payda} kesrinin bileşik kesir olarak yazılışı hangisidir?`,
+            secenekler: { A: `${bilesikPay}/${payda}`, B: `${tam*pay}/${payda}`, C: `${tam+pay}/${payda}`, D: `${bilesikPay}/${tam}` },
+            dogru_cevap: 'A',
+            yanlis_secenek_tipleri: ["Yanlış işlemle dönüştürme", "Paydayı değiştirme"],
+            gercek_yasam_baglantisi: "Yemek tariflerinde 2 buçuk (2 1/2) su bardağı unu, 5 tane yarım bardak (5/2) olarak da düşünebiliriz.",
+            seviye: 'orta', cozum_anahtari: `Tam sayılı kesri bileşik kesre çevirmek için tam kısım ile payda çarpılır ve sonuca pay eklenir. (${tam} x ${payda}) + ${pay} = ${bilesikPay}. Sonuç paya yazılır, payda aynı kalır.`
+        }
+    })}]
+  },
+  "M.5.1.4.1": {
+    gradeName: "5. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Kesirlerle toplama ve çıkarma işlemi yapar.",
+    templates: [{ id: 'system-default-M.5.1.4.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
+        const payda = 9 + (i % 10);
+        const pay1 = 2 + (i % 3);
+        const pay2 = 3 + (i % 3);
+        const cevapPay = pay1 + pay2;
+        return {
+            sinif: 5, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.5.1.4.1", kazanim_metni: "Kesirlerle toplama ve çıkarma işlemi yapar.",
+            soru_tipi: 'coktan_secmeli',
+            soru_metni: `${pay1}/${payda} + ${pay2}/${payda} işleminin sonucu kaçtır?`,
+            secenekler: { A: `${cevapPay}/${payda}`, B: `${cevapPay}/${payda*2}`, C: `${pay1+pay2}/${payda+payda}`, D: `${pay1*pay2}/${payda}` },
+            dogru_cevap: 'A',
+            yanlis_secenek_tipleri: ["Paydaları da toplama", "Payları çarpma"],
+            gercek_yasam_baglantisi: "Bir pastanın önce 1/8'ini, sonra 2/8'ini yediğimizde toplamda ne kadar yediğimizi kesirlerle toplama yaparak buluruz.",
+            seviye: 'orta', cozum_anahtari: `Paydaları eşit kesirler toplanırken paylar toplanır paya yazılır, ortak payda ise aynen paydaya yazılır. Sonuç ${cevapPay}/${payda}.`
+        }
+    })}]
+  },
+  "M.5.1.5.1": {
+    gradeName: "5. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Ondalık gösterimleri okur ve yazar.",
+    templates: [{ id: 'system-default-M.5.1.5.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
+        const tam = 5 + i;
+        const onda = 1 + (i % 9);
+        const okunus = `${numberToWordsTr(tam)} tam onda ${numberToWordsTr(onda)}`;
+        const cevap = `${tam},${onda}`;
+        return {
+            sinif: 5, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.5.1.5.1", kazanim_metni: "Ondalık gösterimleri okur ve yazar.",
+            soru_tipi: 'coktan_secmeli',
+            soru_metni: `Okunuşu "${okunus}" olan ondalık gösterim hangisidir?`,
+            secenekler: { A: cevap, B: `${tam}${onda}`, C: `${tam},0${onda}`, D: `${onda},${tam}` },
+            dogru_cevap: 'A',
+            yanlis_secenek_tipleri: ["Virgülü unutma", "Yanlış basamağa yazma", "Tam ve ondalık kısmı karıştırma"],
+            gercek_yasam_baglantisi: "Marketlerde ürün fiyatları (örneğin 5,75 TL) veya boyumuz (1,65 m) gibi değerler ondalık gösterimle ifade edilir.",
+            seviye: 'temel', cozum_anahtari: `'${okunus}' ifadesinde 'tam' kelimesinden önceki kısım virgülün soluna, 'onda' kelimesinden sonraki kısım ise virgülün sağına yazılır.`
+        }
+    })}]
+  },
+  "M.5.1.5.4": {
+    gradeName: "5. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Ondalık gösterimlerle toplama ve çıkarma işlemi yapar.",
+    templates: [{ id: 'system-default-M.5.1.5.4', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
+        const num1_tam = 12 + i;
+        const num1_ondalik = 25 + i * 2;
+        const num2_tam = 8 + i;
+        const num2_ondalik = 31 + i * 3;
+        const num1 = parseFloat(`${num1_tam}.${num1_ondalik}`);
+        const num2 = parseFloat(`${num2_tam}.${num2_ondalik}`);
+        const answer = (num1 + num2).toFixed(2).replace('.',',');
+        const wrongAnswer = String(num1+num2).replace('.',','); // Leading zero error
+        return {
+            sinif: 5, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.5.1.5.4", kazanim_metni: "Ondalık gösterimlerle toplama ve çıkarma işlemi yapar.",
+            soru_tipi: 'coktan_secmeli',
+            soru_metni: `Ayşe marketten ${num1_tam},${num1_ondalik} TL'ye peynir ve ${num2_tam},${num2_ondalik} TL'ye zeytin almıştır. Ayşe toplam kaç TL ödemelidir?`,
+            secenekler: { A: answer, B: wrongAnswer, C: String(num1+num2+1).replace('.',','), D: String(num1-num2).replace('.',',') },
+            dogru_cevap: 'A',
+            yanlis_secenek_tipleri: ["Virgülleri hizalamama", "Toplama hatası", "Çıkarma yapma"],
+            gercek_yasam_baglantisi: "Alışveriş fişindeki birden fazla ondalıklı fiyatı toplayarak toplam borcumuzu hesaplarız.",
+            seviye: 'orta', cozum_anahtari: `Ondalık gösterimlerle toplama yaparken virgüller alt alta gelecek şekilde yazılır ve normal toplama işlemi yapılır. Sonuçta virgül yine aynı hizadan konulur. Cevap: ${answer}.`
+        }
+    })}]
+  },
+  "M.5.1.6.1": {
+    gradeName: "5. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Yüzdeleri, kesir ve ondalık gösterimle ilişkilendirir.",
+    templates: [{ id: 'system-default-M.5.1.6.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
+        const yuzde = 10 + i * 4;
+        const ondalik = yuzde / 100;
+        const kesir = `${yuzde}/100`;
+        return {
+            sinif: 5, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.5.1.6.1", kazanim_metni: "Yüzdeleri, kesir ve ondalık gösterimle ilişkilendirir.",
+            soru_tipi: 'coktan_secmeli',
+            soru_metni: `%${yuzde} ifadesinin kesir olarak gösterimi hangisidir?`,
+            secenekler: { A: `${yuzde}/10`, B: `100/${yuzde}`, C: kesir, D: `${yuzde}/1000` },
+            dogru_cevap: 'C',
+            yanlis_secenek_tipleri: ["Paydayı yanlış yazma", "Pay ve paydayı ters yazma"],
+            gercek_yasam_baglantisi: "Mağazalardaki '%50 indirim' gibi ifadeler, bir ürünün fiyatının yarısı kadar indirim yapıldığını gösterir (50/100).",
+            seviye: 'temel', cozum_anahtari: `Yüzde ifadesi, paydası 100 olan bir kesir olarak yazılabilir. %${yuzde} = ${kesir}.`
+        }
+    })}]
+  },
+  "M.5.1.6.2": {
+    gradeName: "5. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Bir çokluğun belirtilen bir yüzdesine karşılık gelen miktarı bulur.",
+    templates: [{ id: 'system-default-M.5.1.6.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
+        const total = 200 + i * 20;
+        const yuzde = 10 + i * 2;
+        const answer = total * (yuzde / 100);
+        const options = createNumericOptions(answer, 20);
+        const correctAnswerKey = Object.keys(options).find(k=>options[k as keyof typeof options] === String(answer))!;
+        return {
+            sinif: 5, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.5.1.6.2", kazanim_metni: "Bir çokluğun belirtilen bir yüzdesine karşılık gelen miktarı bulur.",
+            soru_tipi: 'coktan_secmeli',
+            soru_metni: `${total} sayısının %${yuzde}'si kaçtır?`,
+            secenekler: options,
+            dogru_cevap: correctAnswerKey,
+            yanlis_secenek_tipleri: ["Sayıyı 100'e bölüp yüzdeyle çarpmama", "Yanlış çarpma/bölme"],
+            gercek_yasam_baglantisi: "Bir ürüne yapılacak indirimin miktarını hesaplamak için ürün fiyatının indirim yüzdesini buluruz.",
+            seviye: 'ileri', cozum_anahtari: `Bir sayının yüzdesini bulmak için sayı 100'e bölünür ve yüzde oranı ile çarpılır. (${total} / 100) * ${yuzde} = ${answer}.`
         }
     })}]
   },
