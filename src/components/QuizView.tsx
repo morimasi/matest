@@ -609,7 +609,8 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
               
               {q.soru_tipi === 'coktan_secmeli' && q.secenekler && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 mt-2 pl-2 options-grid">
-                  {(Object.keys(q.secenekler) as Array<keyof typeof q.secenekler>).map((key) => {
+                  {/* FIX: Explicitly cast the keys of q.secenekler to the expected literal type to resolve TypeScript error. */}
+                  {(Object.keys(q.secenekler) as ('A' | 'B' | 'C' | 'D')[]).map((key) => {
                     const optionText = q.secenekler![key];
                     const isCorrect = showAnswers && key === q.dogru_cevap;
                     const isOptionEditing = isEditingCheck(index, 'secenek', key);
@@ -665,7 +666,8 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                          <strong className="text-sm text-blue-700">Doğru Cevap: </strong>
                          {isEditingCheck(index, 'dogru_cevap') ? (
                            <select value={editingValue} onChange={(e) => {setEditingValue(e.target.value);}} onBlur={handleSaveChanges} onKeyDown={handleKeyDown} className="p-1 bg-yellow-100/50 border border-blue-400 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" autoFocus>
-                                {q.secenekler && (Object.keys(q.secenekler) as Array<keyof typeof q.secenekler>).map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                                {/* FIX: Explicitly cast the keys of q.secenekler to the expected literal type to resolve TypeScript error. */}
+                                {q.secenekler && (Object.keys(q.secenekler) as ('A' | 'B' | 'C' | 'D')[]).map(opt => <option key={opt} value={opt}>{opt}</option>)}
                                 {q.soru_tipi === 'dogru_yanlis' && <> <option value="Doğru">Doğru</option> <option value="Yanlış">Yanlış</option> </>}
                            </select>
                          ) : (

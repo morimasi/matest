@@ -30,6 +30,26 @@ const Archive: React.FC = () => {
     refreshUserArchive();
   }, [refreshUserArchive]);
 
+  // Helper function to update a template in storage and local state, reducing code duplication.
+  const updateAndRefreshTemplate = (templateId: string, updatedQuestions: DetailedQuestion[]) => {
+      if (!selectedKazanim || !selectedTemplate) return;
+
+      // 1. Update data in local storage
+      updateArchivedQuiz(selectedKazanim.id, templateId, updatedQuestions);
+
+      // 2. Create the updated template object for state
+      const updatedTemplate = { ...selectedTemplate, id: templateId, questions: updatedQuestions };
+      
+      // 3. Update the currently selected template state
+      setSelectedTemplate(updatedTemplate);
+
+      // 4. Update the list of templates for the current kazanim
+      setTemplatesForSelectedKazanim(prev => prev.map(t => t.id === templateId ? updatedTemplate : t));
+
+      // 5. Refresh the main user archive state from storage
+      refreshUserArchive();
+  };
+
   const handleGradeSelect = (grade: Grade) => {
     setSelectedGrade(grade);
     setSelectedUnit(null);
@@ -80,6 +100,12 @@ const Archive: React.FC = () => {
     }
   };
 
+  // This function is passed down to QuizView for direct editing.
+  const handleUpdateArchivedQuiz = (updatedQuestions: DetailedQuestion[]) => {
+    if (!selectedTemplate || selectedTemplate.isSystemTemplate) return;
+    updateAndRefreshTemplate(selectedTemplate.id, updatedQuestions);
+  };
+  
   const handleRemixQuestion = async (questionIndex: number) => {
     if (!selectedTemplate || !selectedKazanim || selectedTemplate.isSystemTemplate) return;
     setRemixingIndex(questionIndex);
@@ -102,13 +128,8 @@ const Archive: React.FC = () => {
         if (newQuestion) {
             const newQuestions = [...selectedTemplate.questions];
             newQuestions[questionIndex] = newQuestion;
-            
-            updateArchivedQuiz(selectedKazanim.id, selectedTemplate.id, newQuestions);
-            
-            const updatedTemplate = { ...selectedTemplate, questions: newQuestions };
-            setSelectedTemplate(updatedTemplate);
-            setTemplatesForSelectedKazanim(prev => prev.map(t => t.id === updatedTemplate.id ? updatedTemplate : t));
-            refreshUserArchive();
+            // Use the centralized update function
+            updateAndRefreshTemplate(selectedTemplate.id, newQuestions);
         } else {
              throw new Error("Yapay zeka yeni bir soru üretemedi.");
         }
@@ -117,17 +138,6 @@ const Archive: React.FC = () => {
     } finally {
         setRemixingIndex(null);
     }
-  };
-
-  const handleUpdateArchivedQuiz = (updatedQuestions: DetailedQuestion[]) => {
-    if (!selectedTemplate || !selectedKazanim || selectedTemplate.isSystemTemplate) return;
-
-    updateArchivedQuiz(selectedKazanim.id, selectedTemplate.id, updatedQuestions);
-
-    const updatedTemplate = { ...selectedTemplate, questions: updatedQuestions };
-    setSelectedTemplate(updatedTemplate);
-    setTemplatesForSelectedKazanim(prev => prev.map(t => t.id === updatedTemplate.id ? updatedTemplate : t));
-    refreshUserArchive();
   };
 
   return (
