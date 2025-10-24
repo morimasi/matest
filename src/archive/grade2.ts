@@ -11,12 +11,15 @@ export const ARCHIVE_DATA_GRADE_2: Record<string, ArchiveQuiz> = {
         const step = [1, 5, 10][i % 3];
         const start = 20 + (i * 3 % 40);
         const answer = start + 3 * step;
+        // FIX: Call createNumericOptions once and store in a variable to avoid errors and redundant calls.
+        const options = createNumericOptions(answer, step * 2);
+        const correctAnswerKey = Object.keys(options).find(k => options[k as keyof typeof options] === String(answer))!;
         return {
             sinif: 2, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.2.1.1.1", kazanim_metni: "100’e kadar olan doğal sayıları ileriye doğru birer, beşer ve onar ritmik sayar.",
             soru_tipi: 'coktan_secmeli',
             soru_metni: `${start}'den başlayarak ileriye doğru ${step}'er ritmik sayarken dördüncü söylenen sayı hangisidir?`,
-            secenekler: createNumericOptions(answer, step * 2),
-            dogru_cevap: Object.keys(createNumericOptions(answer, step*2)).find(k=>createNumericOptions(answer, step*2)[k as keyof typeof options] === String(answer))!,
+            secenekler: options,
+            dogru_cevap: correctAnswerKey,
             yanlis_secenek_tipleri: ["Üçüncü sayı", "Beşinci sayı", "İkinci sayı"],
             gercek_yasam_baglantisi: "Para sayarken (5'er, 10'ar TL) veya saatleri söylerken (5'er dakika) ritmik sayma kullanırız.",
             seviye: 'temel', cozum_anahtari: `${start}'den başlayarak ${step}'er sayma: ${start+step} (2.), ${start+2*step} (3.), ${start+3*step} (4.). Doğru cevap ${answer}'dir.`

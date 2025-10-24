@@ -393,4 +393,11 @@ export const ARCHIVE_DATA_GRADE_4: Record<string, ArchiveQuiz> = {
         soru_tipi: 'coktan_secmeli',
         soru_metni: `Bir dikdörtgenin kaç tane simetri doğrusu vardır?`,
         secenekler: { A: '1', B: '2', C: '4', D: 'Sonsuz' },
-        dogru
+        dogru_cevap: 'B',
+        yanlis_secenek_tipleri: ["Karenin simetri sayısı", "Dairenin simetri sayısı", "Simetrisi olmayan"],
+        gercek_yasam_baglantisi: "Bir kağıdı katlayıp keserek simetrik şekiller oluşturmak, simetri doğrusu kavramının bir uygulamasıdır.",
+        seviye: 'orta',
+        cozum_anahtari: "Dikdörtgenin, karşılıklı kenarlarının orta noktalarını birleştiren iki tane simetri doğrusu vardır."
+    }]}]
+  },
+};
