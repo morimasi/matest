@@ -1,15 +1,5 @@
 export type QuestionType = 'coktan_secmeli' | 'dogru_yanlis' | 'bosluk_doldurma';
 
-export interface ChartData {
-  type: 'sutun_grafik' | 'siklik_tablosu' | 'nesne_grafik';
-  title?: string;
-  data: {
-    label: string;
-    value: number;
-    symbol?: string; 
-  }[];
-}
-
 export interface DetailedQuestion {
   sinif: number;
   unite_adi: string;
@@ -29,7 +19,6 @@ export interface DetailedQuestion {
   gercek_yasam_baglantisi: string;
   seviye: 'temel' | 'orta' | 'ileri';
   cozum_anahtari: string;
-  grafik_verisi?: ChartData;
 }
 
 export interface Kazanim {

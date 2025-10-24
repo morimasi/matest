@@ -1,7 +1,7 @@
 
 
 import React, { useRef, useState, useEffect } from 'react';
-import { DetailedQuestion, ChartData } from '../types';
+import { DetailedQuestion } from '../types';
 import { DownloadIcon, PrintIcon, ShareIcon, SparklesIcon, SettingsIcon, CopyIcon, CheckIcon, RefreshCwIcon, ArchiveAddIcon } from './icons';
 
 
@@ -17,81 +17,6 @@ interface QuizViewProps {
 
 const VIEW_SETTINGS_KEY = 'quizViewSettings';
 const NOTES_PREFIX = 'quizNotes_';
-
-const ChartRenderer: React.FC<{ chartData: ChartData }> = ({ chartData }) => {
-    const maxValue = Math.max(...chartData.data.map(d => d.value), 1);
-
-    const renderChart = () => {
-        switch (chartData.type) {
-            case 'siklik_tablosu':
-                return (
-                    <table className="w-full my-4 border-collapse text-center table-auto text-sm sm:text-base">
-                        <thead>
-                            <tr className="bg-slate-100">
-                                <th className="border p-2 font-semibold text-slate-700">Kategori</th>
-                                <th className="border p-2 font-semibold text-slate-700">Sıklık (Sayı)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {chartData.data.map((item, index) => (
-                                <tr key={index} className="border-b bg-white">
-                                    <td className="border p-2 font-medium">{item.label}</td>
-                                    <td className="border p-2 font-mono">{item.value}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                );
-
-            case 'nesne_grafik':
-                return (
-                    <div className="my-4 space-y-2">
-                        {chartData.data.map((item, index) => (
-                            <div key={index} className="grid grid-cols-[80px_1fr_auto] items-center gap-3 text-sm sm:text-base">
-                                <span className="font-semibold text-right flex-shrink-0">{item.label}</span>
-                                <div className="flex flex-wrap gap-x-1 gap-y-0.5 text-xl py-1 border-l border-r px-2 border-slate-200" aria-label={`${item.label}, ${item.value} adet`}>
-                                    {Array.from({ length: item.value }).map((_, i) => (
-                                        <span key={i} role="img" aria-hidden="true">{item.symbol || '●'}</span>
-                                    ))}
-                                </div>
-                                <span className="font-mono text-slate-600">({item.value})</span>
-                            </div>
-                        ))}
-                    </div>
-                );
-            
-            case 'sutun_grafik':
-                return (
-                    <div className="my-4 p-4 border rounded-lg bg-slate-50/50">
-                        <div className="flex gap-4 items-end" style={{ height: '150px' }}>
-                            {chartData.data.map((item, index) => (
-                                <div key={index} className="flex-1 flex flex-col items-center justify-end gap-1">
-                                    <span className="text-xs font-semibold text-slate-700">{item.value}</span>
-                                    <div 
-                                        className="w-full bg-blue-400 rounded-t-md hover:bg-blue-500 transition-all"
-                                        style={{ height: `${(item.value / maxValue) * 100}%` }}
-                                        title={`${item.label}: ${item.value}`}
-                                    ></div>
-                                    <span className="text-xs font-medium text-slate-600 text-center break-words">{item.label}</span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                );
-
-            default:
-                return null;
-        }
-    };
-    
-    return (
-        <div className="my-3 -ml-2 sm:ml-0 p-3 border rounded-xl bg-white/50 shadow-inner overflow-x-auto">
-            {chartData.title && <h5 className="font-bold text-center text-slate-700 mb-3">{chartData.title}</h5>}
-            {renderChart()}
-        </div>
-    );
-};
-
 
 const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQuestion, remixingIndex, onArchive, isArchived }) => {
   const quizRef = useRef<HTMLDivElement>(null);
@@ -110,7 +35,6 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
         pageStyle: 'normal',
         showBorder: false,
         textColor: '#1e293b',
-        showWatermark: false,
     };
     try {
         const savedSettings = localStorage.getItem(VIEW_SETTINGS_KEY);
@@ -352,10 +276,6 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                             <input type="checkbox" checked={settings.showBorder} onChange={e => setSettings({...settings, showBorder: e.target.checked})} className="toggle-checkbox" />
                         </div>
                         <div className="flex items-center justify-between">
-                            <label className="text-sm font-medium text-slate-600">Filigran Ekle</label>
-                            <input type="checkbox" checked={settings.showWatermark} onChange={e => setSettings({...settings, showWatermark: e.target.checked})} className="toggle-checkbox" />
-                        </div>
-                        <div className="flex items-center justify-between">
                             <label className="text-sm font-medium text-slate-600">Metin Rengi</label>
                             <input type="color" value={settings.textColor} onChange={e => setSettings({...settings, textColor: e.target.value})} className="w-8 h-8 p-0 border-none rounded-md cursor-pointer" />
                         </div>
@@ -378,7 +298,7 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
         </div>
       </div>
       
-      <div id="quiz-paper" ref={quizRef} style={quizContentStyle} className={`p-4 sm:p-8 bg-white border-t border-slate-200/80 rounded-b-2xl quiz-paper ${settings.showBorder ? 'bordered' : ''} ${settings.pageStyle} ${settings.showWatermark ? 'watermarked' : ''}`}>
+      <div id="quiz-paper" ref={quizRef} style={quizContentStyle} className={`p-4 sm:p-8 bg-white border-t border-slate-200/80 rounded-b-2xl quiz-paper ${settings.showBorder ? 'bordered' : ''} ${settings.pageStyle}`}>
         <header className="text-center mb-8">
             <h1 className="text-xl font-bold">Matematik Değerlendirme</h1>
             <p className="text-sm opacity-80">{`${grade} / Ünite(ler): ${uniqueUnitNames}`}</p>
@@ -389,22 +309,18 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                 <p><strong>Puan:</strong> ............</p>
             </div>
         </header>
-        
+
         <div className="space-y-8">
           {questions.map((q, index) => (
             <div key={index} className="text-slate-800 break-inside-avoid relative">
-              <div className="flex justify-between items-start gap-2">
-                  <p className="font-semibold mb-2 flex-shrink-0">{`${index + 1}.`}</p>
-                  <div className="flex-grow">
-                     {q.grafik_verisi && <ChartRenderer chartData={q.grafik_verisi} />}
-                     <p className="whitespace-pre-wrap" style={{color: 'inherit'}}>{q.soru_metni}</p>
-                  </div>
+              <div className="flex justify-between items-start">
+                  <p className="font-semibold mb-3 inline flex-1 whitespace-pre-wrap" style={{color: 'inherit'}}>{`${index + 1}. ${q.soru_metni}`}</p>
                   {onRemixQuestion && showAnswers && isTeacherView && (
                     <button 
                         onClick={() => onRemixQuestion(index)} 
                         disabled={remixingIndex === index}
                         title="Bu soruyu yeniden oluştur"
-                        className="p-1 ml-2 rounded-full text-blue-500 hover:bg-blue-500/10 disabled:text-slate-400 disabled:cursor-wait flex-shrink-0"
+                        className="p-1 ml-2 rounded-full text-blue-500 hover:bg-blue-500/10 disabled:text-slate-400 disabled:cursor-wait"
                     >
                        {remixingIndex === index ? (
                            <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -419,7 +335,7 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
               </div>
               
               {q.soru_tipi === 'coktan_secmeli' && q.secenekler && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 mt-2 pl-6 options-grid">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 mt-2 pl-2 options-grid">
                   {Object.entries(q.secenekler).map(([key, optionText]) => {
                     const isCorrect = showAnswers && key === q.dogru_cevap;
                     return (
@@ -432,14 +348,14 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
               )}
 
               {q.soru_tipi === 'dogru_yanlis' && (
-                <div className="flex items-center gap-4 mt-2 pl-6">
+                <div className="flex items-center gap-4 mt-2 pl-2">
                     <div className={`p-2 rounded-md transition-all duration-300 border w-24 text-center ${showAnswers && q.dogru_cevap === 'Doğru' ? 'bg-green-100 text-green-800 font-bold border-green-200' : 'bg-slate-50 border-slate-200'}`}>Doğru</div>
                     <div className={`p-2 rounded-md transition-all duration-300 border w-24 text-center ${showAnswers && q.dogru_cevap === 'Yanlış' ? 'bg-green-100 text-green-800 font-bold border-green-200' : 'bg-slate-50 border-slate-200'}`}>Yanlış</div>
                 </div>
               )}
 
               {q.soru_tipi === 'bosluk_doldurma' && showAnswers && (
-                <div className="mt-2 pl-6">
+                <div className="mt-2 pl-2">
                     <p className="p-2 rounded-md bg-green-100 text-green-800 font-bold inline-block">Cevap: {q.dogru_cevap}</p>
                 </div>
               )}
@@ -481,41 +397,13 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
         </div>
       </div>
        <style>{`
-        .quiz-paper { 
-            position: relative;
-            background-color: var(--bg-color); 
-        }
+        .quiz-paper { background-color: var(--bg-color); }
         .quiz-paper.notebook {
             background-image: linear-gradient(to bottom, #e2e8f0 1px, transparent 1px);
             background-size: 100% var(--line-height);
             line-height: var(--line-height);
         }
         .quiz-paper.bordered { border: 2px solid black; }
-        
-        .quiz-paper.watermarked::after {
-            content: '';
-            background-image: url(/logo1.jpg);
-            background-repeat: no-repeat;
-            background-position: center;
-            background-size: 80%;
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            opacity: 0.1;
-            pointer-events: none;
-            z-index: 0;
-        }
-        
-        .quiz-paper > * {
-            position: relative;
-            z-index: 1;
-        }
-
-        .quiz-paper.watermarked > header {
-            background-color: var(--bg-color);
-        }
 
         @media print {
             @page {
@@ -525,7 +413,6 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
             body { 
                 background: white !important; 
                 -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
             }
             .non-printable { display: none !important; }
             .printable-area { 
@@ -567,10 +454,6 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
             }
             .quiz-paper.notebook {
                  background-image: linear-gradient(to bottom, #e2e8f0 1px, transparent 1px) !important;
-            }
-            .quiz-paper.watermarked::after {
-                opacity: 0.1 !important;
-                background-image: url(/logo1.jpg) !important;
             }
             .bg-green-100 { 
                 background-color: #dcfce7 !important; 

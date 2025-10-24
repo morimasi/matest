@@ -1,7 +1,7 @@
 
 
 import { GoogleGenAI, Type } from "@google/genai";
-import { DetailedQuestion, Kazanim, QuestionType, ChartData } from '../types';
+import { DetailedQuestion, Kazanim, QuestionType } from '../types';
 
 // FIX: Initialize ai directly with process.env.API_KEY as per the guidelines.
 // The key is assumed to be present in the environment.
@@ -9,27 +9,37 @@ const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 const getPromptAndSchema = (grade: string, units: string, kazanims: Kazanim[], questionCount: number, questionType: QuestionType, customPrompt?: string, includeCharts?: boolean, numOperations?: number) => {
     
-    const chartInstruction = (includeCharts || kazanims.some(k => k.name.includes('grafik') || k.name.includes('tablo')))
+    const chartInstruction = includeCharts
     ? `\n\nÖNEMLİ GRAFİK/TABLO KURALI:
-Eğer bir kazanım "çetele tablosu", "sıklık tablosu", "nesne grafiği", "şekil grafiği" veya "sütun grafiği" oluşturma veya yorumlama ile ilgiliyse, soru için gerekli olan grafik veya tablo verisini MUTLAKA "grafik_verisi" JSON alanını kullanarak yapısal olarak sağlamalısın. ASLA soru metni içine metin tabanlı (ASCII) grafik çizme. Soru metni sadece "Aşağıdaki grafiğe/tabloya göre..." gibi bir ifade ile veriye atıfta bulunmalıdır.
+Eğer bir kazanım "çetele tablosu", "sıklık tablosu", "nesne grafiği" veya "sütun grafiği" ile ilgiliyse, soru metni ("soru_metni" alanı) İÇERİSİNDE, sorunun başında bu grafiği veya tabloyu zengin ve çok satırlı bir metin formatında (ASCII karakterler kullanarak) OLUŞTURMALISIN. Bu görsel bölüm, sorunun geri kalanından açıkça ayrılmalıdır.
 
-'grafik_verisi' objesi şu yapıda olmalıdır:
-- "type": 'sutun_grafik', 'siklik_tablosu', veya 'nesne_grafik' türlerinden biri.
-- "title": (İsteğe bağlı) Grafik veya tablo için bir başlık. Örn: "Sınıfın Sevdiği Meyveler".
-- "data": Bir dizi (array) olmalı. Dizideki her eleman bir objeyi temsil eder ve şu alanları içerir:
-  - "label": Veri etiketini (örn: "Elma", "Matematik").
-  - "value": Verinin sayısal değerini (örn: 8, 15).
-  - "symbol": (Sadece 'nesne_grafik' için) Tekrarlanacak nesneyi temsil eden bir emoji (örn: "🍎", "⚽️").
+Örnek Formatlar:
+1.  **Sıklık Tablosu Örneği:**
+    Aşağıdaki sıklık tablosunda bir manavdaki meyve sayıları verilmiştir.
+    +-----------+--------+
+    | Meyve     | Sayısı |
+    +-----------+--------+
+    | Elma      |   12   |
+    | Armut     |    8   |
+    | Çilek     |   15   |
+    +-----------+--------+
+    Tabloya göre manavda en çok hangi meyve vardır?
 
-Örnek 'grafik_verisi' JSON:
-{
-  "type": "nesne_grafik",
-  "title": "Hayvanat Bahçesindeki Hayvanlar",
-  "data": [
-    { "label": "Aslan", "value": 3, "symbol": "🦁" },
-    { "label": "Zebra", "value": 5, "symbol": "🦓" }
-  ]
-}
+2.  **Sütun Grafiği Örneği:**
+    Bir sınıftaki öğrencilerin en sevdiği dersler grafikte gösterilmiştir.
+    Matematik: ████████ (8)
+    Türkçe   : ██████ (6)
+    Hayat B. : █████ (5)
+    Grafiğe göre en az sevilen ders hangisidir?
+
+3.  **Çetele Tablosu Örneği:**
+    Aşağıdaki çetele tablosu, bir otoparktaki araba renklerini göstermektedir.
+    Kırmızı: ||||| ||
+    Beyaz  : ||||| ||||
+    Siyah  : |||||
+    Tabloya göre otoparkta toplam kaç araba vardır?
+
+Bu kurala mutlaka uymalısın. Grafik veya tablo, sorunun anlaşılması için ZORUNLUDUR.
 `
     : '';
 
@@ -77,32 +87,11 @@ Lütfen çıktı olarak sadece soruları içeren bir JSON nesnesi döndür. Her 
         kazanim_kodu: { type: Type.STRING, description: "Sorunun ilgili olduğu kazanım kodu." },
         kazanim_metni: { type: Type.STRING, description: "Sorunun ilgili olduğu kazanım metni." },
         soru_tipi: { type: Type.STRING, description: "Sorunun tipi (örn: 'coktan_secmeli')." },
-        soru_metni: { type: Type.STRING, description: "Sorunun metni. Eğer grafik varsa, 'Aşağıdaki grafiğe göre...' gibi bir metin içermelidir." },
+        soru_metni: { type: Type.STRING, description: "Sorunun metni." },
         dogru_cevap: { type: Type.STRING, description: "Sorunun doğru cevabı." },
         gercek_yasam_baglantisi: { type: Type.STRING, description: "Kazanımın günlük yaşamla bağlantısı." },
         seviye: { type: Type.STRING, description: "Sorunun zorluk seviyesi (temel, orta, ileri)." },
-        cozum_anahtari: { type: Type.STRING, description: "Sorunun kısa çözümü veya açıklaması." },
-        grafik_verisi: {
-            type: Type.OBJECT,
-            description: "Eğer soru bir grafik veya tablo gerektiriyorsa, bu alanda yapısal verileri barındırır. Yoksa bu alan boş bırakılmalıdır.",
-            properties: {
-                type: { type: Type.STRING, description: "Grafik tipi: 'sutun_grafik', 'siklik_tablosu', 'nesne_grafik'." },
-                title: { type: Type.STRING, description: "Grafik için başlık." },
-                data: {
-                    type: Type.ARRAY,
-                    items: {
-                        type: Type.OBJECT,
-                        properties: {
-                            label: { type: Type.STRING },
-                            value: { type: Type.NUMBER },
-                            symbol: { type: Type.STRING }
-                        },
-                        required: ["label", "value"]
-                    }
-                }
-            },
-            required: ["type", "data"]
-        }
+        cozum_anahtari: { type: Type.STRING, description: "Sorunun kısa çözümü veya açıklaması." }
     };
 
     const baseRequired = ["sinif", "unite_adi", "unite_no", "kazanim_kodu", "kazanim_metni", "soru_tipi", "soru_metni", "dogru_cevap", "gercek_yasam_baglantisi", "seviye", "cozum_anahtari"];
