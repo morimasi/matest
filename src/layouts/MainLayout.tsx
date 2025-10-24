@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 import { SparklesIcon, HistoryIcon, ArchiveIcon, QuestionCircleIcon } from '../components/icons';
+import EkLogo from '/logo1.jpg';
 
 const MainLayout: React.FC = () => (
     <div className="min-h-screen bg-gradient-to-br from-sky-200 to-violet-300 font-sans text-slate-800 flex flex-col">
@@ -12,7 +13,7 @@ const MainLayout: React.FC = () => (
                             <SparklesIcon className="w-6 h-6" />
                         </div>
                         <h1 className="text-xl font-bold text-slate-900 hidden sm:block">AI Sınav Asistanı</h1>
-                        <img src="/logo1.jpg" alt="Ek Logo" className="h-10 w-auto hidden sm:block rounded-full" />
+                        <img src={EkLogo} alt="Ek Logo" className="h-10 w-auto hidden sm:block rounded-full" />
                     </div>
                     <nav className="flex items-center justify-center gap-1 sm:gap-2 p-1 bg-black/5 rounded-full">
                         <NavLink 
