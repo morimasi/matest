@@ -1,5 +1,5 @@
 {
-  "name": "AI Destekli Sınav Hazırlama Asistanı",
+  "name": "Copy of AI Destekli Sınav Hazırlama Asistanı",
   "description": "Türkiye Millî Eğitim Bakanlığı 1-5. Sınıf Matematik müfredatına uygun, yapay zeka destekli, PDF çıktısı alınabilen, yazdırılabilir ve paylaşılabilir testler ve sınavlar hazırlayın.",
   "requestFramePermissions": [
     "microphone"

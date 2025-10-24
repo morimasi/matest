@@ -240,9 +240,6 @@ export const generateQuizStream = async (
         await Promise.all(promises);
     } catch (error) {
         console.error("Error generating quiz stream:", error);
-        if (error instanceof Error && (error.message.includes('Failed to fetch') || error.message.includes('network'))) {
-             throw new Error("Sınav oluşturulurken bir ağ hatası oluştu. Lütfen internet bağlantınızı kontrol edip tekrar deneyin.");
-        }
         throw new Error("Yapay zeka ile sınav oluşturulurken bir hata oluştu. Lütfen tekrar deneyin.");
     }
 };
@@ -266,9 +263,6 @@ export const generateSingleQuestion = async (grade: string, unit: string, kazani
         return JSON.parse(jsonText) as DetailedQuestion;
     } catch (error) {
         console.error("Error generating single question:", error);
-        if (error instanceof Error && (error.message.includes('Failed to fetch') || error.message.includes('network'))) {
-             throw new Error("Soru yenilenirken bir ağ hatası oluştu. Lütfen internet bağlantınızı kontrol edip tekrar deneyin.");
-        }
         throw new Error("Soru yenilenirken bir hata oluştu.");
     }
 }
