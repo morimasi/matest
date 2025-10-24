@@ -209,8 +209,7 @@ Teşekkürler.
                             <h3 className="text-xl font-semibold text-slate-700 text-center">Üretilen Soru Hakkında Geri Bildirim</h3>
                             {feedbackSent ? (
                                 <div className="text-center mt-4 p-4 bg-green-500/20 text-green-800 rounded-xl">
-                                    <p className="font-semibold">Teşekkürler!</p>
-                                    <p className="text-sm">Geri bildiriminiz en kısa sürede editörlerimiz tarafından incelemeye alınacaktır.</p>
+                                    <p className="font-semibold">Teşekkürler! Geri bildiriminiz en kısa sürede editörlerimiz tarafından incelemeye alınacaktır.</p>
                                 </div>
                             ) : (
                                 <>
