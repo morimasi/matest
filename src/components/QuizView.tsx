@@ -1,4 +1,5 @@
 
+
 import React, { useRef, useState, useEffect } from 'react';
 import { DetailedQuestion } from '../types';
 import { DownloadIcon, PrintIcon, ShareIcon, SparklesIcon, SettingsIcon, CopyIcon, CheckIcon, RefreshCwIcon } from './icons';
@@ -35,6 +36,8 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
         questionSpacing: 32, // pt
         pageMarginTop: 2, // cm
         pageMarginBottom: 2, // cm
+        pageMarginLeft: 2, // cm
+        pageMarginRight: 2, // cm
     };
     try {
         const savedSettings = localStorage.getItem(VIEW_SETTINGS_KEY);
@@ -79,7 +82,6 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
 
     const quizElement = quizRef.current;
     
-    // Hide remix buttons before capture
     const remixButtons = quizElement.querySelectorAll('button[title="Bu soruyu yeniden oluştur"]') as NodeListOf<HTMLButtonElement>;
     remixButtons.forEach(button => button.style.display = 'none');
 
@@ -92,14 +94,14 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
     };
 
     quizElement.style.columnCount = '1';
-    quizElement.style.width = '21cm'; // Use A4 width for rendering
+    quizElement.style.width = '21cm'; 
     quizElement.style.boxShadow = 'none';
     quizElement.style.margin = '0';
-    quizElement.style.padding = `${settings.pageMarginTop}cm 2cm ${settings.pageMarginBottom}cm 2cm`;
+    quizElement.style.padding = `${settings.pageMarginTop}cm ${settings.pageMarginRight}cm ${settings.pageMarginBottom}cm ${settings.pageMarginLeft}cm`;
     
     try {
         const canvas = await html2canvas(quizElement, {
-            scale: 3, // Higher resolution for crisp text
+            scale: 3, 
             useCORS: true,
             windowWidth: quizElement.scrollWidth,
             windowHeight: quizElement.scrollHeight,
@@ -140,14 +142,12 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
         console.error("Error generating PDF:", error);
         alert("PDF oluşturulurken bir hata oluştu.");
     } finally {
-        // Restore original styles
         quizElement.style.columnCount = originalStyles.columnCount;
         quizElement.style.width = originalStyles.width;
         quizElement.style.boxShadow = originalStyles.boxShadow;
         quizElement.style.margin = originalStyles.margin;
         quizElement.style.padding = originalStyles.padding;
         
-        // Show remix buttons again
         remixButtons.forEach(button => button.style.display = '');
 
         setIsDownloading(false);
@@ -165,7 +165,7 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
     style.innerHTML = `
         @page {
             size: A4;
-            margin: ${settings.pageMarginTop}cm 2cm ${settings.pageMarginBottom}cm 2cm;
+            margin: ${settings.pageMarginTop}cm ${settings.pageMarginRight}cm ${settings.pageMarginBottom}cm ${settings.pageMarginLeft}cm;
         }
     `;
     window.print();
@@ -285,6 +285,16 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                                 <input type="number" min="0" max="5" step="0.5" value={settings.pageMarginBottom} onChange={e => setSettings({...settings, pageMarginBottom: parseFloat(e.target.value)})} className="w-full p-1.5 text-sm bg-white/60 border border-slate-300/50 rounded-md shadow-sm focus:ring-1 focus:ring-purple-500"/>
                             </div>
                         </div>
+                         <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-xs font-medium text-slate-600 mb-1">Sol Boşluk (cm)</label>
+                                <input type="number" min="0" max="5" step="0.5" value={settings.pageMarginLeft} onChange={e => setSettings({...settings, pageMarginLeft: parseFloat(e.target.value)})} className="w-full p-1.5 text-sm bg-white/60 border border-slate-300/50 rounded-md shadow-sm focus:ring-1 focus:ring-purple-500"/>
+                            </div>
+                            <div>
+                                <label className="block text-xs font-medium text-slate-600 mb-1">Sağ Boşluk (cm)</label>
+                                <input type="number" min="0" max="5" step="0.5" value={settings.pageMarginRight} onChange={e => setSettings({...settings, pageMarginRight: parseFloat(e.target.value)})} className="w-full p-1.5 text-sm bg-white/60 border border-slate-300/50 rounded-md shadow-sm focus:ring-1 focus:ring-purple-500"/>
+                            </div>
+                        </div>
                          <div>
                             <label className="block text-xs font-medium text-slate-600 mb-1">Sayfa Stili</label>
                             <select value={settings.pageStyle} onChange={e => setSettings({...settings, pageStyle: e.target.value})} className="w-full p-1.5 text-sm bg-white/60 border border-slate-300/50 rounded-md shadow-sm focus:ring-1 focus:ring-purple-500">
@@ -321,7 +331,7 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
         </div>
       </div>
       
-      <div className="bg-slate-200/70 p-4 sm:p-8 print:bg-transparent print:p-0 rounded-b-2xl">
+      <div className="bg-slate-200/70 p-4 sm:p-8 rounded-b-2xl non-printable-bg">
         <div id="quiz-paper" ref={quizRef} style={quizContentStyle} className={`quiz-paper ${settings.showBorder ? 'bordered' : ''} ${settings.pageStyle}`}>
             <header className="text-center mb-8">
                 <h1 className="text-xl font-bold">Matematik Değerlendirme</h1>
@@ -447,6 +457,10 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
         .quiz-paper.bordered { border: 2px solid black; }
 
         @media print {
+            .non-printable-bg {
+                background: transparent !important;
+                padding: 0 !important;
+            }
             body { 
                 background: white !important; 
                 -webkit-print-color-adjust: exact;
