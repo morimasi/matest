@@ -129,6 +129,7 @@ const QuizGenerator: React.FC = () => {
     const handleSendFeedback = (quickFeedback?: string) => {
         if (!generatedQuiz) return;
 
+        const recipient = 'morimasi@gmail.com';
         const subject = "AI Sınav Asistanı Geri Bildirimi";
         const body = `
 Merhaba,
@@ -148,7 +149,7 @@ ${quickFeedback ? '(Hızlı geri bildirim, ek yorum yok)' : feedbackText}
 Teşekkürler.
         `;
         
-        const mailtoLink = `mailto:ornek-eposta@adresiniz.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        const mailtoLink = `mailto:${recipient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
         
         window.location.href = mailtoLink;
         setFeedbackSent(true);
@@ -209,7 +210,7 @@ Teşekkürler.
                             {feedbackSent ? (
                                 <div className="text-center mt-4 p-4 bg-green-500/20 text-green-800 rounded-xl">
                                     <p className="font-semibold">Teşekkürler!</p>
-                                    <p className="text-sm">Geri bildiriminiz sınav asistanını geliştirmemize yardımcı oluyor.</p>
+                                    <p className="text-sm">Geri bildiriminiz en kısa sürede editörlerimiz tarafından incelemeye alınacaktır.</p>
                                 </div>
                             ) : (
                                 <>
