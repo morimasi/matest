@@ -5,8 +5,8 @@ import QuizGenerator from './components/QuizGenerator';
 import HistoryList from './components/HistoryList';
 import SavedQuiz from './components/SavedQuiz';
 import MainLayout from './layouts/MainLayout';
-import Archive from './components/Archive';
-import HowToUse from './components/HowToUse';
+import Archive from './src/components/Archive';
+import HowToUse from './src/components/HowToUse';
 
 
 const App: React.FC = () => {
