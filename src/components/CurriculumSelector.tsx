@@ -77,12 +77,14 @@ const CurriculumSelector: React.FC<CurriculumSelectorProps> = ({
       return;
     }
 
-    if (isListening && recognitionRef.current) {
+    // If an instance already exists, it means we are either listening or stopping.
+    // The only action is to stop it. The 'onend' handler will do the cleanup.
+    if (recognitionRef.current) {
       recognitionRef.current.stop();
       return;
     }
 
-    // Create a new instance for each listen attempt
+    // If no instance exists, create a new one and start it.
     const recognitionInstance = new SpeechRecognitionAPI();
     recognitionRef.current = recognitionInstance;
     
@@ -108,20 +110,25 @@ const CurriculumSelector: React.FC<CurriculumSelectorProps> = ({
       } else if (event.error === 'network') {
         alert("Ağ hatası nedeniyle ses tanıma başarısız oldu.");
       }
+      // The onend event usually fires after onerror, triggering cleanup.
     };
 
     recognitionInstance.onend = () => {
       setIsListening(false);
-      recognitionRef.current = null;
+      // Only nullify if the ref still points to this instance.
+      // This avoids a race condition if the user clicks stop then start again very quickly.
+      if (recognitionRef.current === recognitionInstance) {
+        recognitionRef.current = null;
+      }
     };
 
     try {
       recognitionInstance.start();
     } catch (error) {
-      // This might happen if speech recognition is already active, though our state machine should prevent it.
+      // This can happen if start() is called while another instance is still finalizing its stop.
       console.error("Could not start speech recognition:", error);
       setIsListening(false);
-      recognitionRef.current = null;
+      recognitionRef.current = null; // Clean up on immediate failure
     }
   };
 
