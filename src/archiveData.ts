@@ -2156,4 +2156,17 @@ export const ARCHIVE_DATA: Record<string, ArchiveQuiz> = {
     }]}]
   },
   "M.4.3.2.3": {
-    gradeName: "4. Sınıf", unitName
+    // FIX: Corrected object syntax and added missing properties `unitName` and `kazanimName`.
+    gradeName: "4. Sınıf", unitName: "Ölçme", kazanimName: "Üçgenin çevre uzunluğunu hesaplar.",
+    templates: [{ id: 'system-default-M.4.3.2.3', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
+        sinif: 4, unite_adi: "Ölçme", unite_no: 3, kazanim_kodu: "M.4.3.2.3", kazanim_metni: "Üçgenin çevre uzunluğunu hesaplar.",
+        soru_tipi: 'coktan_secmeli',
+        soru_metni: `Kenar uzunlukları 12 cm, 15 cm ve 18 cm olan bir üçgenin çevre uzunluğu kaç santimetredir?`,
+        secenekler: { A: '30', B: '35', C: '40', D: '45' },
+        dogru_cevap: 'D',
+        yanlis_secenek_tipleri: ["Sadece iki kenarı toplama", "Yanlış toplama"],
+        gercek_yasam_baglantisi: "Üçgen şeklindeki bir parkın etrafında bir tur yürüyüş yaptığımızda ne kadar yol aldığımızı çevre uzunluğunu hesaplayarak buluruz.",
+        seviye: 'orta', cozum_anahtari: `Üçgenin çevre uzunluğu, üç kenar uzunluğunun toplanmasıyla bulunur: 12 + 15 + 18 = 45 cm.`
+    }]}]
+  },
+  "M.4.3.3.1": {
