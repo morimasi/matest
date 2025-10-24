@@ -1,5 +1,4 @@
 
-
 import React, { useRef, useState, useEffect } from 'react';
 import { DetailedQuestion } from '../types';
 import { DownloadIcon, PrintIcon, ShareIcon, SparklesIcon, SettingsIcon, CopyIcon, CheckIcon, RefreshCwIcon } from './icons';
@@ -88,19 +87,22 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
         columnCount: quizElement.style.columnCount,
         width: quizElement.style.width,
         boxShadow: quizElement.style.boxShadow,
+        margin: quizElement.style.margin,
+        padding: quizElement.style.padding,
     };
-    // Force single column for consistent, multi-page layout
+
     quizElement.style.columnCount = '1';
-    quizElement.style.width = '800px'; // A fixed width for consistency
+    quizElement.style.width = '21cm'; // Use A4 width for rendering
     quizElement.style.boxShadow = 'none';
+    quizElement.style.margin = '0';
+    quizElement.style.padding = `${settings.pageMarginTop}cm 2cm ${settings.pageMarginBottom}cm 2cm`;
     
     try {
         const canvas = await html2canvas(quizElement, {
-            scale: 2.5, // Higher resolution for crisp text
+            scale: 3, // Higher resolution for crisp text
             useCORS: true,
             windowWidth: quizElement.scrollWidth,
             windowHeight: quizElement.scrollHeight,
-            backgroundColor: null, // Use element's background
         });
 
         const imgData = canvas.toDataURL('image/png');
@@ -110,33 +112,26 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
             format: 'a4'
         });
 
-        const cmToPt = 28.3465;
-        const sideMarginPt = 2 * cmToPt; // 2cm fixed side margins
-        const topMarginPt = settings.pageMarginTop * cmToPt;
-        const bottomMarginPt = settings.pageMarginBottom * cmToPt;
-
         const pdfWidth = pdf.internal.pageSize.getWidth();
         const pdfHeight = pdf.internal.pageSize.getHeight();
-        
-        const pageContentHeight = pdfHeight - topMarginPt - bottomMarginPt;
 
         const imgProps = pdf.getImageProperties(imgData);
         const ratio = imgProps.height / imgProps.width;
         
-        const imgWidthInPdf = pdfWidth - (sideMarginPt * 2);
+        const imgWidthInPdf = pdfWidth;
         const imgHeightInPdf = imgWidthInPdf * ratio;
 
         let heightLeft = imgHeightInPdf;
         let position = 0;
         
-        pdf.addImage(imgData, 'PNG', sideMarginPt, topMarginPt, imgWidthInPdf, imgHeightInPdf);
-        heightLeft -= pageContentHeight;
+        pdf.addImage(imgData, 'PNG', 0, 0, imgWidthInPdf, imgHeightInPdf);
+        heightLeft -= pdfHeight;
 
         while (heightLeft > 0) {
-            position -= pageContentHeight;
+            position -= pdfHeight;
             pdf.addPage();
-            pdf.addImage(imgData, 'PNG', sideMarginPt, position + topMarginPt, imgWidthInPdf, imgHeightInPdf);
-            heightLeft -= pageContentHeight;
+            pdf.addImage(imgData, 'PNG', 0, position, imgWidthInPdf, imgHeightInPdf);
+            heightLeft -= pdfHeight;
         }
         
         pdf.save(`${grade}-${uniqueUnitNames}-sinav.pdf`);
@@ -149,6 +144,8 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
         quizElement.style.columnCount = originalStyles.columnCount;
         quizElement.style.width = originalStyles.width;
         quizElement.style.boxShadow = originalStyles.boxShadow;
+        quizElement.style.margin = originalStyles.margin;
+        quizElement.style.padding = originalStyles.padding;
         
         // Show remix buttons again
         remixButtons.forEach(button => button.style.display = '');
@@ -291,7 +288,10 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                          <div>
                             <label className="block text-xs font-medium text-slate-600 mb-1">Sayfa Stili</label>
                             <select value={settings.pageStyle} onChange={e => setSettings({...settings, pageStyle: e.target.value})} className="w-full p-1.5 text-sm bg-white/60 border border-slate-300/50 rounded-md shadow-sm focus:ring-1 focus:ring-purple-500">
-                                <option value="normal">Standart</option><option value="notebook">Defter Stili</option>
+                                <option value="normal">Standart</option>
+                                <option value="notebook">Defter Stili</option>
+                                <option value="kareli">Kareli</option>
+                                <option value="noktali">Noktalı</option>
                             </select>
                         </div>
                         <div className="flex items-center justify-between">
@@ -321,110 +321,128 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
         </div>
       </div>
       
-      <div id="quiz-paper" ref={quizRef} style={quizContentStyle} className={`p-4 sm:p-8 bg-white border-t border-slate-200/80 rounded-b-2xl quiz-paper ${settings.showBorder ? 'bordered' : ''} ${settings.pageStyle}`}>
-        <header className="text-center mb-8">
-            <h1 className="text-xl font-bold">Matematik Değerlendirme</h1>
-            <p className="text-sm opacity-80">{`${grade} / Ünite(ler): ${uniqueUnitNames}`}</p>
-            <p className="text-sm opacity-70 mt-1"><strong>Kazanım(lar):</strong> {uniqueKazanimCodes}</p>
-            <div className="grid grid-cols-3 gap-4 mt-6 border-t border-b py-2 text-left">
-                <p><strong>Adı Soyadı:</strong> ....................................</p>
-                <p><strong>Tarih:</strong> ..... / ..... / ..........</p>
-                <p><strong>Puan:</strong> ............</p>
-            </div>
-        </header>
-
-        <div className="flex flex-col" style={{ gap: `${settings.questionSpacing}pt` }}>
-          {questions.map((q, index) => (
-            <div key={index} className="text-slate-800 break-inside-avoid relative">
-              <div className="flex justify-between items-start">
-                  <p className="font-semibold mb-3 inline flex-1 whitespace-pre-wrap" style={{color: 'inherit'}}>{`${index + 1}. ${q.soru_metni}`}</p>
-                  {onRemixQuestion && showAnswers && isTeacherView && (
-                    <button 
-                        onClick={() => onRemixQuestion(index)} 
-                        disabled={remixingIndex === index}
-                        title="Bu soruyu yeniden oluştur"
-                        className="p-1 ml-2 rounded-full text-blue-500 hover:bg-blue-500/10 disabled:text-slate-400 disabled:cursor-wait"
-                    >
-                       {remixingIndex === index ? (
-                           <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                       ) : (
-                           <RefreshCwIcon className="w-4 h-4"/>
-                       )}
-                    </button>
-                  )}
-              </div>
-              
-              {q.soru_tipi === 'coktan_secmeli' && q.secenekler && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 mt-2 pl-2 options-grid">
-                  {Object.entries(q.secenekler).map(([key, optionText]) => {
-                    const isCorrect = showAnswers && key === q.dogru_cevap;
-                    return (
-                      <div key={key} className={`p-2 rounded-md transition-all duration-300 ${isCorrect ? 'bg-green-100 text-green-800 font-bold' : ''}`}>
-                        <span>{key}) {optionText}</span>
-                      </div>
-                    );
-                  })}
+      <div className="bg-slate-200/70 p-4 sm:p-8 print:bg-transparent print:p-0 rounded-b-2xl">
+        <div id="quiz-paper" ref={quizRef} style={quizContentStyle} className={`quiz-paper ${settings.showBorder ? 'bordered' : ''} ${settings.pageStyle}`}>
+            <header className="text-center mb-8">
+                <h1 className="text-xl font-bold">Matematik Değerlendirme</h1>
+                <p className="text-sm opacity-80">{`${grade} / Ünite(ler): ${uniqueUnitNames}`}</p>
+                <p className="text-sm opacity-70 mt-1"><strong>Kazanım(lar):</strong> {uniqueKazanimCodes}</p>
+                <div className="grid grid-cols-3 gap-4 mt-6 border-t border-b py-2 text-left">
+                    <p><strong>Adı Soyadı:</strong> ....................................</p>
+                    <p><strong>Tarih:</strong> ..... / ..... / ..........</p>
+                    <p><strong>Puan:</strong> ............</p>
                 </div>
-              )}
+            </header>
 
-              {q.soru_tipi === 'dogru_yanlis' && (
-                <div className="flex items-center gap-4 mt-2 pl-2">
-                    <div className={`p-2 rounded-md transition-all duration-300 border w-24 text-center ${showAnswers && q.dogru_cevap === 'Doğru' ? 'bg-green-100 text-green-800 font-bold border-green-200' : 'bg-slate-50 border-slate-200'}`}>Doğru</div>
-                    <div className={`p-2 rounded-md transition-all duration-300 border w-24 text-center ${showAnswers && q.dogru_cevap === 'Yanlış' ? 'bg-green-100 text-green-800 font-bold border-green-200' : 'bg-slate-50 border-slate-200'}`}>Yanlış</div>
-                </div>
-              )}
-
-              {q.soru_tipi === 'bosluk_doldurma' && showAnswers && (
-                <div className="mt-2 pl-2">
-                    <p className="p-2 rounded-md bg-green-100 text-green-800 font-bold inline-block">Cevap: {q.dogru_cevap}</p>
-                </div>
-              )}
-
-              {showAnswers && isTeacherView && (
-                <div className="mt-4 ml-6 p-3 bg-blue-900/10 backdrop-blur-sm border border-blue-500/20 rounded-xl space-y-2">
-                    <h4 className="font-semibold text-sm text-blue-800 flex items-center gap-2"><SparklesIcon className="w-4 h-4"/> Öğretmen Notu</h4>
-                    <p className="text-sm text-blue-700"><strong>Kazanım:</strong> {q.kazanim_kodu}</p>
-                    <p className="text-sm text-blue-700"><strong>Çözüm:</strong> {q.cozum_anahtari}</p>
-                    <p className="text-sm text-blue-700"><strong>Seviye:</strong> <span className="capitalize px-2 py-0.5 bg-blue-200 text-blue-800 rounded-full text-xs">{q.seviye}</span></p>
-                    <div className="pt-2 border-t border-blue-100">
-                        <p className="text-sm text-blue-700"><strong>Gerçek Yaşam Bağlantısı:</strong> {q.gercek_yasam_baglantisi}</p>
-                    </div>
-                    {q.soru_tipi === 'coktan_secmeli' && q.yanlis_secenek_tipleri && q.yanlis_secenek_tipleri.length > 0 && (
-                        <div className="pt-2 border-t border-blue-100">
-                            <strong className="text-sm text-blue-700">Çeldirici Analizi:</strong>
-                            <ul className="list-disc list-inside pl-4 text-sm text-blue-600">
-                                {q.yanlis_secenek_tipleri.map((tip, i) => (
-                                    <li key={i}>{tip}</li>
-                                ))}
-                            </ul>
-                        </div>
+            <div className="flex flex-col" style={{ gap: `${settings.questionSpacing}pt` }}>
+            {questions.map((q, index) => (
+                <div key={index} className="text-slate-800 break-inside-avoid relative">
+                <div className="flex justify-between items-start">
+                    <p className="font-semibold mb-3 inline flex-1 whitespace-pre-wrap" style={{color: 'inherit'}}>{`${index + 1}. ${q.soru_metni}`}</p>
+                    {onRemixQuestion && showAnswers && isTeacherView && (
+                        <button 
+                            onClick={() => onRemixQuestion(index)} 
+                            disabled={remixingIndex === index}
+                            title="Bu soruyu yeniden oluştur"
+                            className="p-1 ml-2 rounded-full text-blue-500 hover:bg-blue-500/10 disabled:text-slate-400 disabled:cursor-wait"
+                        >
+                        {remixingIndex === index ? (
+                            <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                        ) : (
+                            <RefreshCwIcon className="w-4 h-4"/>
+                        )}
+                        </button>
                     )}
-                    <div className="pt-2 border-t border-blue-100">
-                        <label htmlFor={`teacher-note-${index}`} className="text-sm font-semibold text-blue-800">Ek Notlar / İpuçları:</label>
-                        <textarea
-                            id={`teacher-note-${index}`}
-                            rows={3}
-                            className="w-full mt-1 p-2 text-sm bg-white/60 border border-blue-300/50 rounded-md shadow-sm focus:ring-1 focus:ring-blue-500 transition-all duration-200 note-textarea"
-                            placeholder="Öğrenciler için ipuçları veya ek açıklamalar ekleyin..."
-                            value={customTeacherNotes[index] || ''}
-                            onChange={(e) => handleNoteChange(index, e.target.value)}
-                        />
-                    </div>
                 </div>
-              )}
+                
+                {q.soru_tipi === 'coktan_secmeli' && q.secenekler && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 mt-2 pl-2 options-grid">
+                    {Object.entries(q.secenekler).map(([key, optionText]) => {
+                        const isCorrect = showAnswers && key === q.dogru_cevap;
+                        return (
+                        <div key={key} className={`p-2 rounded-md transition-all duration-300 ${isCorrect ? 'bg-green-100 text-green-800 font-bold' : ''}`}>
+                            <span>{key}) {optionText}</span>
+                        </div>
+                        );
+                    })}
+                    </div>
+                )}
+
+                {q.soru_tipi === 'dogru_yanlis' && (
+                    <div className="flex items-center gap-4 mt-2 pl-2">
+                        <div className={`p-2 rounded-md transition-all duration-300 border w-24 text-center ${showAnswers && q.dogru_cevap === 'Doğru' ? 'bg-green-100 text-green-800 font-bold border-green-200' : 'bg-slate-50 border-slate-200'}`}>Doğru</div>
+                        <div className={`p-2 rounded-md transition-all duration-300 border w-24 text-center ${showAnswers && q.dogru_cevap === 'Yanlış' ? 'bg-green-100 text-green-800 font-bold border-green-200' : 'bg-slate-50 border-slate-200'}`}>Yanlış</div>
+                    </div>
+                )}
+
+                {q.soru_tipi === 'bosluk_doldurma' && showAnswers && (
+                    <div className="mt-2 pl-2">
+                        <p className="p-2 rounded-md bg-green-100 text-green-800 font-bold inline-block">Cevap: {q.dogru_cevap}</p>
+                    </div>
+                )}
+
+                {showAnswers && isTeacherView && (
+                    <div className="mt-4 ml-6 p-3 bg-blue-900/10 backdrop-blur-sm border border-blue-500/20 rounded-xl space-y-2">
+                        <h4 className="font-semibold text-sm text-blue-800 flex items-center gap-2"><SparklesIcon className="w-4 h-4"/> Öğretmen Notu</h4>
+                        <p className="text-sm text-blue-700"><strong>Kazanım:</strong> {q.kazanim_kodu}</p>
+                        <p className="text-sm text-blue-700"><strong>Çözüm:</strong> {q.cozum_anahtari}</p>
+                        <p className="text-sm text-blue-700"><strong>Seviye:</strong> <span className="capitalize px-2 py-0.5 bg-blue-200 text-blue-800 rounded-full text-xs">{q.seviye}</span></p>
+                        <div className="pt-2 border-t border-blue-100">
+                            <p className="text-sm text-blue-700"><strong>Gerçek Yaşam Bağlantısı:</strong> {q.gercek_yasam_baglantisi}</p>
+                        </div>
+                        {q.soru_tipi === 'coktan_secmeli' && q.yanlis_secenek_tipleri && q.yanlis_secenek_tipleri.length > 0 && (
+                            <div className="pt-2 border-t border-blue-100">
+                                <strong className="text-sm text-blue-700">Çeldirici Analizi:</strong>
+                                <ul className="list-disc list-inside pl-4 text-sm text-blue-600">
+                                    {q.yanlis_secenek_tipleri.map((tip, i) => (
+                                        <li key={i}>{tip}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
+                        <div className="pt-2 border-t border-blue-100">
+                            <label htmlFor={`teacher-note-${index}`} className="text-sm font-semibold text-blue-800">Ek Notlar / İpuçları:</label>
+                            <textarea
+                                id={`teacher-note-${index}`}
+                                rows={3}
+                                className="w-full mt-1 p-2 text-sm bg-white/60 border border-blue-300/50 rounded-md shadow-sm focus:ring-1 focus:ring-blue-500 transition-all duration-200 note-textarea"
+                                placeholder="Öğrenciler için ipuçları veya ek açıklamalar ekleyin..."
+                                value={customTeacherNotes[index] || ''}
+                                onChange={(e) => handleNoteChange(index, e.target.value)}
+                            />
+                        </div>
+                    </div>
+                )}
+                </div>
+            ))}
             </div>
-          ))}
         </div>
       </div>
        <style>{`
-        .quiz-paper { background-color: var(--bg-color); }
+        .quiz-paper { 
+            background-color: var(--bg-color); 
+            width: 21cm;
+            min-height: 29.7cm;
+            padding: 2cm;
+            margin: 2rem auto;
+            box-shadow: 0 0 0.5cm rgba(0,0,0,0.5);
+            background-color: white;
+        }
         .quiz-paper.notebook {
             background-image: linear-gradient(to bottom, #e2e8f0 1px, transparent 1px);
             background-size: 100% var(--line-height);
             line-height: var(--line-height);
+        }
+        .quiz-paper.kareli {
+            background-image: linear-gradient(to right, #e2e8f0 1px, transparent 1px), linear-gradient(to bottom, #e2e8f0 1px, transparent 1px);
+            background-size: 1cm 1cm;
+        }
+        .quiz-paper.noktali {
+            background-image: radial-gradient(#d1d5db 1px, transparent 1px);
+            background-size: 0.8cm 0.8cm;
         }
         .quiz-paper.bordered { border: 2px solid black; }
 
@@ -440,7 +458,7 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                 padding: 0 !important; 
                 margin: 0 !important; 
                 backdrop-filter: none !important; 
-                background-color: white !important; 
+                background: none !important; 
             }
             .quiz-paper {
                 color: var(--text-color) !important;
@@ -451,7 +469,9 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                 column-count: var(--column-count) !important;
                 column-gap: var(--column-gap) !important;
                 width: 100% !important;
+                min-height: initial !important;
                 padding: 0 !important;
+                margin: 0 !important;
             }
             .quiz-paper header {
                 break-after: avoid;
@@ -470,6 +490,9 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
             }
             .quiz-paper.bordered {
                 border: 2px solid black !important;
+            }
+            .quiz-paper.notebook, .quiz-paper.kareli, .quiz-paper.noktali {
+                 background-image: none !important;
             }
             .quiz-paper.notebook {
                  background-image: linear-gradient(to bottom, #e2e8f0 1px, transparent 1px) !important;
