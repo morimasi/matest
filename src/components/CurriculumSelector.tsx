@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Grade, Unit, QuestionType } from '../types';
-import { SparklesIcon } from './icons';
+import { SparklesIcon, MicrophoneIcon } from './icons';
 
 interface CurriculumSelectorProps {
   curriculumData: Grade[];
@@ -52,6 +52,10 @@ const CurriculumSelector: React.FC<CurriculumSelectorProps> = ({
   const unitSelectorRef = useRef<HTMLDivElement>(null);
   const kazanimSelectorRef = useRef<HTMLDivElement>(null);
 
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef<any>(null);
+
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (unitSelectorRef.current && !unitSelectorRef.current.contains(event.target as Node)) {
@@ -64,6 +68,59 @@ const CurriculumSelector: React.FC<CurriculumSelectorProps> = ({
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    const SpeechRecognitionAPI = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognitionAPI) {
+      console.warn("Speech recognition not supported by this browser.");
+      return;
+    }
+
+    const recognitionInstance = new SpeechRecognitionAPI();
+    recognitionInstance.continuous = false;
+    recognitionInstance.lang = 'tr-TR';
+    recognitionInstance.interimResults = false;
+
+    recognitionInstance.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      setCustomPrompt(prev => (prev ? prev.trim() + ' ' : '') + transcript);
+      setIsListening(false);
+    };
+
+    recognitionInstance.onerror = (event: any) => {
+      console.error("Speech recognition error:", event.error);
+      if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+        alert("Mikrofon izni verilmedi. Sesli komut özelliğini kullanmak için tarayıcı ayarlarınızdan mikrofon erişimine izin vermelisiniz.");
+      }
+      setIsListening(false);
+    };
+
+    recognitionInstance.onend = () => {
+      setIsListening(false);
+    };
+
+    recognitionRef.current = recognitionInstance;
+  }, [setCustomPrompt]);
+
+  const handleToggleListening = () => {
+    if (!recognitionRef.current) {
+        alert("Ses tanıma özelliği tarayıcınız tarafından desteklenmiyor.");
+        return;
+    }
+
+    if (isListening) {
+      recognitionRef.current.stop();
+    } else {
+      try {
+        recognitionRef.current.start();
+        setIsListening(true);
+      } catch (error) {
+        console.error("Could not start speech recognition:", error);
+        setIsListening(false);
+      }
+    }
+  };
+
 
   const handleGradeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const gradeId = parseInt(e.target.value, 10);
@@ -273,14 +330,29 @@ const CurriculumSelector: React.FC<CurriculumSelectorProps> = ({
         )}
          <div className="pt-2">
             <label htmlFor="custom-prompt" className="block text-sm font-medium text-slate-600 mb-1">Ek Talimatlar (İsteğe Bağlı)</label>
-            <textarea
-                id="custom-prompt"
-                rows={3}
-                className="w-full p-2.5 bg-white/60 border border-slate-300/50 rounded-md shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-300"
-                placeholder="Örn: Sorular Ege Bölgesi'ndeki şehirlerle ilgili olsun."
-                value={customPrompt}
-                onChange={(e) => setCustomPrompt(e.target.value)}
-            />
+            <div className="relative">
+                <textarea
+                    id="custom-prompt"
+                    rows={3}
+                    className="w-full p-2.5 bg-white/60 border border-slate-300/50 rounded-md shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-300 pr-12"
+                    placeholder="Örn: Sorular Ege Bölgesi'ndeki şehirlerle ilgili olsun."
+                    value={customPrompt}
+                    onChange={(e) => setCustomPrompt(e.target.value)}
+                />
+                <button
+                    type="button"
+                    onClick={handleToggleListening}
+                    title={isListening ? "Dinlemeyi Durdur" : "Sesli Komut Ver"}
+                    className={`absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-400 ${
+                        isListening 
+                        ? 'text-red-600 bg-red-100 animate-pulse' 
+                        : 'text-slate-500 hover:bg-slate-200/60'
+                    }`}
+                    disabled={recognitionRef.current === null}
+                >
+                    <MicrophoneIcon className="w-5 h-5" />
+                </button>
+            </div>
             <p className="text-xs text-slate-500 mt-1">Yapay zekaya daha spesifik veya yaratıcı sorular üretmesi için ek talimatlar verebilirsiniz.</p>
         </div>
       </div>
