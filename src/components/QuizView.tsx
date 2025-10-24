@@ -314,91 +314,93 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                 <p><strong>Puan:</strong> ............</p>
             </div>
         </header>
-
-        <div className="space-y-8">
-          {questions.map((q, index) => (
-            <div key={index} className="text-slate-800 break-inside-avoid relative">
-              <div className="flex justify-between items-start">
-                  <p className="font-semibold mb-3 inline flex-1 whitespace-pre-wrap" style={{color: 'inherit'}}>{`${index + 1}. ${q.soru_metni}`}</p>
-                  {onRemixQuestion && showAnswers && isTeacherView && (
-                    <button 
-                        onClick={() => onRemixQuestion(index)} 
-                        disabled={remixingIndex === index}
-                        title="Bu soruyu yeniden oluştur"
-                        className="p-1 ml-2 rounded-full text-blue-500 hover:bg-blue-500/10 disabled:text-slate-400 disabled:cursor-wait"
-                    >
-                       {remixingIndex === index ? (
-                           <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                       ) : (
-                           <RefreshCwIcon className="w-4 h-4"/>
-                       )}
-                    </button>
-                  )}
-              </div>
-              
-              {q.soru_tipi === 'coktan_secmeli' && q.secenekler && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 mt-2 pl-2 options-grid">
-                  {Object.entries(q.secenekler).map(([key, optionText]) => {
-                    const isCorrect = showAnswers && key === q.dogru_cevap;
-                    return (
-                      <div key={key} className={`p-2 rounded-md transition-all duration-300 ${isCorrect ? 'bg-green-100 text-green-800 font-bold' : ''}`}>
-                        <span>{key}) {optionText}</span>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-
-              {q.soru_tipi === 'dogru_yanlis' && (
-                <div className="flex items-center gap-4 mt-2 pl-2">
-                    <div className={`p-2 rounded-md transition-all duration-300 border w-24 text-center ${showAnswers && q.dogru_cevap === 'Doğru' ? 'bg-green-100 text-green-800 font-bold border-green-200' : 'bg-slate-50 border-slate-200'}`}>Doğru</div>
-                    <div className={`p-2 rounded-md transition-all duration-300 border w-24 text-center ${showAnswers && q.dogru_cevap === 'Yanlış' ? 'bg-green-100 text-green-800 font-bold border-green-200' : 'bg-slate-50 border-slate-200'}`}>Yanlış</div>
-                </div>
-              )}
-
-              {q.soru_tipi === 'bosluk_doldurma' && showAnswers && (
-                <div className="mt-2 pl-2">
-                    <p className="p-2 rounded-md bg-green-100 text-green-800 font-bold inline-block">Cevap: {q.dogru_cevap}</p>
-                </div>
-              )}
-
-              {showAnswers && isTeacherView && (
-                <div className="mt-4 ml-6 p-3 bg-blue-900/10 backdrop-blur-sm border border-blue-500/20 rounded-xl space-y-2">
-                    <h4 className="font-semibold text-sm text-blue-800 flex items-center gap-2"><SparklesIcon className="w-4 h-4"/> Öğretmen Notu</h4>
-                    <p className="text-sm text-blue-700"><strong>Kazanım:</strong> {q.kazanim_kodu}</p>
-                    <p className="text-sm text-blue-700"><strong>Çözüm:</strong> {q.cozum_anahtari}</p>
-                    <p className="text-sm text-blue-700"><strong>Seviye:</strong> <span className="capitalize px-2 py-0.5 bg-blue-200 text-blue-800 rounded-full text-xs">{q.seviye}</span></p>
-                    <div className="pt-2 border-t border-blue-100">
-                        <p className="text-sm text-blue-700"><strong>Gerçek Yaşam Bağlantısı:</strong> {q.gercek_yasam_baglantisi}</p>
-                    </div>
-                    {q.soru_tipi === 'coktan_secmeli' && q.yanlis_secenek_tipleri && q.yanlis_secenek_tipleri.length > 0 && (
-                        <div className="pt-2 border-t border-blue-100">
-                            <strong className="text-sm text-blue-700">Çeldirici Analizi:</strong>
-                            <ul className="list-disc list-inside pl-4 text-sm text-blue-600">
-                                {q.yanlis_secenek_tipleri.map((tip, i) => (
-                                    <li key={i}>{tip}</li>
-                                ))}
-                            </ul>
-                        </div>
+        
+        <div className="relative watermark-container">
+            <div className="space-y-8">
+            {questions.map((q, index) => (
+                <div key={index} className="text-slate-800 break-inside-avoid relative">
+                <div className="flex justify-between items-start">
+                    <p className="font-semibold mb-3 inline flex-1 whitespace-pre-wrap" style={{color: 'inherit'}}>{`${index + 1}. ${q.soru_metni}`}</p>
+                    {onRemixQuestion && showAnswers && isTeacherView && (
+                        <button 
+                            onClick={() => onRemixQuestion(index)} 
+                            disabled={remixingIndex === index}
+                            title="Bu soruyu yeniden oluştur"
+                            className="p-1 ml-2 rounded-full text-blue-500 hover:bg-blue-500/10 disabled:text-slate-400 disabled:cursor-wait"
+                        >
+                        {remixingIndex === index ? (
+                            <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                        ) : (
+                            <RefreshCwIcon className="w-4 h-4"/>
+                        )}
+                        </button>
                     )}
-                    <div className="pt-2 border-t border-blue-100">
-                        <label htmlFor={`teacher-note-${index}`} className="text-sm font-semibold text-blue-800">Ek Notlar / İpuçları:</label>
-                        <textarea
-                            id={`teacher-note-${index}`}
-                            rows={3}
-                            className="w-full mt-1 p-2 text-sm bg-white/60 border border-blue-300/50 rounded-md shadow-sm focus:ring-1 focus:ring-blue-500 transition-all duration-200 note-textarea"
-                            placeholder="Öğrenciler için ipuçları veya ek açıklamalar ekleyin..."
-                            value={customTeacherNotes[index] || ''}
-                            onChange={(e) => handleNoteChange(index, e.target.value)}
-                        />
-                    </div>
                 </div>
-              )}
+                
+                {q.soru_tipi === 'coktan_secmeli' && q.secenekler && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 mt-2 pl-2 options-grid">
+                    {Object.entries(q.secenekler).map(([key, optionText]) => {
+                        const isCorrect = showAnswers && key === q.dogru_cevap;
+                        return (
+                        <div key={key} className={`p-2 rounded-md transition-all duration-300 ${isCorrect ? 'bg-green-100 text-green-800 font-bold' : ''}`}>
+                            <span>{key}) {optionText}</span>
+                        </div>
+                        );
+                    })}
+                    </div>
+                )}
+
+                {q.soru_tipi === 'dogru_yanlis' && (
+                    <div className="flex items-center gap-4 mt-2 pl-2">
+                        <div className={`p-2 rounded-md transition-all duration-300 border w-24 text-center ${showAnswers && q.dogru_cevap === 'Doğru' ? 'bg-green-100 text-green-800 font-bold border-green-200' : 'bg-slate-50 border-slate-200'}`}>Doğru</div>
+                        <div className={`p-2 rounded-md transition-all duration-300 border w-24 text-center ${showAnswers && q.dogru_cevap === 'Yanlış' ? 'bg-green-100 text-green-800 font-bold border-green-200' : 'bg-slate-50 border-slate-200'}`}>Yanlış</div>
+                    </div>
+                )}
+
+                {q.soru_tipi === 'bosluk_doldurma' && showAnswers && (
+                    <div className="mt-2 pl-2">
+                        <p className="p-2 rounded-md bg-green-100 text-green-800 font-bold inline-block">Cevap: {q.dogru_cevap}</p>
+                    </div>
+                )}
+
+                {showAnswers && isTeacherView && (
+                    <div className="mt-4 ml-6 p-3 bg-blue-900/10 backdrop-blur-sm border border-blue-500/20 rounded-xl space-y-2">
+                        <h4 className="font-semibold text-sm text-blue-800 flex items-center gap-2"><SparklesIcon className="w-4 h-4"/> Öğretmen Notu</h4>
+                        <p className="text-sm text-blue-700"><strong>Kazanım:</strong> {q.kazanim_kodu}</p>
+                        <p className="text-sm text-blue-700"><strong>Çözüm:</strong> {q.cozum_anahtari}</p>
+                        <p className="text-sm text-blue-700"><strong>Seviye:</strong> <span className="capitalize px-2 py-0.5 bg-blue-200 text-blue-800 rounded-full text-xs">{q.seviye}</span></p>
+                        <div className="pt-2 border-t border-blue-100">
+                            <p className="text-sm text-blue-700"><strong>Gerçek Yaşam Bağlantısı:</strong> {q.gercek_yasam_baglantisi}</p>
+                        </div>
+                        {q.soru_tipi === 'coktan_secmeli' && q.yanlis_secenek_tipleri && q.yanlis_secenek_tipleri.length > 0 && (
+                            <div className="pt-2 border-t border-blue-100">
+                                <strong className="text-sm text-blue-700">Çeldirici Analizi:</strong>
+                                <ul className="list-disc list-inside pl-4 text-sm text-blue-600">
+                                    {q.yanlis_secenek_tipleri.map((tip, i) => (
+                                        <li key={i}>{tip}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
+                        <div className="pt-2 border-t border-blue-100">
+                            <label htmlFor={`teacher-note-${index}`} className="text-sm font-semibold text-blue-800">Ek Notlar / İpuçları:</label>
+                            <textarea
+                                id={`teacher-note-${index}`}
+                                rows={3}
+                                className="w-full mt-1 p-2 text-sm bg-white/60 border border-blue-300/50 rounded-md shadow-sm focus:ring-1 focus:ring-blue-500 transition-all duration-200 note-textarea"
+                                placeholder="Öğrenciler için ipuçları veya ek açıklamalar ekleyin..."
+                                value={customTeacherNotes[index] || ''}
+                                onChange={(e) => handleNoteChange(index, e.target.value)}
+                            />
+                        </div>
+                    </div>
+                )}
+                </div>
+            ))}
             </div>
-          ))}
         </div>
       </div>
        <style>{`
@@ -409,10 +411,8 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
             line-height: var(--line-height);
         }
         .quiz-paper.bordered { border: 2px solid black; }
-        .quiz-paper.watermarked {
-            position: relative;
-        }
-        .quiz-paper.watermarked::after {
+        
+        .quiz-paper.watermarked .watermark-container::after {
             content: '';
             background-image: url(/logo1.jpg);
             background-repeat: no-repeat;
@@ -427,7 +427,7 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
             pointer-events: none;
             z-index: 0;
         }
-        .quiz-paper > header, .quiz-paper > .space-y-8 {
+        .quiz-paper > header, .quiz-paper .watermark-container > .space-y-8 {
             position: relative;
             z-index: 1;
         }
@@ -483,7 +483,7 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
             .quiz-paper.notebook {
                  background-image: linear-gradient(to bottom, #e2e8f0 1px, transparent 1px) !important;
             }
-            .quiz-paper.watermarked::after {
+            .quiz-paper.watermarked .watermark-container::after {
                 opacity: 0.1 !important;
                 background-image: url(/logo1.jpg) !important;
             }
