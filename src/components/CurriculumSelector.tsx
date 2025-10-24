@@ -69,55 +69,59 @@ const CurriculumSelector: React.FC<CurriculumSelectorProps> = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  useEffect(() => {
+  const handleToggleListening = () => {
     const SpeechRecognitionAPI = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+
     if (!SpeechRecognitionAPI) {
-      console.warn("Speech recognition not supported by this browser.");
+      alert("Ses tanıma özelliği tarayıcınız tarafından desteklenmiyor.");
       return;
     }
 
+    if (isListening && recognitionRef.current) {
+      recognitionRef.current.stop();
+      return;
+    }
+
+    // Create a new instance for each listen attempt
     const recognitionInstance = new SpeechRecognitionAPI();
+    recognitionRef.current = recognitionInstance;
+    
     recognitionInstance.continuous = false;
     recognitionInstance.lang = 'tr-TR';
     recognitionInstance.interimResults = false;
 
+    recognitionInstance.onstart = () => {
+      setIsListening(true);
+    };
+
     recognitionInstance.onresult = (event: any) => {
       const transcript = event.results[0][0].transcript;
       setCustomPrompt(prev => (prev ? prev.trim() + ' ' : '') + transcript);
-      setIsListening(false);
     };
 
     recognitionInstance.onerror = (event: any) => {
       console.error("Speech recognition error:", event.error);
       if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
         alert("Mikrofon izni verilmedi. Sesli komut özelliğini kullanmak için tarayıcı ayarlarınızdan mikrofon erişimine izin vermelisiniz.");
+      } else if (event.error === 'no-speech') {
+        alert("Konuşma algılanamadı. Lütfen tekrar deneyin.");
+      } else if (event.error === 'network') {
+        alert("Ağ hatası nedeniyle ses tanıma başarısız oldu.");
       }
-      setIsListening(false);
     };
 
     recognitionInstance.onend = () => {
       setIsListening(false);
+      recognitionRef.current = null;
     };
 
-    recognitionRef.current = recognitionInstance;
-  }, [setCustomPrompt]);
-
-  const handleToggleListening = () => {
-    if (!recognitionRef.current) {
-        alert("Ses tanıma özelliği tarayıcınız tarafından desteklenmiyor.");
-        return;
-    }
-
-    if (isListening) {
-      recognitionRef.current.stop();
-    } else {
-      try {
-        recognitionRef.current.start();
-        setIsListening(true);
-      } catch (error) {
-        console.error("Could not start speech recognition:", error);
-        setIsListening(false);
-      }
+    try {
+      recognitionInstance.start();
+    } catch (error) {
+      // This might happen if speech recognition is already active, though our state machine should prevent it.
+      console.error("Could not start speech recognition:", error);
+      setIsListening(false);
+      recognitionRef.current = null;
     }
   };
 
@@ -340,7 +344,6 @@ const CurriculumSelector: React.FC<CurriculumSelectorProps> = ({
                         ? 'bg-red-500 text-white animate-pulse' 
                         : 'bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold'
                     }`}
-                    disabled={recognitionRef.current === null}
                 >
                     <MicrophoneIcon className="w-4 h-4" />
                     {isListening ? "Dinleniyor..." : "Sesli Komut"}
