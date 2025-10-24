@@ -35,6 +35,7 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
         pageStyle: 'normal',
         showBorder: false,
         textColor: '#1e293b',
+        showWatermark: false,
     };
     try {
         const savedSettings = localStorage.getItem(VIEW_SETTINGS_KEY);
@@ -276,6 +277,10 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                             <input type="checkbox" checked={settings.showBorder} onChange={e => setSettings({...settings, showBorder: e.target.checked})} className="toggle-checkbox" />
                         </div>
                         <div className="flex items-center justify-between">
+                            <label className="text-sm font-medium text-slate-600">Filigran Ekle</label>
+                            <input type="checkbox" checked={settings.showWatermark} onChange={e => setSettings({...settings, showWatermark: e.target.checked})} className="toggle-checkbox" />
+                        </div>
+                        <div className="flex items-center justify-between">
                             <label className="text-sm font-medium text-slate-600">Metin Rengi</label>
                             <input type="color" value={settings.textColor} onChange={e => setSettings({...settings, textColor: e.target.value})} className="w-8 h-8 p-0 border-none rounded-md cursor-pointer" />
                         </div>
@@ -298,7 +303,7 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
         </div>
       </div>
       
-      <div id="quiz-paper" ref={quizRef} style={quizContentStyle} className={`p-4 sm:p-8 bg-white border-t border-slate-200/80 rounded-b-2xl quiz-paper ${settings.showBorder ? 'bordered' : ''} ${settings.pageStyle}`}>
+      <div id="quiz-paper" ref={quizRef} style={quizContentStyle} className={`p-4 sm:p-8 bg-white border-t border-slate-200/80 rounded-b-2xl quiz-paper ${settings.showBorder ? 'bordered' : ''} ${settings.pageStyle} ${settings.showWatermark ? 'watermarked' : ''}`}>
         <header className="text-center mb-8">
             <h1 className="text-xl font-bold">Matematik Değerlendirme</h1>
             <p className="text-sm opacity-80">{`${grade} / Ünite(ler): ${uniqueUnitNames}`}</p>
@@ -404,6 +409,28 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
             line-height: var(--line-height);
         }
         .quiz-paper.bordered { border: 2px solid black; }
+        .quiz-paper.watermarked {
+            position: relative;
+        }
+        .quiz-paper.watermarked::after {
+            content: '';
+            background-image: url(/logo1.jpg);
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 80%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0.1;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .quiz-paper > header, .quiz-paper > .space-y-8 {
+            position: relative;
+            z-index: 1;
+        }
 
         @media print {
             @page {
@@ -413,6 +440,7 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
             body { 
                 background: white !important; 
                 -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
             }
             .non-printable { display: none !important; }
             .printable-area { 
@@ -454,6 +482,10 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
             }
             .quiz-paper.notebook {
                  background-image: linear-gradient(to bottom, #e2e8f0 1px, transparent 1px) !important;
+            }
+            .quiz-paper.watermarked::after {
+                opacity: 0.1 !important;
+                background-image: url(/logo1.jpg) !important;
             }
             .bg-green-100 { 
                 background-color: #dcfce7 !important; 

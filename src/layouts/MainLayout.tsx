@@ -12,6 +12,7 @@ const MainLayout: React.FC = () => (
                             <SparklesIcon className="w-6 h-6" />
                         </div>
                         <h1 className="text-xl font-bold text-slate-900 hidden sm:block">AI Sınav Asistanı</h1>
+                        <img src="/logo1.jpg" alt="Ek Logo" className="h-10 w-auto hidden sm:block rounded-full" />
                     </div>
                     <nav className="flex items-center justify-center gap-1 sm:gap-2 p-1 bg-black/5 rounded-full">
                         <NavLink 
