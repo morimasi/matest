@@ -53,7 +53,7 @@ export interface Grade {
 }
 
 export interface SavedQuiz {
-  id:string;
+  id: string;
   createdAt: string;
   gradeName: string;
   questions: DetailedQuestion[];

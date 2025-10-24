@@ -250,7 +250,7 @@ export const generateSingleQuestion = async (grade: string, unit: string, kazani
     try {
         // Remix işlemi sırasında, eğer kazanım metni 'tablo' veya 'grafik' içeriyorsa,
         // tutarlılık için grafik/tablo kuralını otomatik olarak etkinleştir.
-        const isDataKazanim = kazanim.name.includes('tablo') || kazanim.name.includes('grafik');
+        const isDataKazanim = kazanim.name.toLowerCase().includes('tablo') || kazanim.name.toLowerCase().includes('grafik');
         const { prompt: basePrompt, singleSchema } = getPromptAndSchema(grade, unit, [kazanim], 1, questionType, "", isDataKazanim, 0);
         const remixPrompt = `${basePrompt}\n\nÖNEMLİ KURAL: Üreteceğin yeni soru, aşağıdaki sorudan MUTLAKA farklı olmalıdır:\n"${existingQuestionText}"`;
 

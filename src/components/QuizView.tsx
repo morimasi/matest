@@ -1,5 +1,7 @@
 
 
+
+
 import React, { useRef, useState, useEffect } from 'react';
 import { DetailedQuestion, ChartData } from '../types';
 import { DownloadIcon, PrintIcon, ShareIcon, SparklesIcon, SettingsIcon, CopyIcon, CheckIcon, RefreshCwIcon, ArchiveAddIcon } from './icons';
@@ -52,26 +54,21 @@ const ChartRenderer: React.FC<{ data: ChartData }> = ({ data }) => {
               <div key={index} className="flex items-center">
                 <span className="w-28 font-medium shrink-0 text-right pr-4">{item.etiket}:</span>
                 <span className="flex flex-wrap gap-1 text-2xl">{Array.from({ length: item.deger }, (_, i) => <span key={i}>{item.nesne || '●'}</span>)}</span>
-                <span className="ml-2 font-semibold text-slate-600">({item.deger})</span>
               </div>
             ))}
           </div>
         );
 
       case 'sutun_grafiği':
-        const maxValue = Math.max(...data.veri.map(item => item.deger), 0);
         return (
           <div className="space-y-3 my-4" style={{ pageBreakInside: 'avoid' }}>
             {data.veri.map((item, index) => (
               <div key={index} className="flex items-center gap-2">
                 <span className="w-28 text-right font-medium shrink-0">{item.etiket}</span>
-                <div className="flex-grow bg-slate-200 rounded-full h-6">
-                  <div
-                    className="bg-gradient-to-r from-blue-400 to-purple-500 h-6 rounded-full flex items-center justify-end pr-2 text-white text-sm font-bold"
-                    style={{ width: `${maxValue > 0 ? (item.deger / maxValue) * 100 : 0}%`, minWidth: '2rem' }}
-                  >
-                   {item.deger}
-                  </div>
+                <div className="flex-grow flex flex-wrap gap-1 items-center">
+                  {Array.from({ length: item.deger }, (_, i) => (
+                    <div key={i} className="w-4 h-5 bg-purple-500 rounded-sm"></div>
+                  ))}
                 </div>
               </div>
             ))}
@@ -132,7 +129,9 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
   }, [settings]);
 
   useEffect(() => {
-    localStorage.setItem(`${NOTES_PREFIX}${quizId}`, JSON.stringify(customTeacherNotes));
+    if (quizId !== 'generating') {
+      localStorage.setItem(`${NOTES_PREFIX}${quizId}`, JSON.stringify(customTeacherNotes));
+    }
   }, [customTeacherNotes, quizId]);
 
   const handleNoteChange = (index: number, text: string) => {
@@ -233,6 +232,10 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
   };
 
   const handleCopyLink = () => {
+    if (quizId === 'generating') {
+        alert("Sınav henüz kaydedilmedi, bu yüzden paylaşılamaz.");
+        return;
+    }
     const url = `${window.location.origin}${window.location.pathname}#/history/${quizId}`;
     navigator.clipboard.writeText(url).then(() => {
         setCopyStatus('copied');
@@ -387,15 +390,18 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
         <div className="space-y-8">
           {questions.map((q, index) => (
             <div key={index} className="text-slate-800 break-inside-avoid relative">
-              {q.grafik_verisi && <ChartRenderer data={q.grafik_verisi} />}
+              
               <div className="flex justify-between items-start">
-                  <p className="font-semibold mb-3 inline flex-1 whitespace-pre-wrap" style={{color: 'inherit'}}>{`${index + 1}. ${q.soru_metni}`}</p>
+                  <div className="flex-1">
+                    {q.grafik_verisi && <ChartRenderer data={q.grafik_verisi} />}
+                    <p className="font-semibold mb-3 inline whitespace-pre-wrap" style={{color: 'inherit'}}>{`${index + 1}. ${q.soru_metni}`}</p>
+                  </div>
                   {onRemixQuestion && showAnswers && isTeacherView && (
                     <button 
                         onClick={() => onRemixQuestion(index)} 
                         disabled={remixingIndex === index}
                         title="Bu soruyu yeniden oluştur"
-                        className="p-1 ml-2 rounded-full text-blue-500 hover:bg-blue-500/10 disabled:text-slate-400 disabled:cursor-wait"
+                        className="p-1 ml-2 rounded-full text-blue-500 hover:bg-blue-500/10 disabled:text-slate-400 disabled:cursor-wait shrink-0"
                     >
                        {remixingIndex === index ? (
                            <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
