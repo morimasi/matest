@@ -214,10 +214,18 @@ const CurriculumSelector: React.FC<CurriculumSelectorProps> = ({
               className="w-full p-2.5 bg-white/60 border border-slate-300/50 rounded-md shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-300"
             >
               <option value={5}>5 Soru</option>
+              <option value={8}>8 Soru</option>
               <option value={10}>10 Soru</option>
+              <option value={12}>12 Soru</option>
+              <option value={14}>14 Soru</option>
               <option value={15}>15 Soru</option>
+              <option value={16}>16 Soru</option>
+              <option value={18}>18 Soru</option>
               <option value={20}>20 Soru</option>
+              <option value={22}>22 Soru</option>
+              <option value={24}>24 Soru</option>
               <option value={25}>25 Soru</option>
+              <option value={26}>26 Soru</option>
               <option value={30}>30 Soru</option>
               <option value={50}>50 Soru</option>
             </select>
