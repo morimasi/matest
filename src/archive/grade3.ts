@@ -45,7 +45,10 @@ export const ARCHIVE_DATA_GRADE_3: Record<string, ArchiveQuiz> = {
     gradeName: "3. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "1000’e kadar olan doğal sayıları karşılaştırır ve sıralar.",
     templates: [{ id: 'system-default-M.3.1.1.3', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
         const nums = [456 - i*10, 654 + i*10, 546 + i*5];
-        if (new Set(nums).size < 3) return null;
+        if (new Set(nums).size < 3) { // Regenerate if not unique
+             nums[1] += 1;
+             nums[2] -= 1;
+        }
         const sorted = [...nums].sort((a,b) => a-b);
         return {
             sinif: 3, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.3.1.1.3", kazanim_metni: "1000’e kadar olan doğal sayıları karşılaştırır ve sıralar.",
@@ -143,16 +146,20 @@ export const ARCHIVE_DATA_GRADE_3: Record<string, ArchiveQuiz> = {
   },
   "M.3.1.2.3": {
     gradeName: "3. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Toplama işleminin özelliklerini kullanır.",
-    templates: [{ id: 'system-default-M.3.1.2.3', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
+    templates: [{ id: 'system-default-M.3.1.2.3', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+      const num1 = 125 + i * 10;
+      const num2 = 248 + i * 5;
+      return {
         sinif: 3, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.3.1.2.3", kazanim_metni: "Toplama işleminin özelliklerini kullanır.",
         soru_tipi: 'coktan_secmeli',
-        soru_metni: `125 + 248 = 248 + ? eşitliğinde '?' yerine hangi sayı gelmelidir?`,
-        secenekler: { A: '125', B: '248', C: '373', D: '123' },
+        soru_metni: `${num1} + ${num2} = ${num2} + ? eşitliğinde '?' yerine hangi sayı gelmelidir?`,
+        secenekler: { A: `${num1}`, B: `${num2}`, C: `${num1+num2}`, D: `${num1-10}` },
         dogru_cevap: 'A',
         yanlis_secenek_tipleri: ["Diğer toplanan", "İki sayının toplamı", "Yakın bir sayı"],
         gercek_yasam_baglantisi: "Sayıları toplarken yerlerini değiştirsek bile sonucun değişmeyeceğini bilmek, hesaplamalarda bize kolaylık sağlar.",
-        seviye: 'temel', cozum_anahtari: `Toplama işleminde toplananların yer değiştirmesi (değişme özelliği) sonucu değiştirmez. Bu yüzden '?' yerine 125 gelmelidir.`
-    }]}]
+        seviye: 'temel', cozum_anahtari: `Toplama işleminde toplananların yer değiştirmesi (değişme özelliği) sonucu değiştirmez. Bu yüzden '?' yerine ${num1} gelmelidir.`
+      };
+    })}]
   },
   "M.3.1.2.4": {
     gradeName: "3. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Toplama işlemi gerektiren problemleri çözer.",
@@ -236,16 +243,21 @@ export const ARCHIVE_DATA_GRADE_3: Record<string, ArchiveQuiz> = {
   },
   "M.3.1.4.1": {
     gradeName: "3. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Çarpma işleminin özelliklerini kullanır.",
-    templates: [{ id: 'system-default-M.3.1.4.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
+    templates: [{ id: 'system-default-M.3.1.4.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+      const n1 = 15 + i;
+      const n2 = 4 + i;
+      const n3 = 7 + i;
+      return {
         sinif: 3, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.3.1.4.1", kazanim_metni: "Çarpma işleminin özelliklerini kullanır.",
         soru_tipi: 'coktan_secmeli',
-        soru_metni: `Aşağıdaki işlemlerden hangisinin sonucu (15 x 4) x 7 işleminin sonucuna eşittir?`,
-        secenekler: { A: '15 x (4 x 7)', B: '15 + 4 + 7', C: '(15 + 4) x 7', D: '15 x 4 + 7' },
+        soru_metni: `Aşağıdaki işlemlerden hangisinin sonucu (${n1} x ${n2}) x ${n3} işleminin sonucuna eşittir?`,
+        secenekler: { A: `${n1} x (${n2} x ${n3})`, B: `${n1} + ${n2} + ${n3}`, C: `(${n1} + ${n2}) x ${n3}`, D: `${n1} x ${n2} + ${n3}` },
         dogru_cevap: 'A',
         yanlis_secenek_tipleri: ["Farklı işlemler kullanma", "İşlem önceliğini değiştirme"],
         gercek_yasam_baglantisi: "Çarpma işleminin özelliklerini bilmek, büyük sayıları zihinden daha kolay çarpmamıza yardımcı olur.",
         seviye: 'orta', cozum_anahtari: `Çarpma işleminin birleşme özelliği sayesinde, sayıları farklı gruplayarak çarpmak sonucu değiştirmez.`
-    }]}]
+      };
+    })}]
   },
    "M.3.1.4.2": {
     gradeName: "3. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Üç basamaklı bir doğal sayı ile bir basamaklı bir doğal sayıyı çarpar.",
@@ -423,141 +435,209 @@ export const ARCHIVE_DATA_GRADE_3: Record<string, ArchiveQuiz> = {
   },
   "M.3.1.6.3": {
     gradeName: "3. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Paydası 10 ve 100 olan kesirleri birim kesir olarak ifade eder.",
-    templates: [{ id: 'system-default-M.3.1.6.3', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
+    templates: [{ id: 'system-default-M.3.1.6.3', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+      const num = 3 + i;
+      const den = i % 2 === 0 ? 10 : 100;
+      return {
         sinif: 3, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.3.1.6.3", kazanim_metni: "Paydası 10 ve 100 olan kesirleri birim kesir olarak ifade eder.",
         soru_tipi: 'coktan_secmeli',
-        soru_metni: `7/10 kesri kaç tane 1/10 birim kesrinden oluşur?`,
-        secenekler: { A: '10', B: '1', C: '7', D: '17' },
+        soru_metni: `${num}/${den} kesri kaç tane 1/${den} birim kesrinden oluşur?`,
+        secenekler: { A: `${den}`, B: '1', C: `${num}`, D: `${num+den}` },
         dogru_cevap: 'C',
         yanlis_secenek_tipleri: ["Paydayı cevap sanma", "Birim kesrin payını cevap sanma", "Toplama yapma"],
-        gercek_yasam_baglantisi: "10 dilime ayrılmış bir pastanın 7 dilimini yediğimizde, 7 tane 1/10'luk parça yemiş oluruz.",
-        seviye: 'orta', cozum_anahtari: `Bir kesrin payı, o kesrin kaç tane birim kesirden oluştuğunu gösterir. 7/10 kesri, 7 tane 1/10'dan oluşur.`
-    }]}]
+        gercek_yasam_baglantisi: `10 dilime ayrılmış bir pastanın ${num} dilimini yediğimizde, ${num} tane 1/10'luk parça yemiş oluruz.`,
+        seviye: 'orta', cozum_anahtari: `Bir kesrin payı, o kesrin kaç tane birim kesirden oluştuğunu gösterir. ${num}/${den} kesri, ${num} tane 1/${den}'dan oluşur.`
+      };
+    })}]
   },
   "M.3.2.1.1": {
     gradeName: "3. Sınıf", unitName: "Geometri", kazanimName: "Nokta, doğru, doğru parçası ve ışını açıklar.",
-    templates: [{ id: 'system-default-M.3.2.1.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
-        sinif: 3, unite_adi: "Geometri", unite_no: 2, kazanim_kodu: "M.3.2.1.1", kazanim_metni: "Nokta, doğru, doğru parçası ve ışını açıklar.",
-        soru_tipi: 'coktan_secmeli',
-        soru_metni: `İki ucu da sınırsız uzayan düz çizgiye ne ad verilir?`,
-        secenekler: { A: 'Doğru parçası', B: 'Işın', C: 'Doğru', D: 'Nokta' },
-        dogru_cevap: 'C',
-        yanlis_secenek_tipleri: ["Uçları sınırlı olan", "Bir ucu sınırlı olan", "Boyutu olmayan"],
-        gercek_yasam_baglantisi: "Yollar, tren rayları doğrulara; bir cetvelin kenarı doğru parçasına; bir fenerden çıkan ışık ise ışına benzetilebilir.",
-        seviye: 'temel', cozum_anahtari: `İki ucu sınırlı olan çizgiye doğru parçası, bir ucu sınırlı olana ışın, iki ucu da sınırsız olana doğru denir.`
-    }]}]
+    templates: [{ id: 'system-default-M.3.2.1.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+        const concepts = [
+            { question: "İki ucu da sınırsız uzayan düz çizgiye ne ad verilir?", answer: "Doğru" },
+            { question: "İki ucu sınırlı olan düz çizgi parçasına ne ad verilir?", answer: "Doğru parçası" },
+            { question: "Bir ucu sınırlı, diğer ucu sonsuza uzayan düz çizgiye ne ad verilir?", answer: "Işın" },
+            { question: "Kalemin ucunun kağıtta bıraktığı ize ne denir?", answer: "Nokta" }
+        ];
+        const current = concepts[i % concepts.length];
+        return {
+            sinif: 3, unite_adi: "Geometri", unite_no: 2, kazanim_kodu: "M.3.2.1.1", kazanim_metni: "Nokta, doğru, doğru parçası ve ışını açıklar.",
+            soru_tipi: 'coktan_secmeli',
+            soru_metni: current.question,
+            secenekler: { A: 'Doğru parçası', B: 'Işın', C: 'Doğru', D: 'Nokta' },
+            dogru_cevap: Object.keys({ A: 'Doğru parçası', B: 'Işın', C: 'Doğru', D: 'Nokta' }).find(key => ({ A: 'Doğru parçası', B: 'Işın', C: 'Doğru', D: 'Nokta' }[key as 'A'|'B'|'C'|'D'] === current.answer))!,
+            yanlis_secenek_tipleri: ["Uçları sınırlı olan", "Bir ucu sınırlı olan", "Boyutu olmayan"],
+            gercek_yasam_baglantisi: "Yollar, tren rayları doğrulara; bir cetvelin kenarı doğru parçasına; bir fenerden çıkan ışık ise ışına benzetilebilir.",
+            seviye: 'temel', cozum_anahtari: `İki ucu sınırlı olan çizgiye doğru parçası, bir ucu sınırlı olana ışın, iki ucu da sınırsız olana doğru denir.`
+        };
+    })}]
   },
   "M.3.2.1.2": {
     gradeName: "3. Sınıf", unitName: "Geometri", kazanimName: "Düzlem ve düzlemsel şekilleri açıklar.",
-    templates: [{ id: 'system-default-M.3.2.1.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
+    templates: [{ id: 'system-default-M.3.2.1.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+      const items = ["Bir top", "Bir ip", "Bir masanın yüzeyi", "Bir yıldız", "Bir halının yüzeyi", "Bir bardak"];
+      const correct = "Bir masanın yüzeyi";
+      return {
         sinif: 3, unite_adi: "Geometri", unite_no: 2, kazanim_kodu: "M.3.2.1.2", kazanim_metni: "Düzlem ve düzlemsel şekilleri açıklar.",
         soru_tipi: 'coktan_secmeli',
         soru_metni: `Aşağıdakilerden hangisi bir düzlem modeli olarak kabul edilebilir?`,
-        secenekler: { A: 'Bir top', B: 'Bir ip', C: 'Bir masanın yüzeyi', D: 'Bir yıldız' },
+        secenekler: { A: items[i % 4], B: items[(i+1) % 4], C: correct, D: items[(i+2) % 4] }, // Ensure correct answer is always present
         dogru_cevap: 'C',
         yanlis_secenek_tipleri: ["Üç boyutlu cisim", "Tek boyutlu çizgi", "Nokta"],
         gercek_yasam_baglantisi: "Yazdığımız defterin sayfası, yürüdüğümüz zemin veya duvardaki tablo birer düzlem modelidir.",
-        seviye: 'temel', cozum_anahtari: `Düzlem, pürüzsüz ve sonsuza kadar uzanan bir yüzeydir. Masanın yüzeyi buna iyi bir örnektir.`
-    }]}]
+        seviye: 'temel', cozum_anahtari: `Düzlem, pürüzsüz ve sonsuza kadar uzanan bir yüzeydir. Masanın veya halının yüzeyi buna iyi bir örnektir.`
+      };
+    })}]
   },
   "M.3.2.2.1": {
     gradeName: "3. Sınıf", unitName: "Geometri", kazanimName: "Açıları isimlendirir ve sınıflandırır.",
-    templates: [{ id: 'system-default-M.3.2.2.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
+    templates: [{ id: 'system-default-M.3.2.2.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+      const concepts = [
+          { question: "Dik açıdan daha küçük olan açılara ne ad verilir?", answer: "Dar açı" },
+          { question: "Ölçüsü 90 derece olan açıya ne ad verilir?", answer: "Dik açı" },
+          { question: "Dik açıdan büyük, doğru açıdan küçük açılara ne ad verilir?", answer: "Geniş açı" }
+      ];
+      const current = concepts[i % concepts.length];
+      return {
         sinif: 3, unite_adi: "Geometri", unite_no: 2, kazanim_kodu: "M.3.2.2.1", kazanim_metni: "Açıları isimlendirir ve sınıflandırır.",
         soru_tipi: 'coktan_secmeli',
-        soru_metni: `Dik açıdan daha küçük olan açılara ne ad verilir?`,
-        secenekler: { A: 'Geniş açı', B: 'Doğru açı', C: 'Tam açı', D: 'Dar açı' },
-        dogru_cevap: 'D',
+        soru_metni: current.question,
+        secenekler: { A: 'Geniş açı', B: 'Dik açı', C: 'Doğru açı', D: 'Dar açı' },
+        dogru_cevap: Object.keys({ A: 'Geniş açı', B: 'Dik açı', C: 'Doğru açı', D: 'Dar açı' }).find(key => ({ A: 'Geniş açı', B: 'Dik açı', C: 'Doğru açı', D: 'Dar açı' }[key as 'A'|'B'|'C'|'D'] === current.answer))!,
         yanlis_secenek_tipleri: ["Dik açıdan büyük olan", "180 derece olan", "360 derece olan"],
         gercek_yasam_baglantisi: "Bir kitabın köşesi dik açıdır, makasın ağzı açıldığında dar açı, kapının açılmasıyla geniş açı oluşabilir.",
         seviye: 'orta', cozum_anahtari: `Ölçüsü 0 ile 90 derece arasında olan açılara dar açı, 90 derece olanlara dik açı, 90 ile 180 derece arasında olanlara geniş açı denir.`
-    }]}]
+      };
+    })}]
   },
   "M.3.2.2.2": {
     gradeName: "3. Sınıf", unitName: "Geometri", kazanimName: "Üçgen, kare, dikdörtgeni kenarlarına ve açılarına göre sınıflandırır.",
-    templates: [{ id: 'system-default-M.3.2.2.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
+    templates: [{ id: 'system-default-M.3.2.2.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+      const concepts = [
+          { question: "Karşılıklı kenarları birbirine eşit ve tüm açıları dik açı olan geometrik şekil hangisidir?", answer: "Dikdörtgen" },
+          { question: "Tüm kenarları birbirine eşit ve tüm açıları dik açı olan geometrik şekil hangisidir?", answer: "Kare" },
+          { question: "Üç kenarı ve üç açısı olan geometrik şekil hangisidir?", answer: "Üçgen" }
+      ];
+      const current = concepts[i % concepts.length];
+      return {
         sinif: 3, unite_adi: "Geometri", unite_no: 2, kazanim_kodu: "M.3.2.2.2", kazanim_metni: "Üçgen, kare, dikdörtgeni kenarlarına ve açılarına göre sınıflandırır.",
         soru_tipi: 'coktan_secmeli',
-        soru_metni: `Karşılıklı kenarları birbirine eşit ve tüm açıları dik açı olan geometrik şekil hangisidir?`,
-        secenekler: { A: 'Üçgen', B: 'Dikdörtgen', C: 'Eşkenar Dörtgen', D: 'Yamuk' },
-        dogru_cevap: 'B',
+        soru_metni: current.question,
+        secenekler: { A: 'Üçgen', B: 'Dikdörtgen', C: 'Kare', D: 'Yamuk' },
+        dogru_cevap: Object.keys({ A: 'Üçgen', B: 'Dikdörtgen', C: 'Kare', D: 'Yamuk' }).find(key => ({ A: 'Üçgen', B: 'Dikdörtgen', C: 'Kare', D: 'Yamuk' }[key as 'A'|'B'|'C'|'D'] === current.answer))!,
         yanlis_secenek_tipleri: ["Farklı kenar sayısı", "Açıları dik olmayan", "Sadece iki kenarı paralel olan"],
         gercek_yasam_baglantisi: "Evimizdeki kapılar, pencereler, kitaplar genellikle dikdörtgen şeklindedir.",
         seviye: 'orta', cozum_anahtari: `Dikdörtgenin tanımı, karşılıklı kenarları eşit ve tüm açıları 90 derece olan dörtgendir. Karenin ise tüm kenarları eşittir.`
-    }]}]
+      };
+    })}]
   },
   "M.3.2.3.1": {
     gradeName: "3. Sınıf", unitName: "Geometri", kazanimName: "Tekrarlayan bir geometrik örüntü oluşturur ve örüntünün kuralını açıklar.",
-    templates: [{ id: 'system-default-M.3.2.3.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
+    templates: [{ id: 'system-default-M.3.2.3.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+      const rules = [
+          { pattern: "Sarı, Mavi, Mavi", rule: "Bir sarı, iki mavi", options: { A: 'Bir sarı, bir mavi', B: 'İki sarı, bir mavi', C: 'Bir sarı, iki mavi', D: 'İki sarı, iki mavi' }, answer: 'C' },
+          { pattern: "Yeşil, Kırmızı", rule: "Bir yeşil, bir kırmızı", options: { A: 'Bir yeşil, bir kırmızı', B: 'İki yeşil, bir kırmızı', C: 'Bir yeşil, iki kırmızı', D: 'İki yeşil, iki kırmızı' }, answer: 'A' },
+          { pattern: "A, A, B", rule: "İki A, bir B", options: { A: 'Bir A, bir B', B: 'İki A, bir B', C: 'Bir A, iki B', D: 'İki A, iki B' }, answer: 'B' }
+      ];
+      const current = rules[i % rules.length];
+      return {
         sinif: 3, unite_adi: "Geometri", unite_no: 2, kazanim_kodu: "M.3.2.3.1", kazanim_metni: "Tekrarlayan bir geometrik örüntü oluşturur ve örüntünün kuralını açıklar.",
         soru_tipi: 'coktan_secmeli',
-        soru_metni: `Sarı, Mavi, Mavi, Sarı, Mavi, Mavi, ... şeklinde devam eden örüntünün kuralı nedir?`,
-        secenekler: { A: 'Bir sarı, bir mavi', B: 'İki sarı, bir mavi', C: 'Bir sarı, iki mavi', D: 'İki sarı, iki mavi' },
-        dogru_cevap: 'C',
+        soru_metni: `${current.pattern}, ${current.pattern}, ... şeklinde devam eden örüntünün kuralı nedir?`,
+        secenekler: current.options,
+        dogru_cevap: current.answer,
         yanlis_secenek_tipleri: ["Yanlış tekrar sayısı"],
         gercek_yasam_baglantisi: "Bir kolyeye boncuk dizerken veya bir duvara fayans döşerken belirli bir kurala göre örüntüler oluşturulur.",
-        seviye: 'orta', cozum_anahtari: `Örüntüde bir sarı boncuğu iki mavi boncuk takip etmektedir. Bu grup sürekli tekrar eder.`
-    }]}]
+        seviye: 'orta', cozum_anahtari: `Örüntüde '${current.rule}' kuralı sürekli tekrar eder.`
+      };
+    })}]
   },
   "M.3.2.4.1": {
     gradeName: "3. Sınıf", unitName: "Geometri", kazanimName: "Düzlemsel şekillerin simetri doğrularını belirler ve çizer.",
     templates: [{ id: 'system-default-M.3.2.4.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
-        const shape = ['Kare', 'Dikdörtgen', 'Daire', 'Kelebek'][i % 4];
-        let answer = '';
-        if (shape === 'Kare') answer = '4';
-        else if (shape === 'Dikdörtgen') answer = '2';
-        else if (shape === 'Daire') answer = 'Sonsuz';
-        else answer = '1';
+        const shapes = [
+            { name: 'Kare', lines: '4' }, 
+            { name: 'Dikdörtgen', lines: '2' }, 
+            { name: 'Daire', lines: 'Sonsuz' }, 
+            { name: 'Kelebek (şekli)', lines: '1' }
+        ];
+        const current = shapes[i % shapes.length];
         return {
             sinif: 3, unite_adi: "Geometri", unite_no: 2, kazanim_kodu: "M.3.2.4.1", kazanim_metni: "Düzlemsel şekillerin simetri doğrularını belirler ve çizer.",
             soru_tipi: 'coktan_secmeli',
-            soru_metni: `Bir ${shape.toLowerCase()} şeklinin kaç tane simetri doğrusu vardır?`,
+            soru_metni: `Bir ${current.name.toLowerCase()} şeklinin kaç tane simetri doğrusu vardır?`,
             secenekler: { A: '1', B: '2', C: '4', D: 'Sonsuz' },
-            dogru_cevap: Object.keys({ A: '1', B: '2', C: '4', D: 'Sonsuz' }).find(key => ({ A: '1', B: '2', C: '4', D: 'Sonsuz' }[key as 'A'|'B'|'C'|'D'] === answer))!,
+            dogru_cevap: Object.keys({ A: '1', B: '2', C: '4', D: 'Sonsuz' }).find(key => ({ A: '1', B: '2', C: '4', D: 'Sonsuz' }[key as 'A'|'B'|'C'|'D'] === current.lines))!,
             yanlis_secenek_tipleri: ["Başka bir şeklin simetri sayısı", "Yanlış sayma"],
             gercek_yasam_baglantisi: "Bir kağıdı ortadan katlayıp kestiğimizde açınca çıkan simetrik şekiller, bu konunun bir uygulamasıdır.",
-            seviye: 'orta', cozum_anahtari: `Karenin 4, dikdörtgenin 2, dairenin sonsuz, kelebeğin (dikey olarak) 1 simetri doğrusu vardır.`
+            seviye: 'orta', cozum_anahtari: `Karenin 4, dikdörtgenin 2, dairenin sonsuz, dikey duran bir kelebeğin 1 simetri doğrusu vardır.`
         };
     })}]
   },
   "M.3.3.1.1": {
     gradeName: "3. Sınıf", unitName: "Ölçme", kazanimName: "Metre ve santimetre arasındaki ilişkiyi fark eder ve birbiri cinsinden yazar.",
-    templates: [{ id: 'system-default-M.3.3.1.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
+    templates: [{ id: 'system-default-M.3.3.1.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+      const m = 2 + i;
+      const cm = 10 + i * 5;
+      const answer = m * 100 + cm;
+      return {
         sinif: 3, unite_adi: "Ölçme", unite_no: 3, kazanim_kodu: "M.3.3.1.1", kazanim_metni: "Metre ve santimetre arasındaki ilişkiyi fark eder ve birbiri cinsinden yazar.",
         soru_tipi: 'coktan_secmeli',
-        soru_metni: `4 metre 25 santimetre, toplam kaç santimetredir?`,
-        secenekler: { A: '425', B: '4025', C: '29', D: '4.25' },
+        soru_metni: `${m} metre ${cm} santimetre, toplam kaç santimetredir?`,
+        secenekler: { A: `${answer}`, B: `${m}${cm}`, C: `${m+cm}`, D: `${answer*10}` },
         dogru_cevap: 'A',
         yanlis_secenek_tipleri: ["Yanlış birim çevirme", "Toplama yapma"],
         gercek_yasam_baglantisi: "Boyumuzu ifade ederken hem metre hem de santimetre kullanırız, örneğin '1 metre 35 santimetre' gibi.",
-        seviye: 'orta', cozum_anahtari: `1 metre 100 santimetre olduğu için, 4 metre 400 santimetredir. Üzerine 25 santimetre daha eklenince toplam 425 santimetre olur.`
-    }]}]
+        seviye: 'orta', cozum_anahtari: `1 metre 100 santimetre olduğu için, ${m} metre ${m*100} santimetredir. Üzerine ${cm} santimetre daha eklenince toplam ${answer} santimetre olur.`
+      };
+    })}]
   },
   "M.3.3.1.2": {
     gradeName: "3. Sınıf", unitName: "Ölçme", kazanimName: "Kilometrenin kullanım alanlarını belirtir.",
-    templates: [{ id: 'system-default-M.3.3.1.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
+    templates: [{ id: 'system-default-M.3.3.1.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+      const contexts = [
+          { q: "Ankara ile İstanbul arasındaki mesafe", a: "Kilometre" },
+          { q: "Bir kalemin boyu", a: "Santimetre" },
+          { q: "Sınıf tahtasının eni", a: "Metre" },
+          { q: "İki şehir arasındaki yol", a: "Kilometre" }
+      ];
+      const current = contexts[i % contexts.length];
+      return {
         sinif: 3, unite_adi: "Ölçme", unite_no: 3, kazanim_kodu: "M.3.3.1.2", kazanim_metni: "Kilometrenin kullanım alanlarını belirtir.",
         soru_tipi: 'coktan_secmeli',
-        soru_metni: `Ankara ile İstanbul arasındaki mesafeyi ölçmek için en uygun birim hangisidir?`,
+        soru_metni: `${current.q} ölçmek için en uygun birim hangisidir?`,
         secenekler: { A: 'Santimetre', B: 'Metre', C: 'Kilometre', D: 'Karış' },
-        dogru_cevap: 'C',
+        dogru_cevap: Object.keys({ A: 'Santimetre', B: 'Metre', C: 'Kilometre', D: 'Karış' }).find(key => ({ A: 'Santimetre', B: 'Metre', C: 'Kilometre', D: 'Karış' }[key as 'A'|'B'|'C'|'D'] === current.a))!,
         yanlis_secenek_tipleri: ["Çok küçük birimler", "Standart olmayan birim"],
         gercek_yasam_baglantisi: "Şehirler arası yolculuklarda ne kadar yol gittiğimizi trafik tabelalarındaki kilometre bilgisiyle takip ederiz.",
         seviye: 'temel', cozum_anahtari: `Çok uzun mesafeleri (şehirler arası yollar gibi) ölçmek için kilometre birimi kullanılır.`
-    }]}]
+      };
+    })}]
   },
   "M.3.3.1.3": {
     gradeName: "3. Sınıf", unitName: "Ölçme", kazanimName: "Uzunluk ölçme birimleriyle ilgili problemleri çözer.",
-    templates: [{ id: 'system-default-M.3.3.1.3', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
+    templates: [{ id: 'system-default-M.3.3.1.3', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+      const totalM = 5 + i;
+      const usedM = 2;
+      const usedCm = 40 + i*2;
+      const totalCm = totalM * 100;
+      const usedTotalCm = usedM * 100 + usedCm;
+      const remainingCm = totalCm - usedTotalCm;
+      const remainingMpart = Math.floor(remainingCm / 100);
+      const remainingCmPart = remainingCm % 100;
+      const answerText = `${remainingMpart} m ${remainingCmPart} cm`;
+
+      return {
         sinif: 3, unite_adi: "Ölçme", unite_no: 3, kazanim_kodu: "M.3.3.1.3", kazanim_metni: "Uzunluk ölçme birimleriyle ilgili problemleri çözer.",
         soru_tipi: 'coktan_secmeli',
-        soru_metni: `Bir terzi 5 metrelik kumaşın 2 metre 40 santimetresini kullanmıştır. Geriye ne kadar kumaş kalmıştır?`,
-        secenekler: { A: '3 m 60 cm', B: '2 m 60 cm', C: '7 m 40 cm', D: '2 m 40 cm' },
+        soru_metni: `Bir terzi ${totalM} metrelik kumaşın ${usedM} metre ${usedCm} santimetresini kullanmıştır. Geriye ne kadar kumaş kalmıştır?`,
+        secenekler: { A: `${remainingMpart+1} m ${remainingCmPart} cm`, B: answerText, C: `${totalM+usedM} m ${usedCm} cm`, D: `${usedM} m ${usedCm} cm` },
         dogru_cevap: 'B',
         yanlis_secenek_tipleri: ["Yakın ama yanlış sonuç", "Toplama yapma", "Kullanılan miktarı cevap sanma"],
         gercek_yasam_baglantisi: "Evimize perde alırken pencerenin boyutunu ölçüp, ne kadar kumaş gerektiğini hesaplarız.",
-        seviye: 'ileri', cozum_anahtari: `5 metre, 500 santimetredir. 2 metre 40 santimetre ise 240 santimetredir. 500 - 240 = 260 santimetre, bu da 2 metre 60 santimetredir.`
-    }]}]
+        seviye: 'ileri', cozum_anahtari: `${totalM} metre, ${totalCm} santimetredir. ${usedM} metre ${usedCm} santimetre ise ${usedTotalCm} santimetredir. ${totalCm} - ${usedTotalCm} = ${remainingCm} santimetre, bu da ${answerText}'dir.`
+      };
+    })}]
   },
    "M.3.3.2.1": {
     gradeName: "3. Sınıf", unitName: "Ölçme", kazanimName: "Şekillerin çevre uzunluğunu hesaplar.",
@@ -580,42 +660,58 @@ export const ARCHIVE_DATA_GRADE_3: Record<string, ArchiveQuiz> = {
   },
   "M.3.3.2.2": {
     gradeName: "3. Sınıf", unitName: "Ölçme", kazanimName: "Çevre uzunlukları ile ilgili problemleri çözer.",
-    templates: [{ id: 'system-default-M.3.3.2.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
+    templates: [{ id: 'system-default-M.3.3.2.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+      const perimeter = (10 + i) * 4;
+      const side = perimeter / 4;
+      return {
         sinif: 3, unite_adi: "Ölçme", unite_no: 3, kazanim_kodu: "M.3.3.2.2", kazanim_metni: "Çevre uzunlukları ile ilgili problemleri çözer.",
         soru_tipi: 'coktan_secmeli',
-        soru_metni: `Çevresi 80 cm olan bir karenin bir kenar uzunluğu kaç santimetredir?`,
-        secenekler: { A: '80', B: '40', C: '20', D: '10' },
+        soru_metni: `Çevresi ${perimeter} cm olan bir karenin bir kenar uzunluğu kaç santimetredir?`,
+        secenekler: { A: `${perimeter}`, B: `${perimeter/2}`, C: `${side}`, D: `${side/2}` },
         dogru_cevap: 'C',
         yanlis_secenek_tipleri: ["Çevrenin kendisi", "2'ye bölme", "8'e bölme"],
         gercek_yasam_baglantisi: "Kare şeklindeki bir tarlanın etrafı için belli miktarda tel kullanılmışsa, bir kenarının ne kadar olduğunu bulabiliriz.",
-        seviye: 'ileri', cozum_anahtari: `Karenin dört kenarı eşit olduğu için, çevresi verilen bir karenin bir kenarını bulmak için çevre uzunluğu 4'e bölünür: 80 ÷ 4 = 20 cm.`
-    }]}]
+        seviye: 'ileri', cozum_anahtari: `Karenin dört kenarı eşit olduğu için, çevresi verilen bir karenin bir kenarını bulmak için çevre uzunluğu 4'e bölünür: ${perimeter} ÷ 4 = ${side} cm.`
+      };
+    })}]
   },
   "M.3.3.3.1": {
     gradeName: "3. Sınıf", unitName: "Ölçme", kazanimName: "Alanın, standart olmayan birimlerle ölçülebileceğini fark eder.",
-    templates: [{ id: 'system-default-M.3.3.3.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
+    templates: [{ id: 'system-default-M.3.3.3.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+      const items = ["Odamızın zeminini", "Defterimizin kapağını", "Sınıf panosunu"];
+      const units = ["Silgi", "Kitap", "Posta pulu", "Fayans"];
+      const answers = ["Fayans", "Silgi", "Kitap"];
+      const currentItem = items[i % items.length];
+      const currentAnswer = answers[i % answers.length];
+      return {
         sinif: 3, unite_adi: "Ölçme", unite_no: 3, kazanim_kodu: "M.3.3.3.1", kazanim_metni: "Alanın, standart olmayan birimlerle ölçülebileceğini fark eder.",
         soru_tipi: 'coktan_secmeli',
-        soru_metni: `Odamızın zeminini kaplamak için aşağıdaki standart olmayan birimlerden hangisini kullanmak en mantıklı olurdu?`,
-        secenekler: { A: 'Silgi', B: 'Kitap', C: 'Karış', D: 'Posta pulu' },
-        dogru_cevap: 'B',
+        soru_metni: `${currentItem} kaplamak için aşağıdaki standart olmayan birimlerden hangisini kullanmak en mantıklı olurdu?`,
+        secenekler: { A: 'Silgi', B: 'Kitap', C: 'Karış', D: 'Fayans' },
+        dogru_cevap: Object.keys({ A: 'Silgi', B: 'Kitap', C: 'Karış', D: 'Fayans' }).find(key => ({ A: 'Silgi', B: 'Kitap', C: 'Karış', D: 'Fayans' }[key as 'A'|'B'|'C'|'D'] === currentAnswer))!,
         yanlis_secenek_tipleri: ["Çok küçük birimler", "Alan ölçmek için uygun olmayan birim"],
         gercek_yasam_baglantisi: "Bir masanın yüzeyinin kaç tane defterle kaplanabileceğini bularak masanın alanını defter birimiyle ölçmüş oluruz.",
-        seviye: 'temel', cozum_anahtari: `Alan, bir yüzeyin kapladığı yerdir. Zemini kaplamak için kitap gibi daha büyük ve düz birimler kullanmak silgi veya puldan daha mantıklıdır.`
-    }]}]
+        seviye: 'temel', cozum_anahtari: `Alan, bir yüzeyin kapladığı yerdir. Yüzeyin büyüklüğüne göre uygun birim seçilir. Zemin için fayans, defter için silgi daha mantıklıdır.`
+      };
+    })}]
   },
   "M.3.3.4.1": {
     gradeName: "3. Sınıf", unitName: "Ölçme", kazanimName: "Saat, dakika ve saniye arasındaki ilişkiyi açıklar.",
-    templates: [{ id: 'system-default-M.3.3.4.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
-        sinif: 3, unite_adi: "Ölçme", unite_no: 3, kazanim_kodu: "M.3.3.4.1", kazanim_metni: "Saat, dakika ve saniye arasındaki ilişkiyi açıklar.",
-        soru_tipi: 'coktan_secmeli',
-        soru_metni: `1 dakika kaç saniyedir?`,
-        secenekler: { A: '30', B: '60', C: '90', D: '100' },
-        dogru_cevap: 'B',
-        yanlis_secenek_tipleri: ["Yarım dakika", "Bir buçuk dakika", "Yaygın yanlış bilgi"],
-        gercek_yasam_baglantisi: "Bir şarkının süresini veya bir yarışta koşucunun derecesini dakika ve saniye olarak ifade ederiz.",
-        seviye: 'temel', cozum_anahtari: `Zaman ölçüsü birimlerinden 1 saat 60 dakikaya, 1 dakika ise 60 saniyeye eşittir.`
-    }]}]
+    templates: [{ id: 'system-default-M.3.3.4.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+        const type = i % 2;
+        const q = type === 0 ? "1 dakika kaç saniyedir?" : "1 saat kaç dakikadır?";
+        const a = "60";
+        return {
+            sinif: 3, unite_adi: "Ölçme", unite_no: 3, kazanim_kodu: "M.3.3.4.1", kazanim_metni: "Saat, dakika ve saniye arasındaki ilişkiyi açıklar.",
+            soru_tipi: 'coktan_secmeli',
+            soru_metni: q,
+            secenekler: { A: '30', B: '60', C: '90', D: '100' },
+            dogru_cevap: 'B',
+            yanlis_secenek_tipleri: ["Yarım birim", "Bir buçuk birim", "Yaygın yanlış bilgi"],
+            gercek_yasam_baglantisi: "Bir şarkının süresini veya bir yarışta koşucunun derecesini dakika ve saniye olarak ifade ederiz.",
+            seviye: 'temel', cozum_anahtari: `Zaman ölçüsü birimlerinden 1 saat 60 dakikaya, 1 dakika ise 60 saniyeye eşittir.`
+        };
+    })}]
   },
   "M.3.3.4.2": {
     gradeName: "3. Sınıf", unitName: "Ölçme", kazanimName: "Zaman ölçme birimleriyle ilgili problemleri çözer.",
@@ -638,94 +734,142 @@ export const ARCHIVE_DATA_GRADE_3: Record<string, ArchiveQuiz> = {
   },
   "M.3.3.5.1": {
     gradeName: "3. Sınıf", unitName: "Ölçme", kazanimName: "Lira ve kuruş ilişkisini gösterir.",
-    templates: [{ id: 'system-default-M.3.3.5.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
+    templates: [{ id: 'system-default-M.3.3.5.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+      const c50 = 3 + i;
+      const c25 = 2 + i;
+      const c10 = 5 + i;
+      const totalKr = c50*50 + c25*25 + c10*10;
+      const totalTl = Math.floor(totalKr / 100);
+      const totalKrPart = totalKr % 100;
+      const answer = `${totalTl} TL ${totalKrPart} kr.`;
+      const options = {A: answer, B: `${totalTl+1} TL ${totalKrPart} kr.`, C: `${totalTl} TL ${totalKrPart+10} kr.`, D: `${totalKr} kr.`};
+      return {
         sinif: 3, unite_adi: "Ölçme", unite_no: 3, kazanim_kodu: "M.3.3.5.1", kazanim_metni: "Lira ve kuruş ilişkisini gösterir.",
         soru_tipi: 'coktan_secmeli',
-        soru_metni: `3 tane 50 kuruş, 2 tane 25 kuruş ve 5 tane 10 kuruş toplam kaç lira kaç kuruş eder?`,
-        secenekler: { A: '2 TL 50 kr.', B: '2 TL 25 kr.', C: '3 TL', D: '2 TL 75 kr.' },
+        soru_metni: `${c50} tane 50 kuruş, ${c25} tane 25 kuruş ve ${c10} tane 10 kuruş toplam kaç lira kaç kuruş eder?`,
+        secenekler: options,
         dogru_cevap: 'A',
         yanlis_secenek_tipleri: ["Yanlış hesaplama", "Sadece bir tür madeni parayı hesaplama"],
         gercek_yasam_baglantisi: "Kumbaraımızdaki bozuk paraları sayarak toplam ne kadar paramız olduğunu lira ve kuruş cinsinden hesaplarız.",
-        seviye: 'orta', cozum_anahtari: `3x50=150 kr, 2x25=50 kr, 5x10=50 kr. Toplam: 150+50+50 = 250 kuruş. 100 kuruş 1 TL olduğu için 250 kuruş, 2 TL 50 kuruştur.`
-    }]}]
+        seviye: 'orta', cozum_anahtari: `${c50}x50=${c50*50} kr, ${c25}x25=${c25*25} kr, ${c10}x10=${c10*10} kr. Toplam: ${totalKr} kuruş. Bu da ${answer}'dir.`
+      };
+    })}]
   },
   "M.3.3.5.2": {
     gradeName: "3. Sınıf", unitName: "Ölçme", kazanimName: "Paralarımızla ilgili problemleri çözer.",
-    templates: [{ id: 'system-default-M.3.3.5.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
+    templates: [{ id: 'system-default-M.3.3.5.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+      const priceTl = 2 + i;
+      const priceKr = 50;
+      const count = 3;
+      const paid = 10 + priceTl * 2;
+      const totalCostKr = (priceTl * 100 + priceKr) * count;
+      const changeKr = paid * 100 - totalCostKr;
+      const changeTl = Math.floor(changeKr / 100);
+      const changeKrPart = changeKr % 100;
+      const answer = `${changeTl} TL ${changeKrPart} kr.`;
+      return {
         sinif: 3, unite_adi: "Ölçme", unite_no: 3, kazanim_kodu: "M.3.3.5.2", kazanim_metni: "Paralarımızla ilgili problemleri çözer.",
         soru_tipi: 'coktan_secmeli',
-        soru_metni: `Tanesi 2 TL 50 kuruş olan kalemlerden 3 tane alan bir kişi, satıcıya 10 TL verirse ne kadar para üstü alır?`,
-        secenekler: { A: '7 TL 50 kr.', B: '3 TL 50 kr.', C: '2 TL 50 kr.', D: '1 TL 50 kr.' },
-        dogru_cevap: 'C',
+        soru_metni: `Tanesi ${priceTl} TL ${priceKr} kuruş olan kalemlerden ${count} tane alan bir kişi, satıcıya ${paid} TL verirse ne kadar para üstü alır?`,
+        secenekler: { A: `${changeTl+1} TL ${changeKrPart} kr.`, B: `${changeTl} TL ${changeKrPart} kr.`, C: `${totalCostKr/100} TL`, D: `${changeTl-1} TL ${changeKrPart} kr.` },
+        dogru_cevap: 'B',
         yanlis_secenek_tipleri: ["Alınan ürünlerin toplam fiyatı", "Yanlış çıkarma", "Yanlış çarpma"],
         gercek_yasam_baglantisi: "Market alışverişi yaptıktan sonra fişi kontrol edip doğru para üstü alıp almadığımızı hesaplarız.",
-        seviye: 'ileri', cozum_anahtari: `Önce toplam tutar hesaplanır: 3 x 2.50 TL = 7.50 TL. Sonra para üstü bulunur: 10 TL - 7.50 TL = 2.50 TL.`
-    }]}]
+        seviye: 'ileri', cozum_anahtari: `Önce toplam tutar hesaplanır: ${count} x ${priceTl},${priceKr} TL = ${totalCostKr/100} TL. Sonra para üstü bulunur: ${paid} TL - ${totalCostKr/100} TL = ${answer}.`
+      };
+    })}]
   },
   "M.3.3.6.1": {
     gradeName: "3. Sınıf", unitName: "Ölçme", kazanimName: "Kilogram ve gram arasındaki ilişkiyi fark eder.",
-    templates: [{ id: 'system-default-M.3.3.6.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
+    templates: [{ id: 'system-default-M.3.3.6.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+      const kg = 2 + i;
+      const g = 100 + i * 50;
+      const answer = kg * 1000 + g;
+      return {
         sinif: 3, unite_adi: "Ölçme", unite_no: 3, kazanim_kodu: "M.3.3.6.1", kazanim_metni: "Kilogram ve gram arasındaki ilişkiyi fark eder.",
         soru_tipi: 'coktan_secmeli',
-        soru_metni: `2 kilogram 300 gram, toplam kaç gram eder?`,
-        secenekler: { A: '230', B: '302', C: '2300', D: '500' },
+        soru_metni: `${kg} kilogram ${g} gram, toplam kaç gram eder?`,
+        secenekler: { A: `${answer - 100}`, B: `${kg}${g}`, C: `${answer}`, D: `${kg+g}` },
         dogru_cevap: 'C',
         yanlis_secenek_tipleri: ["Yanlış birim çevirme", "Toplama yapma"],
         gercek_yasam_baglantisi: "Pazardan aldığımız 1.5 kg elmanın kaç gram olduğunu bilmek, yemek tariflerinde doğru ölçü kullanmamıza yardımcı olur.",
-        seviye: 'orta', cozum_anahtari: `1 kilogram 1000 gramdır. 2 kilogram 2000 gram eder. Üzerine 300 gram eklenince toplam 2300 gram olur.`
-    }]}]
+        seviye: 'orta', cozum_anahtari: `1 kilogram 1000 gramdır. ${kg} kilogram ${kg*1000} gram eder. Üzerine ${g} gram eklenince toplam ${answer} gram olur.`
+      };
+    })}]
   },
   "M.3.3.6.2": {
     gradeName: "3. Sınıf", unitName: "Ölçme", kazanimName: "Tartma ile ilgili problemleri çözer.",
-    templates: [{ id: 'system-default-M.3.3.6.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
+    templates: [{ id: 'system-default-M.3.3.6.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+      const kg1 = 2 + (i % 3);
+      const kg2 = 3 + (i % 2);
+      const g = 500;
+      const answer = kg1 * 1000 + kg2 * 1000 + g;
+      return {
         sinif: 3, unite_adi: "Ölçme", unite_no: 3, kazanim_kodu: "M.3.3.6.2", kazanim_metni: "Tartma ile ilgili problemleri çözer.",
         soru_tipi: 'coktan_secmeli',
-        soru_metni: `Manavdan 2 kg elma, 3 kg portakal ve 500 gram çilek alan bir kişi toplam kaç gram meyve almıştır?`,
-        secenekler: { A: '5500', B: '5005', C: '10', D: '550' },
+        soru_metni: `Manavdan ${kg1} kg elma, ${kg2} kg portakal ve ${g} gram çilek alan bir kişi toplam kaç gram meyve almıştır?`,
+        secenekler: { A: `${answer}`, B: `${answer - 500}`, C: `${kg1+kg2+g}`, D: `${answer/10}` },
         dogru_cevap: 'A',
         yanlis_secenek_tipleri: ["Yanlış birim çevirme", "Birimleri dikkate almadan toplama"],
         gercek_yasam_baglantisi: "Marketten aldığımız farklı ağırlıktaki ürünlerin poşette toplam ne kadar ağırlık yapacağını hesaplarız.",
-        seviye: 'ileri', cozum_anahtari: `Tüm birimleri grama çevirmek gerekir. 2 kg = 2000 g, 3 kg = 3000 g. Toplam: 2000 + 3000 + 500 = 5500 gram.`
-    }]}]
+        seviye: 'ileri', cozum_anahtari: `Tüm birimleri grama çevirmek gerekir. ${kg1} kg = ${kg1*1000} g, ${kg2} kg = ${kg2*1000} g. Toplam: ${kg1*1000} + ${kg2*1000} + ${g} = ${answer} gram.`
+      };
+    })}]
   },
   "M.3.3.7.1": {
     gradeName: "3. Sınıf", unitName: "Ölçme", kazanimName: "Litre ve yarım litreyi kullanır.",
-    templates: [{ id: 'system-default-M.3.3.7.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
+    templates: [{ id: 'system-default-M.3.3.7.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+      const liters = 4 + i;
+      const answer = liters * 2;
+      return {
         sinif: 3, unite_adi: "Ölçme", unite_no: 3, kazanim_kodu: "M.3.3.7.1", kazanim_metni: "Litre ve yarım litreyi kullanır.",
         soru_tipi: 'coktan_secmeli',
-        soru_metni: `4 litre su, kaç tane yarım litrelik şişeyi tam olarak doldurur?`,
-        secenekler: { A: '2', B: '4', C: '6', D: '8' },
+        soru_metni: `${liters} litre su, kaç tane yarım litrelik şişeyi tam olarak doldurur?`,
+        secenekler: { A: `${liters / 2}`, B: `${liters}`, C: `${liters + 2}`, D: `${answer}` },
         dogru_cevap: 'D',
         yanlis_secenek_tipleri: ["Yarıya bölme", "Aynı sayıyı cevap sanma"],
         gercek_yasam_baglantisi: "Büyük bir şişedeki suyu küçük bardaklara paylaştırırken litre ve yarım litre kavramlarını kullanırız.",
-        seviye: 'orta', cozum_anahtari: `1 litrede 2 tane yarım litre vardır. Bu nedenle 4 litrede 4 x 2 = 8 tane yarım litre bulunur.`
-    }]}]
+        seviye: 'orta', cozum_anahtari: `1 litrede 2 tane yarım litre vardır. Bu nedenle ${liters} litrede ${liters} x 2 = ${answer} tane yarım litre bulunur.`
+      };
+    })}]
   },
   "M.3.3.7.2": {
     gradeName: "3. Sınıf", unitName: "Ölçme", kazanimName: "Sıvı ölçme ile ilgili problemleri çözer.",
-    templates: [{ id: 'system-default-M.3.3.7.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
+    templates: [{ id: 'system-default-M.3.3.7.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+      const daily = 8 + i;
+      const days = 7;
+      const answer = daily * days;
+      return {
         sinif: 3, unite_adi: "Ölçme", unite_no: 3, kazanim_kodu: "M.3.3.7.2", kazanim_metni: "Sıvı ölçme ile ilgili problemleri çözer.",
         soru_tipi: 'coktan_secmeli',
-        soru_metni: `Bir inek günde 8 litre süt veriyor. Bu inek bir haftada toplam kaç litre süt verir?`,
-        secenekler: { A: '15', B: '40', C: '56', D: '70' },
+        soru_metni: `Bir inek günde ${daily} litre süt veriyor. Bu inek bir haftada toplam kaç litre süt verir?`,
+        secenekler: { A: `${daily+days}`, B: `${daily*5}`, C: `${answer}`, D: `${daily*10}` },
         dogru_cevap: 'C',
         yanlis_secenek_tipleri: ["Toplama yapma", "Yanlış sayıyla çarpma (örn: 5 gün)"],
         gercek_yasam_baglantisi: "Bir arabanın deposunun ne kadar benzin aldığını ve bir bidonun ne kadar su aldığını hesaplarken sıvı ölçülerini kullanırız.",
-        seviye: 'ileri', cozum_anahtari: `Bir hafta 7 gündür. Toplam süt miktarını bulmak için günlük miktar ile gün sayısı çarpılır: 8 x 7 = 56 litre.`
-    }]}]
+        seviye: 'ileri', cozum_anahtari: `Bir hafta 7 gündür. Toplam süt miktarını bulmak için günlük miktar ile gün sayısı çarpılır: ${daily} x 7 = ${answer} litre.`
+      };
+    })}]
   },
   "M.3.4.1.1": {
     gradeName: "3. Sınıf", unitName: "Veri İşleme", kazanimName: "Nesne ve şekil grafikleri oluşturur ve yorumlar.",
-    templates: [{ id: 'system-default-M.3.4.1.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
+    templates: [{ id: 'system-default-M.3.4.1.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+      const scale = 2 + (i % 3);
+      const blue = 4;
+      const green = 2;
+      const brown = 5 + (i % 2);
+      const answer = (blue + green + brown) * scale;
+      return {
         sinif: 3, unite_adi: "Veri İşleme", unite_no: 4, kazanim_kodu: "M.3.4.1.1", kazanim_metni: "Nesne ve şekil grafikleri oluşturur ve yorumlar.",
         soru_tipi: 'coktan_secmeli',
-        soru_metni: `Bir sınıftaki öğrencilerin göz renkleri şekil grafiğinde gösterilmiştir.\n\nMavi: 🔵🔵🔵🔵\nYeşil: 🟢🟢\nKahverengi: 🟤🟤🟤🟤🟤\n\n(Her şekil 2 öğrenciyi göstermektedir.)\n\nBu sınıfta toplam kaç öğrenci vardır?`,
-        secenekler: { A: '11', B: '22', C: '10', D: '20' },
+        soru_metni: `Bir sınıftaki öğrencilerin göz renkleri şekil grafiğinde gösterilmiştir.\n\nMavi: ${'🔵'.repeat(blue)}\nYeşil: ${'🟢'.repeat(green)}\nKahverengi: ${'🟤'.repeat(brown)}\n\n(Her şekil ${scale} öğrenciyi göstermektedir.)\n\nBu sınıfta toplam kaç öğrenci vardır?`,
+        secenekler: { A: `${blue+green+brown}`, B: `${answer}`, C: `${brown*scale}`, D: `${answer-scale}` },
         dogru_cevap: 'B',
         yanlis_secenek_tipleri: ["Her şekli 1 sayma", "Sadece bir grubu sayma", "Yanlış çarpma"],
         gercek_yasam_baglantisi: "Bir takvimdeki güneşli, bulutlu ve yağmurlu günleri işaretleyerek o ayın hava durumu grafiğini oluşturabiliriz.",
-        seviye: 'orta', cozum_anahtari: `Toplam şekil sayısı 4 + 2 + 5 = 11'dir. Her şekil 2 öğrenciyi gösterdiği için toplam öğrenci sayısı 11 x 2 = 22'dir.`
-    }]}]
+        seviye: 'orta', cozum_anahtari: `Toplam şekil sayısı ${blue} + ${green} + ${brown} = ${blue+green+brown}'dir. Her şekil ${scale} öğrenciyi gösterdiği için toplam öğrenci sayısı ${blue+green+brown} x ${scale} = ${answer}'dir.`
+      };
+    })}]
   },
   "M.3.4.1.2": {
     gradeName: "3. Sınıf", unitName: "Veri İşleme", kazanimName: "Sıklık tablosu oluşturur.",
