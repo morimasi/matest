@@ -247,7 +247,7 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
     fontFamily: settings.fontFamily,
     fontSize: `${settings.fontSize}pt`,
     color: settings.textColor,
-    textAlign: settings.textAlign as 'left' | 'center',
+    textAlign: settings.textAlign as 'left' | 'center' | 'right',
     columnCount: settings.columns,
     columnGap: '2rem'
   };
@@ -303,7 +303,7 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                             <div>
                                 <label className="block text-xs font-medium text-slate-600 mb-1">Yazı Tipi Boyutu</label>
                                 <select value={settings.fontSize} onChange={e => setSettings({...settings, fontSize: parseInt(e.target.value)})} className="w-full p-1.5 text-sm bg-white/60 border border-slate-300/50 rounded-md shadow-sm focus:ring-1 focus:ring-purple-500">
-                                    <option value="10">10pt</option><option value="11">11pt</option><option value="12">12pt</option><option value="13">13pt</option><option value="14">14pt</option>
+                                    {[8, 9, 10, 11, 12, 13, 14, 16, 18, 20].map(size => <option key={size} value={size}>{size}pt</option>)}
                                 </select>
                             </div>
                         </div>
@@ -311,13 +311,18 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                             <div>
                                 <label className="block text-xs font-medium text-slate-600 mb-1">Sütun</label>
                                 <select value={settings.columns} onChange={e => setSettings({...settings, columns: parseInt(e.target.value)})} className="w-full p-1.5 text-sm bg-white/60 border border-slate-300/50 rounded-md shadow-sm focus:ring-1 focus:ring-purple-500">
-                                    <option value="1">Tek Sütun</option><option value="2">İki Sütun</option>
+                                    <option value="1">Tek Sütun</option>
+                                    <option value="2">İki Sütun</option>
+                                    <option value="3">Üç Sütun</option>
+                                    <option value="4">Dört Sütun</option>
                                 </select>
                             </div>
                             <div>
                                 <label className="block text-xs font-medium text-slate-600 mb-1">Hizalama</label>
                                 <select value={settings.textAlign} onChange={e => setSettings({...settings, textAlign: e.target.value})} className="w-full p-1.5 text-sm bg-white/60 border border-slate-300/50 rounded-md shadow-sm focus:ring-1 focus:ring-purple-500">
-                                    <option value="left">Sola Dayalı</option><option value="center">Ortalanmış</option>
+                                    <option value="left">Sola Dayalı</option>
+                                    <option value="center">Ortalanmış</option>
+                                    <option value="right">Sağa Dayalı</option>
                                 </select>
                             </div>
                         </div>
@@ -626,22 +631,25 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
         }
         .quiz-paper.kareli {
             background-image: linear-gradient(to right, #e2e8f0 1px, transparent 1px), linear-gradient(to bottom, #e2e8f0 1px, transparent 1px);
-            background-size: 1cm 1cm;
+            background-size: var(--line-height) var(--line-height);
+            line-height: var(--line-height);
         }
         .quiz-paper.noktali {
             background-image: radial-gradient(#d1d5db 1px, transparent 1px);
-            background-size: 0.8cm 0.8cm;
+            background-size: var(--line-height) var(--line-height);
+            line-height: var(--line-height);
         }
         .quiz-paper.bordered { border: 2px solid black; }
 
         @media print {
-            .non-printable-bg {
-                background: transparent !important;
-                padding: 0 !important;
-            }
             body { 
                 background: white !important; 
                 -webkit-print-color-adjust: exact;
+                color-adjust: exact;
+            }
+            .non-printable-bg {
+                background: transparent !important;
+                padding: 0 !important;
             }
             .non-printable { display: none !important; }
             .printable-area { 
@@ -655,7 +663,6 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
             .quiz-paper {
                 color: var(--text-color) !important;
                 background-color: var(--bg-color) !important;
-                color-adjust: exact;
                 box-shadow: none !important;
                 border: none !important;
                 column-count: var(--column-count) !important;
@@ -683,11 +690,14 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
             .quiz-paper.bordered {
                 border: 2px solid black !important;
             }
-            .quiz-paper.notebook, .quiz-paper.kareli, .quiz-paper.noktali {
-                 background-image: none !important;
-            }
             .quiz-paper.notebook {
                  background-image: linear-gradient(to bottom, #e2e8f0 1px, transparent 1px) !important;
+            }
+            .quiz-paper.kareli {
+                background-image: linear-gradient(to right, #e2e8f0 1px, transparent 1px), linear-gradient(to bottom, #e2e8f0 1px, transparent 1px) !important;
+            }
+            .quiz-paper.noktali {
+                background-image: radial-gradient(#d1d5db 1px, transparent 1px) !important;
             }
             .bg-green-100 { 
                 background-color: #dcfce7 !important; 
