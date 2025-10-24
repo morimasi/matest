@@ -451,7 +451,7 @@ export const ARCHIVE_DATA: Record<string, ArchiveQuiz> = {
             sinif: 2, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.2.1.1.1", kazanim_metni: "100’e kadar olan doğal sayıları ileriye doğru birer, beşer ve onar ritmik sayar.",
             soru_tipi: 'coktan_secmeli',
             soru_metni: `${start}'den başlayarak ileriye doğru onar ritmik sayarken dördüncü söylenen sayı hangisidir?`,
-            secenekler: { A: `${start-10}`, B: `${start}`, C: `${start+10}`, D: `${start-20}` },
+            secenekler: { A: `${start-10}`, B: `${start+30}`, C: `${start+40}`, D: `${start+20}` },
             dogru_cevap: 'B',
             yanlis_secenek_tipleri: ["Üçüncü sayı", "Beşinci sayı", "İkinci sayı"],
             gercek_yasam_baglantisi: "Para sayarken (10'ar TL) veya saatleri söylerken (5'er dakika) ritmik sayma kullanırız.",
@@ -770,7 +770,7 @@ export const ARCHIVE_DATA: Record<string, ArchiveQuiz> = {
   "M.2.2.1.1": {
     gradeName: "2. Sınıf", unitName: "Geometri", kazanimName: "Geometrik şekilleri kenar ve köşe sayılarına göre sınıflandırır.",
     templates: [{ id: 'system-default-M.2.2.1.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
-        const questionType = i % 3;
+        const questionType = i % 3; // 0: kare, 1: üçgen, 2: daire
         let questionText = '';
         const options = { A: 'Kare', B: 'Üçgen', C: 'Daire', D: 'Altıgen' };
         let correctAnswerKey = 'A';
@@ -816,8 +816,6 @@ export const ARCHIVE_DATA: Record<string, ArchiveQuiz> = {
   "M.2.3.1.1": {
     gradeName: "2. Sınıf", unitName: "Ölçme", kazanimName: "Standart uzunluk ölçme birimlerini tanır.",
     templates: [{ id: 'system-default-M.2.3.1.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
-      const item = i % 2 === 0 ? 'sıramızın boyu' : 'sınıfın kapısının eni';
-      const unit = i % 2 === 0 ? 'santimetre' : 'metre';
       return {
         sinif: 2, unite_adi: "Ölçme", unite_no: 3, kazanim_kodu: "M.2.3.1.1", kazanim_metni: "Standart uzunluk ölçme birimlerini tanır.",
         soru_tipi: 'coktan_secmeli',
@@ -1075,6 +1073,55 @@ export const ARCHIVE_DATA: Record<string, ArchiveQuiz> = {
       };
     })}]
   },
+  "M.3.1.2.2": {
+    gradeName: "3. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "İki sayının toplamını tahmin eder ve tahminini işlem sonucuyla karşılaştırır.",
+    templates: [{ id: 'system-default-M.3.1.2.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+      const num1 = 348 + i * 5;
+      const num2 = 471 - i * 5;
+      const estimate = Math.round(num1 / 100) * 100 + Math.round(num2 / 100) * 100;
+      return {
+        sinif: 3, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.3.1.2.2", kazanim_metni: "İki sayının toplamını tahmin eder ve tahminini işlem sonucuyla karşılaştırır.",
+        soru_tipi: 'coktan_secmeli',
+        soru_metni: `${num1} + ${num2} işleminin tahmini sonucu kaçtır? (Sayıları en yakın yüzlüğe yuvarlayınız.)`,
+        secenekler: { A: `${estimate}`, B: `${estimate - 100}`, C: `${estimate + 100}`, D: `${num1 + num2}` },
+        dogru_cevap: 'A',
+        yanlis_secenek_tipleri: ["Yanlış yuvarlama", "Gerçek sonuç", "Tahminden uzak değer"],
+        gercek_yasam_baglantisi: "Alışveriş sepetimizdeki ürünlerin toplam fiyatını kasaya gitmeden önce yaklaşık olarak hesaplamak için tahmin etme becerisini kullanırız.",
+        seviye: 'orta', cozum_anahtari: `${num1} en yakın yüzlüğe ${Math.round(num1 / 100) * 100} olarak, ${num2} ise ${Math.round(num2 / 100) * 100} olarak yuvarlanır. Tahmini toplam ${estimate}'dir.`
+      };
+    })}]
+  },
+  "M.3.1.2.3": {
+    gradeName: "3. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Toplama işleminin özelliklerini kullanır.",
+    templates: [{ id: 'system-default-M.3.1.2.3', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
+        sinif: 3, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.3.1.2.3", kazanim_metni: "Toplama işleminin özelliklerini kullanır.",
+        soru_tipi: 'coktan_secmeli',
+        soru_metni: `125 + 248 = 248 + ? eşitliğinde '?' yerine hangi sayı gelmelidir?`,
+        secenekler: { A: '125', B: '248', C: '373', D: '123' },
+        dogru_cevap: 'A',
+        yanlis_secenek_tipleri: ["Diğer toplanan", "İki sayının toplamı", "Yakın bir sayı"],
+        gercek_yasam_baglantisi: "Sayıları toplarken yerlerini değiştirsek bile sonucun değişmeyeceğini bilmek, hesaplamalarda bize kolaylık sağlar.",
+        seviye: 'temel', cozum_anahtari: `Toplama işleminde toplananların yer değiştirmesi (değişme özelliği) sonucu değiştirmez. Bu yüzden '?' yerine 125 gelmelidir.`
+    }]}]
+  },
+  "M.3.1.2.4": {
+    gradeName: "3. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Toplama işlemi gerektiren problemleri çözer.",
+    templates: [{ id: 'system-default-M.3.1.2.4', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+      const num1 = 350 + i * 10;
+      const num2 = 175 + i * 5;
+      const answer = num1 + num2;
+      return {
+        sinif: 3, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.3.1.2.4", kazanim_metni: "Toplama işlemi gerektiren problemleri çözer.",
+        soru_tipi: 'coktan_secmeli',
+        soru_metni: `Bir okulda birinci gün ${num1} sayfa kitap okuma etkinliği, ikinci gün ise ${num2} sayfa kitap okuma etkinliği yapılmıştır. İki günde toplam kaç sayfa kitap okunmuştur?`,
+        secenekler: createNumericOptions(answer, 20),
+        dogru_cevap: Object.keys(createNumericOptions(answer, 20)).find(k => createNumericOptions(answer, 20)[k as 'A'|'B'|'C'|'D'] === String(answer)) || 'A',
+        yanlis_secenek_tipleri: ["Çıkarma yapma", "Elde hatası", "Sayıları yanlış okuma"],
+        gercek_yasam_baglantisi: "Kumbaramıza farklı zamanlarda attığımız paraları toplayarak toplamda ne kadar biriktirdiğimizi buluruz.",
+        seviye: 'ileri', cozum_anahtari: `İki günde okunan toplam sayfa sayısını bulmak için ${num1} ile ${num2} toplanır. Sonuç ${answer}'dir.`
+      };
+    })}]
+  },
    "M.3.1.3.1": {
     gradeName: "3. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "En çok üç basamaklı sayılardan, en çok üç basamaklı sayıları çıkarır.",
     templates: [{ id: 'system-default-M.3.1.3.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
@@ -1095,6 +1142,55 @@ export const ARCHIVE_DATA: Record<string, ArchiveQuiz> = {
       };
     })}]
   },
+  "M.3.1.3.2": {
+    gradeName: "3. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Zihinden çıkarma işlemi yapar.",
+    templates: [{ id: 'system-default-M.3.1.3.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+      const num1 = (4 + i) * 100;
+      const num2 = 55;
+      const answer = num1 - num2;
+      return {
+        sinif: 3, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.3.1.3.2", kazanim_metni: "Zihinden çıkarma işlemi yapar.",
+        soru_tipi: 'coktan_secmeli',
+        soru_metni: `${num1} - ${num2} işleminin zihinden yapılışının sonucu kaçtır?`,
+        secenekler: createNumericOptions(answer, 10),
+        dogru_cevap: Object.keys(createNumericOptions(answer, 10)).find(k => createNumericOptions(answer, 10)[k as 'A'|'B'|'C'|'D'] === String(answer)) || 'B',
+        yanlis_secenek_tipleri: ["Onluk bozma hatası", "Yanlış geri sayma"],
+        gercek_yasam_baglantisi: "100 TL ile alışveriş yaptıktan sonra para üstünü hızlıca zihinden hesaplayabiliriz.",
+        seviye: 'orta', cozum_anahtari: `${num1}'den önce 50 çıkarıp (${num1-50}), sonra bulunan sonuçtan 5 daha çıkararak (${num1-50-5}) sonuca ulaşılır.`
+      };
+    })}]
+  },
+  "M.3.1.3.3": {
+    gradeName: "3. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Çıkarma işlemi gerektiren problemleri çözer.",
+    templates: [{ id: 'system-default-M.3.1.3.3', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+      const start = 950 - i * 10;
+      const end = 480 + i * 5;
+      const answer = start - end;
+      return {
+        sinif: 3, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.3.1.3.3", kazanim_metni: "Çıkarma işlemi gerektiren problemleri çözer.",
+        soru_tipi: 'coktan_secmeli',
+        soru_metni: `Bir su deposunda ${start} litre su bulunmaktadır. Sulama için ${end} litre su kullanılmıştır. Depoda kaç litre su kalmıştır?`,
+        secenekler: createNumericOptions(answer, 20),
+        dogru_cevap: Object.keys(createNumericOptions(answer, 20)).find(k => createNumericOptions(answer, 20)[k as 'A'|'B'|'C'|'D'] === String(answer)) || 'C',
+        yanlis_secenek_tipleri: ["Toplama yapma", "Onluk bozma hatası"],
+        gercek_yasam_baglantisi: "Okunacak bir kitabın kaç sayfasının kaldığını bulmak için çıkarma problemi çözeriz.",
+        seviye: 'ileri', cozum_anahtari: `Kalan su miktarını bulmak için başlangıçtaki miktardan kullanılan miktar çıkarılır: ${start} - ${end} = ${answer}.`
+      };
+    })}]
+  },
+  "M.3.1.4.1": {
+    gradeName: "3. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Çarpma işleminin özelliklerini kullanır.",
+    templates: [{ id: 'system-default-M.3.1.4.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
+        sinif: 3, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.3.1.4.1", kazanim_metni: "Çarpma işleminin özelliklerini kullanır.",
+        soru_tipi: 'coktan_secmeli',
+        soru_metni: `Aşağıdaki işlemlerden hangisinin sonucu (15 x 4) x 7 işleminin sonucuna eşittir?`,
+        secenekler: { A: '15 x (4 x 7)', B: '15 + 4 + 7', C: '(15 + 4) x 7', D: '15 x 4 + 7' },
+        dogru_cevap: 'A',
+        yanlis_secenek_tipleri: ["Farklı işlemler kullanma", "İşlem önceliğini değiştirme"],
+        gercek_yasam_baglantisi: "Çarpma işleminin özelliklerini bilmek, büyük sayıları zihinden daha kolay çarpmamıza yardımcı olur.",
+        seviye: 'orta', cozum_anahtari: `Çarpma işleminin birleşme özelliği sayesinde, sayıları farklı gruplayarak çarpmak sonucu değiştirmez.`
+    }]}]
+  },
    "M.3.1.4.2": {
     gradeName: "3. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Üç basamaklı bir doğal sayı ile bir basamaklı bir doğal sayıyı çarpar.",
     templates: [{ id: 'system-default-M.3.1.4.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
@@ -1112,6 +1208,60 @@ export const ARCHIVE_DATA: Record<string, ArchiveQuiz> = {
         yanlis_secenek_tipleri: ["Eldeyi unutma hatası", "Sadece bir basamakla çarpma", "Toplama yapma"],
         gercek_yasam_baglantisi: "Her birinde 150 sayfa olan 5 kitabı okuduğumuzda toplam kaç sayfa okuduğumuzu çarparak buluruz.",
         seviye: 'orta', cozum_anahtari: `Toplam bilet sayısını bulmak için koltuk sayısı ile seans sayısı çarpılır. ${num1} x ${num2} = ${answer}.`
+      };
+    })}]
+  },
+  "M.3.1.4.3": {
+    gradeName: "3. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "İki basamaklı bir doğal sayı ile en çok iki basamaklı bir doğal sayıyı çarpar.",
+    templates: [{ id: 'system-default-M.3.1.4.3', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+      const num1 = 25 + i;
+      const num2 = 15 + i;
+      const answer = num1 * num2;
+      return {
+        sinif: 3, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.3.1.4.3", kazanim_metni: "İki basamaklı bir doğal sayı ile en çok iki basamaklı bir doğal sayıyı çarpar.",
+        soru_tipi: 'coktan_secmeli',
+        soru_metni: `Bir sınıfta ${num1} sıra vardır ve her sırada ${num2} öğrenci oturmaktadır. Sınıf mevcudu kaçtır?`,
+        secenekler: createNumericOptions(answer, 30),
+        dogru_cevap: Object.keys(createNumericOptions(answer, 30)).find(k => createNumericOptions(answer, 30)[k as 'A'|'B'|'C'|'D'] === String(answer)) || 'A',
+        yanlis_secenek_tipleri: ["Basamak kaydırma hatası", "Toplama yapma"],
+        gercek_yasam_baglantisi: "Her birinde 24 yumurta olan 12 kolideki toplam yumurta sayısını bulmak için çarpma yaparız.",
+        seviye: 'orta', cozum_anahtari: `Toplam öğrenci sayısını bulmak için sıra sayısı ile her sıradaki öğrenci sayısı çarpılır: ${num1} x ${num2} = ${answer}.`
+      };
+    })}]
+  },
+  "M.3.1.4.4": {
+    gradeName: "3. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Zihinden çarpma işlemi yapar.",
+    templates: [{ id: 'system-default-M.3.1.4.4', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+      const num1 = 45 + i * 2;
+      const num2 = 10;
+      const answer = num1 * num2;
+      return {
+        sinif: 3, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.3.1.4.4", kazanim_metni: "Zihinden çarpma işlemi yapar.",
+        soru_tipi: 'coktan_secmeli',
+        soru_metni: `${num1} x 10 işleminin sonucu kaçtır?`,
+        secenekler: { A: `${num1}0`, B: `${num1}`, C: `${num1}00`, D: `${num1 + 10}` },
+        dogru_cevap: 'A',
+        yanlis_secenek_tipleri: ["Sıfır eklemeyi unutma", "Fazla sıfır ekleme", "Toplama yapma"],
+        gercek_yasam_baglantisi: "10 tane 50 kuruşun kaç TL yaptığını zihinden çarparak hızlıca bulabiliriz.",
+        seviye: 'orta', cozum_anahtari: `Bir sayıyı 10 ile zihinden çarpmak için sayının sonuna bir tane sıfır eklenir.`
+      };
+    })}]
+  },
+  "M.3.1.4.5": {
+    gradeName: "3. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Çarpma işlemi gerektiren problemleri çözer.",
+    templates: [{ id: 'system-default-M.3.1.4.5', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+      const num1 = 8;
+      const num2 = 12;
+      const answer = num1 * num2;
+      return {
+        sinif: 3, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.3.1.4.5", kazanim_metni: "Çarpma işlemi gerektiren problemleri çözer.",
+        soru_tipi: 'coktan_secmeli',
+        soru_metni: `Günde ${num1} sayfa kitap okuyan bir öğrenci, ${num2} günde toplam kaç sayfa kitap okur?`,
+        secenekler: createNumericOptions(answer, 10),
+        dogru_cevap: Object.keys(createNumericOptions(answer, 10)).find(k => createNumericOptions(answer, 10)[k as 'A'|'B'|'C'|'D'] === String(answer)) || 'D',
+        yanlis_secenek_tipleri: ["Toplama yapma", "Yanlış çarpma"],
+        gercek_yasam_baglantisi: "Her gün belirli bir miktar para biriktirirsek, bir ay sonunda ne kadar paramız olacağını çarparak hesaplarız.",
+        seviye: 'ileri', cozum_anahtari: `Toplam okunan sayfa sayısını bulmak için günlük okunan sayfa sayısı ile gün sayısı çarpılır: ${num1} x ${num2} = ${answer}.`
       };
     })}]
   },
@@ -1135,6 +1285,42 @@ export const ARCHIVE_DATA: Record<string, ArchiveQuiz> = {
       };
     })}]
   },
+  "M.3.1.5.2": {
+    gradeName: "3. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Bölme işleminde kalanı yorumlar.",
+    templates: [{ id: 'system-default-M.3.1.5.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+      const divisor = 5;
+      const dividend = 27 + i;
+      const answer = dividend % divisor;
+      return {
+        sinif: 3, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.3.1.5.2", kazanim_metni: "Bölme işleminde kalanı yorumlar.",
+        soru_tipi: 'coktan_secmeli',
+        soru_metni: `${dividend} ceviz, her birinde ${divisor} ceviz olacak şekilde poşetlere dolduruluyor. Geriye kaç ceviz artar?`,
+        secenekler: createNumericOptions(answer, 2),
+        dogru_cevap: Object.keys(createNumericOptions(answer, 2)).find(k => createNumericOptions(answer, 2)[k as 'A'|'B'|'C'|'D'] === String(answer)) || 'A',
+        yanlis_secenek_tipleri: ["Bölümü cevap sanma", "Böleni cevap sanma"],
+        gercek_yasam_baglantisi: "Oyuncakları kutulara eşit sayıda yerleştirdiğimizde dışarıda kalan oyuncak sayısı, bölme işlemindeki kalandır.",
+        seviye: 'ileri', cozum_anahtari: `${dividend} sayısı ${divisor}'e bölündüğünde bölüm 5, kalan ise ${answer}'dir. Soruda artan cevizler sorulduğu için cevap kalandır.`
+      };
+    })}]
+  },
+  "M.3.1.5.3": {
+    gradeName: "3. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Bölme işlemi gerektiren problemleri çözer.",
+    templates: [{ id: 'system-default-M.3.1.5.3', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+      const total = 96 - i * 3;
+      const groups = 4;
+      const answer = total / groups;
+      return {
+        sinif: 3, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.3.1.5.3", kazanim_metni: "Bölme işlemi gerektiren problemleri çözer.",
+        soru_tipi: 'coktan_secmeli',
+        soru_metni: `${total} yolcusu olan bir tren, ${groups} vagonludur. Her vagonda eşit sayıda yolcu olduğuna göre, bir vagonda kaç yolcu vardır?`,
+        secenekler: createNumericOptions(answer, 5),
+        dogru_cevap: Object.keys(createNumericOptions(answer, 5)).find(k => createNumericOptions(answer, 5)[k as 'A'|'B'|'C'|'D'] === String(answer)) || 'B',
+        yanlis_secenek_tipleri: ["Çarpma yapma", "Yanlış bölme"],
+        gercek_yasam_baglantisi: "Bir gezi için toplanan parayı katılımcı sayısına bölerek kişi başı maliyeti hesaplarız.",
+        seviye: 'ileri', cozum_anahtari: `Yolcular vagonlara eşit paylaştırıldığı için bölme işlemi yapılır: ${total} ÷ ${groups} = ${answer}.`
+      };
+    })}]
+  },
   "M.3.1.6.1": {
     gradeName: "3. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Birim kesirleri tanır ve modellerle gösterir.",
     templates: [{ id: 'system-default-M.3.1.6.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
@@ -1150,6 +1336,102 @@ export const ARCHIVE_DATA: Record<string, ArchiveQuiz> = {
             seviye: 'temel', cozum_anahtari: `Bir bütünün eş parçalarından birini gösteren kesirlere birim kesir denir. Payı her zaman 1 olur.`
         };
     })}]
+  },
+  "M.3.1.6.2": {
+    gradeName: "3. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Bir bütünün belirtilen birim kesir kadarını belirler.",
+    templates: [{ id: 'system-default-M.3.1.6.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+      const den = 4 + (i % 5);
+      const total = den * (5 + i);
+      const answer = total / den;
+      return {
+        sinif: 3, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.3.1.6.2", kazanim_metni: "Bir bütünün belirtilen birim kesir kadarını belirler.",
+        soru_tipi: 'coktan_secmeli',
+        soru_metni: `${total} liranın 1/${den}'i kaç liradır?`,
+        secenekler: createNumericOptions(answer, 3),
+        dogru_cevap: Object.keys(createNumericOptions(answer, 3)).find(k => createNumericOptions(answer, 3)[k as 'A'|'B'|'C'|'D'] === String(answer)) || 'C',
+        yanlis_secenek_tipleri: ["Çarpma yapma", "Bütünü cevap sanma"],
+        gercek_yasam_baglantisi: "Harçlığımızın 1/3'ü ile dondurma almak istediğimizde ne kadar harcayacağımızı bu şekilde hesaplarız.",
+        seviye: 'orta', cozum_anahtari: `Bir bütünün birim kesir kadarını bulmak için bütün, kesrin paydasına bölünür: ${total} ÷ ${den} = ${answer}.`
+      };
+    })}]
+  },
+  "M.3.1.6.3": {
+    gradeName: "3. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Paydası 10 ve 100 olan kesirleri birim kesir olarak ifade eder.",
+    templates: [{ id: 'system-default-M.3.1.6.3', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
+        sinif: 3, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.3.1.6.3", kazanim_metni: "Paydası 10 ve 100 olan kesirleri birim kesir olarak ifade eder.",
+        soru_tipi: 'coktan_secmeli',
+        soru_metni: `7/10 kesri kaç tane 1/10 birim kesrinden oluşur?`,
+        secenekler: { A: '10', B: '1', C: '7', D: '17' },
+        dogru_cevap: 'C',
+        yanlis_secenek_tipleri: ["Paydayı cevap sanma", "Birim kesrin payını cevap sanma", "Toplama yapma"],
+        gercek_yasam_baglantisi: "10 dilime ayrılmış bir pastanın 7 dilimini yediğimizde, 7 tane 1/10'luk parça yemiş oluruz.",
+        seviye: 'orta', cozum_anahtari: `Bir kesrin payı, o kesrin kaç tane birim kesirden oluştuğunu gösterir. 7/10 kesri, 7 tane 1/10'dan oluşur.`
+    }]}]
+  },
+  "M.3.2.1.1": {
+    gradeName: "3. Sınıf", unitName: "Geometri", kazanimName: "Nokta, doğru, doğru parçası ve ışını açıklar.",
+    templates: [{ id: 'system-default-M.3.2.1.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
+        sinif: 3, unite_adi: "Geometri", unite_no: 2, kazanim_kodu: "M.3.2.1.1", kazanim_metni: "Nokta, doğru, doğru parçası ve ışını açıklar.",
+        soru_tipi: 'coktan_secmeli',
+        soru_metni: `İki ucu da sınırsız uzayan düz çizgiye ne ad verilir?`,
+        secenekler: { A: 'Doğru parçası', B: 'Işın', C: 'Doğru', D: 'Nokta' },
+        dogru_cevap: 'C',
+        yanlis_secenek_tipleri: ["Uçları sınırlı olan", "Bir ucu sınırlı olan", "Boyutu olmayan"],
+        gercek_yasam_baglantisi: "Yollar, tren rayları doğrulara; bir cetvelin kenarı doğru parçasına; bir fenerden çıkan ışık ise ışına benzetilebilir.",
+        seviye: 'temel', cozum_anahtari: `İki ucu sınırlı olan çizgiye doğru parçası, bir ucu sınırlı olana ışın, iki ucu da sınırsız olana doğru denir.`
+    }]}]
+  },
+  "M.3.2.1.2": {
+    gradeName: "3. Sınıf", unitName: "Geometri", kazanimName: "Düzlem ve düzlemsel şekilleri açıklar.",
+    templates: [{ id: 'system-default-M.3.2.1.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
+        sinif: 3, unite_adi: "Geometri", unite_no: 2, kazanim_kodu: "M.3.2.1.2", kazanim_metni: "Düzlem ve düzlemsel şekilleri açıklar.",
+        soru_tipi: 'coktan_secmeli',
+        soru_metni: `Aşağıdakilerden hangisi bir düzlem modeli olarak kabul edilebilir?`,
+        secenekler: { A: 'Bir top', B: 'Bir ip', C: 'Bir masanın yüzeyi', D: 'Bir yıldız' },
+        dogru_cevap: 'C',
+        yanlis_secenek_tipleri: ["Üç boyutlu cisim", "Tek boyutlu çizgi", "Nokta"],
+        gercek_yasam_baglantisi: "Yazdığımız defterin sayfası, yürüdüğümüz zemin veya duvardaki tablo birer düzlem modelidir.",
+        seviye: 'temel', cozum_anahtari: `Düzlem, pürüzsüz ve sonsuza kadar uzanan bir yüzeydir. Masanın yüzeyi buna iyi bir örnektir.`
+    }]}]
+  },
+  "M.3.2.2.1": {
+    gradeName: "3. Sınıf", unitName: "Geometri", kazanimName: "Açıları isimlendirir ve sınıflandırır.",
+    templates: [{ id: 'system-default-M.3.2.2.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
+        sinif: 3, unite_adi: "Geometri", unite_no: 2, kazanim_kodu: "M.3.2.2.1", kazanim_metni: "Açıları isimlendirir ve sınıflandırır.",
+        soru_tipi: 'coktan_secmeli',
+        soru_metni: `Dik açıdan daha küçük olan açılara ne ad verilir?`,
+        secenekler: { A: 'Geniş açı', B: 'Doğru açı', C: 'Tam açı', D: 'Dar açı' },
+        dogru_cevap: 'D',
+        yanlis_secenek_tipleri: ["Dik açıdan büyük olan", "180 derece olan", "360 derece olan"],
+        gercek_yasam_baglantisi: "Bir kitabın köşesi dik açıdır, makasın ağzı açıldığında dar açı, kapının açılmasıyla geniş açı oluşabilir.",
+        seviye: 'orta', cozum_anahtari: `Ölçüsü 0 ile 90 derece arasında olan açılara dar açı, 90 derece olanlara dik açı, 90 ile 180 derece arasında olanlara geniş açı denir.`
+    }]}]
+  },
+  "M.3.2.2.2": {
+    gradeName: "3. Sınıf", unitName: "Geometri", kazanimName: "Üçgen, kare, dikdörtgeni kenarlarına ve açılarına göre sınıflandırır.",
+    templates: [{ id: 'system-default-M.3.2.2.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
+        sinif: 3, unite_adi: "Geometri", unite_no: 2, kazanim_kodu: "M.3.2.2.2", kazanim_metni: "Üçgen, kare, dikdörtgeni kenarlarına ve açılarına göre sınıflandırır.",
+        soru_tipi: 'coktan_secmeli',
+        soru_metni: `Karşılıklı kenarları birbirine eşit ve tüm açıları dik açı olan geometrik şekil hangisidir?`,
+        secenekler: { A: 'Üçgen', B: 'Dikdörtgen', C: 'Eşkenar Dörtgen', D: 'Yamuk' },
+        dogru_cevap: 'B',
+        yanlis_secenek_tipleri: ["Farklı kenar sayısı", "Açıları dik olmayan", "Sadece iki kenarı paralel olan"],
+        gercek_yasam_baglantisi: "Evimizdeki kapılar, pencereler, kitaplar genellikle dikdörtgen şeklindedir.",
+        seviye: 'orta', cozum_anahtari: `Dikdörtgenin tanımı, karşılıklı kenarları eşit ve tüm açıları 90 derece olan dörtgendir. Karenin ise tüm kenarları eşittir.`
+    }]}]
+  },
+  "M.3.2.3.1": {
+    gradeName: "3. Sınıf", unitName: "Geometri", kazanimName: "Tekrarlayan bir geometrik örüntü oluşturur ve örüntünün kuralını açıklar.",
+    templates: [{ id: 'system-default-M.3.2.3.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
+        sinif: 3, unite_adi: "Geometri", unite_no: 2, kazanim_kodu: "M.3.2.3.1", kazanim_metni: "Tekrarlayan bir geometrik örüntü oluşturur ve örüntünün kuralını açıklar.",
+        soru_tipi: 'coktan_secmeli',
+        soru_metni: `Sarı, Mavi, Mavi, Sarı, Mavi, Mavi, ... şeklinde devam eden örüntünün kuralı nedir?`,
+        secenekler: { A: 'Bir sarı, bir mavi', B: 'İki sarı, bir mavi', C: 'Bir sarı, iki mavi', D: 'İki sarı, iki mavi' },
+        dogru_cevap: 'C',
+        yanlis_secenek_tipleri: ["Yanlış tekrar sayısı"],
+        gercek_yasam_baglantisi: "Bir kolyeye boncuk dizerken veya bir duvara fayans döşerken belirli bir kurala göre örüntüler oluşturulur.",
+        seviye: 'orta', cozum_anahtari: `Örüntüde bir sarı boncuğu iki mavi boncuk takip etmektedir. Bu grup sürekli tekrar eder.`
+    }]}]
   },
   "M.3.2.4.1": {
     gradeName: "3. Sınıf", unitName: "Geometri", kazanimName: "Düzlemsel şekillerin simetri doğrularını belirler ve çizer.",
@@ -1172,6 +1454,45 @@ export const ARCHIVE_DATA: Record<string, ArchiveQuiz> = {
         };
     })}]
   },
+  "M.3.3.1.1": {
+    gradeName: "3. Sınıf", unitName: "Ölçme", kazanimName: "Metre ve santimetre arasındaki ilişkiyi fark eder ve birbiri cinsinden yazar.",
+    templates: [{ id: 'system-default-M.3.3.1.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
+        sinif: 3, unite_adi: "Ölçme", unite_no: 3, kazanim_kodu: "M.3.3.1.1", kazanim_metni: "Metre ve santimetre arasındaki ilişkiyi fark eder ve birbiri cinsinden yazar.",
+        soru_tipi: 'coktan_secmeli',
+        soru_metni: `4 metre 25 santimetre, toplam kaç santimetredir?`,
+        secenekler: { A: '425', B: '4025', C: '29', D: '4.25' },
+        dogru_cevap: 'A',
+        yanlis_secenek_tipleri: ["Yanlış birim çevirme", "Toplama yapma"],
+        gercek_yasam_baglantisi: "Boyumuzu ifade ederken hem metre hem de santimetre kullanırız, örneğin '1 metre 35 santimetre' gibi.",
+        seviye: 'orta', cozum_anahtari: `1 metre 100 santimetre olduğu için, 4 metre 400 santimetredir. Üzerine 25 santimetre daha eklenince toplam 425 santimetre olur.`
+    }]}]
+  },
+  "M.3.3.1.2": {
+    gradeName: "3. Sınıf", unitName: "Ölçme", kazanimName: "Kilometrenin kullanım alanlarını belirtir.",
+    templates: [{ id: 'system-default-M.3.3.1.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
+        sinif: 3, unite_adi: "Ölçme", unite_no: 3, kazanim_kodu: "M.3.3.1.2", kazanim_metni: "Kilometrenin kullanım alanlarını belirtir.",
+        soru_tipi: 'coktan_secmeli',
+        soru_metni: `Ankara ile İstanbul arasındaki mesafeyi ölçmek için en uygun birim hangisidir?`,
+        secenekler: { A: 'Santimetre', B: 'Metre', C: 'Kilometre', D: 'Karış' },
+        dogru_cevap: 'C',
+        yanlis_secenek_tipleri: ["Çok küçük birimler", "Standart olmayan birim"],
+        gercek_yasam_baglantisi: "Şehirler arası yolculuklarda ne kadar yol gittiğimizi trafik tabelalarındaki kilometre bilgisiyle takip ederiz.",
+        seviye: 'temel', cozum_anahtari: `Çok uzun mesafeleri (şehirler arası yollar gibi) ölçmek için kilometre birimi kullanılır.`
+    }]}]
+  },
+  "M.3.3.1.3": {
+    gradeName: "3. Sınıf", unitName: "Ölçme", kazanimName: "Uzunluk ölçme birimleriyle ilgili problemleri çözer.",
+    templates: [{ id: 'system-default-M.3.3.1.3', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
+        sinif: 3, unite_adi: "Ölçme", unite_no: 3, kazanim_kodu: "M.3.3.1.3", kazanim_metni: "Uzunluk ölçme birimleriyle ilgili problemleri çözer.",
+        soru_tipi: 'coktan_secmeli',
+        soru_metni: `Bir terzi 5 metrelik kumaşın 2 metre 40 santimetresini kullanmıştır. Geriye ne kadar kumaş kalmıştır?`,
+        secenekler: { A: '3 m 60 cm', B: '2 m 60 cm', C: '7 m 40 cm', D: '2 m 40 cm' },
+        dogru_cevap: 'B',
+        yanlis_secenek_tipleri: ["Yakın ama yanlış sonuç", "Toplama yapma", "Kullanılan miktarı cevap sanma"],
+        gercek_yasam_baglantisi: "Evimize perde alırken pencerenin boyutunu ölçüp, ne kadar kumaş gerektiğini hesaplarız.",
+        seviye: 'ileri', cozum_anahtari: `5 metre, 500 santimetredir. 2 metre 40 santimetre ise 240 santimetredir. 500 - 240 = 260 santimetre, bu da 2 metre 60 santimetredir.`
+    }]}]
+  },
    "M.3.3.2.1": {
     gradeName: "3. Sınıf", unitName: "Ölçme", kazanimName: "Şekillerin çevre uzunluğunu hesaplar.",
     templates: [{ id: 'system-default-M.3.3.2.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
@@ -1191,6 +1512,45 @@ export const ARCHIVE_DATA: Record<string, ArchiveQuiz> = {
       };
     })}]
   },
+  "M.3.3.2.2": {
+    gradeName: "3. Sınıf", unitName: "Ölçme", kazanimName: "Çevre uzunlukları ile ilgili problemleri çözer.",
+    templates: [{ id: 'system-default-M.3.3.2.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
+        sinif: 3, unite_adi: "Ölçme", unite_no: 3, kazanim_kodu: "M.3.3.2.2", kazanim_metni: "Çevre uzunlukları ile ilgili problemleri çözer.",
+        soru_tipi: 'coktan_secmeli',
+        soru_metni: `Çevresi 80 cm olan bir karenin bir kenar uzunluğu kaç santimetredir?`,
+        secenekler: { A: '80', B: '40', C: '20', D: '10' },
+        dogru_cevap: 'C',
+        yanlis_secenek_tipleri: ["Çevrenin kendisi", "2'ye bölme", "8'e bölme"],
+        gercek_yasam_baglantisi: "Kare şeklindeki bir tarlanın etrafı için belli miktarda tel kullanılmışsa, bir kenarının ne kadar olduğunu bulabiliriz.",
+        seviye: 'ileri', cozum_anahtari: `Karenin dört kenarı eşit olduğu için, çevresi verilen bir karenin bir kenarını bulmak için çevre uzunluğu 4'e bölünür: 80 ÷ 4 = 20 cm.`
+    }]}]
+  },
+  "M.3.3.3.1": {
+    gradeName: "3. Sınıf", unitName: "Ölçme", kazanimName: "Alanın, standart olmayan birimlerle ölçülebileceğini fark eder.",
+    templates: [{ id: 'system-default-M.3.3.3.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
+        sinif: 3, unite_adi: "Ölçme", unite_no: 3, kazanim_kodu: "M.3.3.3.1", kazanim_metni: "Alanın, standart olmayan birimlerle ölçülebileceğini fark eder.",
+        soru_tipi: 'coktan_secmeli',
+        soru_metni: `Odamızın zeminini kaplamak için aşağıdaki standart olmayan birimlerden hangisini kullanmak en mantıklı olurdu?`,
+        secenekler: { A: 'Silgi', B: 'Kitap', C: 'Karış', D: 'Posta pulu' },
+        dogru_cevap: 'B',
+        yanlis_secenek_tipleri: ["Çok küçük birimler", "Alan ölçmek için uygun olmayan birim"],
+        gercek_yasam_baglantisi: "Bir masanın yüzeyinin kaç tane defterle kaplanabileceğini bularak masanın alanını defter birimiyle ölçmüş oluruz.",
+        seviye: 'temel', cozum_anahtari: `Alan, bir yüzeyin kapladığı yerdir. Zemini kaplamak için kitap gibi daha büyük ve düz birimler kullanmak silgi veya puldan daha mantıklıdır.`
+    }]}]
+  },
+  "M.3.3.4.1": {
+    gradeName: "3. Sınıf", unitName: "Ölçme", kazanimName: "Saat, dakika ve saniye arasındaki ilişkiyi açıklar.",
+    templates: [{ id: 'system-default-M.3.3.4.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
+        sinif: 3, unite_adi: "Ölçme", unite_no: 3, kazanim_kodu: "M.3.3.4.1", kazanim_metni: "Saat, dakika ve saniye arasındaki ilişkiyi açıklar.",
+        soru_tipi: 'coktan_secmeli',
+        soru_metni: `1 dakika kaç saniyedir?`,
+        secenekler: { A: '30', B: '60', C: '90', D: '100' },
+        dogru_cevap: 'B',
+        yanlis_secenek_tipleri: ["Yarım dakika", "Bir buçuk dakika", "Yaygın yanlış bilgi"],
+        gercek_yasam_baglantisi: "Bir şarkının süresini veya bir yarışta koşucunun derecesini dakika ve saniye olarak ifade ederiz.",
+        seviye: 'temel', cozum_anahtari: `Zaman ölçüsü birimlerinden 1 saat 60 dakikaya, 1 dakika ise 60 saniyeye eşittir.`
+    }]}]
+  },
   "M.3.3.4.2": {
     gradeName: "3. Sınıf", unitName: "Ölçme", kazanimName: "Zaman ölçme birimleriyle ilgili problemleri çözer.",
     templates: [{ id: 'system-default-M.3.3.4.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
@@ -1209,6 +1569,97 @@ export const ARCHIVE_DATA: Record<string, ArchiveQuiz> = {
         seviye: 'orta', cozum_anahtari: `1 saat 60 dakika olduğu için, ${hours} saatin kaç dakika olduğunu bulmak için ${hours} ile 60 çarpılır: ${hours} x 60 = ${minutes} dakika.`
       };
     })}]
+  },
+  "M.3.3.5.1": {
+    gradeName: "3. Sınıf", unitName: "Ölçme", kazanimName: "Lira ve kuruş ilişkisini gösterir.",
+    templates: [{ id: 'system-default-M.3.3.5.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
+        sinif: 3, unite_adi: "Ölçme", unite_no: 3, kazanim_kodu: "M.3.3.5.1", kazanim_metni: "Lira ve kuruş ilişkisini gösterir.",
+        soru_tipi: 'coktan_secmeli',
+        soru_metni: `3 tane 50 kuruş, 2 tane 25 kuruş ve 5 tane 10 kuruş toplam kaç lira kaç kuruş eder?`,
+        secenekler: { A: '2 TL 50 kr.', B: '2 TL 25 kr.', C: '3 TL', D: '2 TL 75 kr.' },
+        dogru_cevap: 'A',
+        yanlis_secenek_tipleri: ["Yanlış hesaplama", "Sadece bir tür madeni parayı hesaplama"],
+        gercek_yasam_baglantisi: "Kumbaraımızdaki bozuk paraları sayarak toplam ne kadar paramız olduğunu lira ve kuruş cinsinden hesaplarız.",
+        seviye: 'orta', cozum_anahtari: `3x50=150 kr, 2x25=50 kr, 5x10=50 kr. Toplam: 150+50+50 = 250 kuruş. 100 kuruş 1 TL olduğu için 250 kuruş, 2 TL 50 kuruştur.`
+    }]}]
+  },
+  "M.3.3.5.2": {
+    gradeName: "3. Sınıf", unitName: "Ölçme", kazanimName: "Paralarımızla ilgili problemleri çözer.",
+    templates: [{ id: 'system-default-M.3.3.5.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
+        sinif: 3, unite_adi: "Ölçme", unite_no: 3, kazanim_kodu: "M.3.3.5.2", kazanim_metni: "Paralarımızla ilgili problemleri çözer.",
+        soru_tipi: 'coktan_secmeli',
+        soru_metni: `Tanesi 2 TL 50 kuruş olan kalemlerden 3 tane alan bir kişi, satıcıya 10 TL verirse ne kadar para üstü alır?`,
+        secenekler: { A: '7 TL 50 kr.', B: '3 TL 50 kr.', C: '2 TL 50 kr.', D: '1 TL 50 kr.' },
+        dogru_cevap: 'C',
+        yanlis_secenek_tipleri: ["Alınan ürünlerin toplam fiyatı", "Yanlış çıkarma", "Yanlış çarpma"],
+        gercek_yasam_baglantisi: "Market alışverişi yaptıktan sonra fişi kontrol edip doğru para üstü alıp almadığımızı hesaplarız.",
+        seviye: 'ileri', cozum_anahtari: `Önce toplam tutar hesaplanır: 3 x 2.50 TL = 7.50 TL. Sonra para üstü bulunur: 10 TL - 7.50 TL = 2.50 TL.`
+    }]}]
+  },
+  "M.3.3.6.1": {
+    gradeName: "3. Sınıf", unitName: "Ölçme", kazanimName: "Kilogram ve gram arasındaki ilişkiyi fark eder.",
+    templates: [{ id: 'system-default-M.3.3.6.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
+        sinif: 3, unite_adi: "Ölçme", unite_no: 3, kazanim_kodu: "M.3.3.6.1", kazanim_metni: "Kilogram ve gram arasındaki ilişkiyi fark eder.",
+        soru_tipi: 'coktan_secmeli',
+        soru_metni: `2 kilogram 300 gram, toplam kaç gram eder?`,
+        secenekler: { A: '230', B: '302', C: '2300', D: '500' },
+        dogru_cevap: 'C',
+        yanlis_secenek_tipleri: ["Yanlış birim çevirme", "Toplama yapma"],
+        gercek_yasam_baglantisi: "Pazardan aldığımız 1.5 kg elmanın kaç gram olduğunu bilmek, yemek tariflerinde doğru ölçü kullanmamıza yardımcı olur.",
+        seviye: 'orta', cozum_anahtari: `1 kilogram 1000 gramdır. 2 kilogram 2000 gram eder. Üzerine 300 gram eklenince toplam 2300 gram olur.`
+    }]}]
+  },
+  "M.3.3.6.2": {
+    gradeName: "3. Sınıf", unitName: "Ölçme", kazanimName: "Tartma ile ilgili problemleri çözer.",
+    templates: [{ id: 'system-default-M.3.3.6.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
+        sinif: 3, unite_adi: "Ölçme", unite_no: 3, kazanim_kodu: "M.3.3.6.2", kazanim_metni: "Tartma ile ilgili problemleri çözer.",
+        soru_tipi: 'coktan_secmeli',
+        soru_metni: `Manavdan 2 kg elma, 3 kg portakal ve 500 gram çilek alan bir kişi toplam kaç gram meyve almıştır?`,
+        secenekler: { A: '5500', B: '5005', C: '10', D: '550' },
+        dogru_cevap: 'A',
+        yanlis_secenek_tipleri: ["Yanlış birim çevirme", "Birimleri dikkate almadan toplama"],
+        gercek_yasam_baglantisi: "Marketten aldığımız farklı ağırlıktaki ürünlerin poşette toplam ne kadar ağırlık yapacağını hesaplarız.",
+        seviye: 'ileri', cozum_anahtari: `Tüm birimleri grama çevirmek gerekir. 2 kg = 2000 g, 3 kg = 3000 g. Toplam: 2000 + 3000 + 500 = 5500 gram.`
+    }]}]
+  },
+  "M.3.3.7.1": {
+    gradeName: "3. Sınıf", unitName: "Ölçme", kazanimName: "Litre ve yarım litreyi kullanır.",
+    templates: [{ id: 'system-default-M.3.3.7.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
+        sinif: 3, unite_adi: "Ölçme", unite_no: 3, kazanim_kodu: "M.3.3.7.1", kazanim_metni: "Litre ve yarım litreyi kullanır.",
+        soru_tipi: 'coktan_secmeli',
+        soru_metni: `4 litre su, kaç tane yarım litrelik şişeyi tam olarak doldurur?`,
+        secenekler: { A: '2', B: '4', C: '6', D: '8' },
+        dogru_cevap: 'D',
+        yanlis_secenek_tipleri: ["Yarıya bölme", "Aynı sayıyı cevap sanma"],
+        gercek_yasam_baglantisi: "Büyük bir şişedeki suyu küçük bardaklara paylaştırırken litre ve yarım litre kavramlarını kullanırız.",
+        seviye: 'orta', cozum_anahtari: `1 litrede 2 tane yarım litre vardır. Bu nedenle 4 litrede 4 x 2 = 8 tane yarım litre bulunur.`
+    }]}]
+  },
+  "M.3.3.7.2": {
+    gradeName: "3. Sınıf", unitName: "Ölçme", kazanimName: "Sıvı ölçme ile ilgili problemleri çözer.",
+    templates: [{ id: 'system-default-M.3.3.7.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
+        sinif: 3, unite_adi: "Ölçme", unite_no: 3, kazanim_kodu: "M.3.3.7.2", kazanim_metni: "Sıvı ölçme ile ilgili problemleri çözer.",
+        soru_tipi: 'coktan_secmeli',
+        soru_metni: `Bir inek günde 8 litre süt veriyor. Bu inek bir haftada toplam kaç litre süt verir?`,
+        secenekler: { A: '15', B: '40', C: '56', D: '70' },
+        dogru_cevap: 'C',
+        yanlis_secenek_tipleri: ["Toplama yapma", "Yanlış sayıyla çarpma (örn: 5 gün)"],
+        gercek_yasam_baglantisi: "Bir arabanın deposunun ne kadar benzin aldığını ve bir bidonun ne kadar su aldığını hesaplarken sıvı ölçülerini kullanırız.",
+        seviye: 'ileri', cozum_anahtari: `Bir hafta 7 gündür. Toplam süt miktarını bulmak için günlük miktar ile gün sayısı çarpılır: 8 x 7 = 56 litre.`
+    }]}]
+  },
+  "M.3.4.1.1": {
+    gradeName: "3. Sınıf", unitName: "Veri İşleme", kazanimName: "Nesne ve şekil grafikleri oluşturur ve yorumlar.",
+    templates: [{ id: 'system-default-M.3.4.1.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
+        sinif: 3, unite_adi: "Veri İşleme", unite_no: 4, kazanim_kodu: "M.3.4.1.1", kazanim_metni: "Nesne ve şekil grafikleri oluşturur ve yorumlar.",
+        soru_tipi: 'coktan_secmeli',
+        soru_metni: `Bir sınıftaki öğrencilerin göz renkleri şekil grafiğinde gösterilmiştir.\n\nMavi: 🔵🔵🔵🔵\nYeşil: 🟢🟢\nKahverengi: 🟤🟤🟤🟤🟤\n\n(Her şekil 2 öğrenciyi göstermektedir.)\n\nBu sınıfta toplam kaç öğrenci vardır?`,
+        secenekler: { A: '11', B: '22', C: '10', D: '20' },
+        dogru_cevap: 'B',
+        yanlis_secenek_tipleri: ["Her şekli 1 sayma", "Sadece bir grubu sayma", "Yanlış çarpma"],
+        gercek_yasam_baglantisi: "Bir takvimdeki güneşli, bulutlu ve yağmurlu günleri işaretleyerek o ayın hava durumu grafiğini oluşturabiliriz.",
+        seviye: 'orta', cozum_anahtari: `Toplam şekil sayısı 4 + 2 + 5 = 11'dir. Her şekil 2 öğrenciyi gösterdiği için toplam öğrenci sayısı 11 x 2 = 22'dir.`
+    }]}]
   },
   "M.3.4.1.2": {
     gradeName: "3. Sınıf", unitName: "Veri İşleme", kazanimName: "Sıklık tablosu oluşturur.",
