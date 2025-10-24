@@ -248,7 +248,7 @@ export const ARCHIVE_DATA_GRADE_1: Record<string, ArchiveQuiz> = {
             soru_tipi: 'coktan_secmeli',
             soru_metni: `Bir ${currentItem} hangi geometrik cisme benzer?`,
             secenekler: { A: shapes[0], B: shapes[1], C: shapes[2], D: shapes[3] },
-            dogru_cevap: Object.keys({ A: shapes[0], B: shapes[1], C: shapes[2], D: shapes[3] }).find(key => ({ A: shapes[0], B: shapes[1], C: shapes[2], D: shapes[3] }[key as 'A'|'B'|'C'|'D'] === currentAnswer)!,
+            dogru_cevap: Object.keys({ A: shapes[0], B: shapes[1], C: shapes[2], D: shapes[3] }).find(key => ({ A: shapes[0], B: shapes[1], C: shapes[2], D: shapes[3] }[key as 'A'|'B'|'C'|'D'] === currentAnswer))!,
             yanlis_secenek_tipleri: ["Köşeli cisimler", "Farklı yuvarlak cisimler"],
             gercek_yasam_baglantisi: "Çevremizdeki nesneleri (kutu, top, konserve kutusu) geometrik cisimlere benzeterek tanıyabiliriz.",
             seviye: 'temel', cozum_anahtari: `${currentItem} şekli ${currentAnswer} cismine benzer.`
