@@ -298,7 +298,6 @@ export const ARCHIVE_DATA_GRADE_2: Record<string, ArchiveQuiz> = {
     templates: [{ id: 'system-default-M.2.1.5.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
         const total = 12 + i*2;
         const groups = 3 + (i%2);
-        // FIX: The object was incomplete. Added missing properties.
         return {
             sinif: 2, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.2.1.5.1", kazanim_metni: "Bölme işleminin anlamını kavrar.",
             soru_tipi: 'coktan_secmeli',
