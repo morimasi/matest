@@ -50,15 +50,15 @@ const numberToWordsTr = (num: number): string => {
         const birlerBas = n % 10;
         let str = "";
         if (yuzlerBas > 0) {
-            str += (yuzlerBas === 1 ? "" : birler[yuzlerBas]) + " yüz ";
+            str += (yuzlerBas === 1 ? "yüz" : birler[yuzlerBas] + " yüz");
         }
         if (onlarBas > 0) {
-            str += onlar[onlarBas] + " ";
+            str += " " + onlar[onlarBas];
         }
         if (birlerBas > 0) {
-            str += birler[birlerBas] + " ";
+            str += " " + birler[birlerBas];
         }
-        return str;
+        return str.trim();
     };
 
     const milyonlar = Math.floor(num / 1000000);
@@ -67,11 +67,11 @@ const numberToWordsTr = (num: number): string => {
 
     let result = "";
     if (milyonlar > 0) {
-        result += processGroup(milyonlar) + "milyon ";
+        result += processGroup(milyonlar) + " milyon ";
     }
     if (binler > 0) {
         if (binler === 1) result += "bin ";
-        else result += processGroup(binler) + "bin ";
+        else result += processGroup(binler) + " bin ";
     }
     if (birlerGrubu > 0) {
         result += processGroup(birlerGrubu);
@@ -2010,12 +2010,12 @@ export const ARCHIVE_DATA: Record<string, ArchiveQuiz> = {
     templates: [{ id: 'system-default-M.4.2.1.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
         sinif: 4, unite_adi: "Geometri", unite_no: 2, kazanim_kodu: "M.4.2.1.2", kazanim_metni: "Açıları standart olmayan birimlerle ölçer ve standart açı ölçme birimlerinin gerekliliğini açıklar.",
         soru_tipi: 'coktan_secmeli',
-        soru_metni: `Aşağıdakilerden hangisi bir açıyı ölçmek için standart bir ölçme birimidir?`,
-        secenekler: { A: 'Kitap köşesi', B: 'Parmak', C: 'Derece', D: 'Karış' },
-        dogru_cevap: 'C',
-        yanlis_secenek_tipleri: ["Standart olmayan birimler"],
-        gercek_yasam_baglantisi: "Farklı ülkelerdeki insanların aynı açıyı aynı şekilde anlaması için 'derece' gibi standart bir birime ihtiyaç vardır.",
-        seviye: 'temel', cozum_anahtari: `Açıları ölçmek için kullanılan standart birim derecedir ve '°' sembolü ile gösterilir. Diğer seçenekler kişiden kişiye değişen standart olmayan birimlerdir.`
+        soru_metni: `Bir açıyı ölçerken herkesin farklı sonuçlar bulmaması için neye ihtiyaç duyarız?`,
+        secenekler: { A: 'Daha büyük açılara', B: 'Standart bir ölçme birimine', C: 'Farklı renkli kalemlere', D: 'Daha uzun kenarlara' },
+        dogru_cevap: 'B',
+        yanlis_secenek_tipleri: ["İlgisiz kavramlar"],
+        gercek_yasam_baglantisi: "Bir inşaat planında açıların herkes tarafından aynı anlaşılması için 'derece' gibi standart birimler kullanılır.",
+        seviye: 'orta', cozum_anahtari: `Standart olmayan birimler (parmak, karış vb.) kişiden kişiye değiştiği için, herkesin aynı sonucu bulabileceği standart birimlere (derece gibi) ihtiyaç vardır.`
     }]}]
   },
   "M.4.2.1.3": {
@@ -2023,12 +2023,12 @@ export const ARCHIVE_DATA: Record<string, ArchiveQuiz> = {
     templates: [{ id: 'system-default-M.4.2.1.3', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
         sinif: 4, unite_adi: "Geometri", unite_no: 2, kazanim_kodu: "M.4.2.1.3", kazanim_metni: "Açıları standart birimlerle ölçer.",
         soru_tipi: 'coktan_secmeli',
-        soru_metni: `Bir karenin her bir iç açısı kaç derecedir?`,
-        secenekler: { A: '45°', B: '60°', C: '90°', D: '180°' },
+        soru_metni: `Bir karenin her bir iç açısının ölçüsü kaç derecedir?`,
+        secenekler: { A: '45', B: '60', C: '90', D: '180' },
         dogru_cevap: 'C',
-        yanlis_secenek_tipleri: ["Dar açı", "Doğru açı"],
-        gercek_yasam_baglantisi: "Marangozlar, mobilyaların düzgün olması için açıları gönye veya iletki kullanarak tam 90 derece olarak ölçerler.",
-        seviye: 'orta', cozum_anahtari: `Kare ve dikdörtgenin tüm iç açıları dik açıdır. Dik açının ölçüsü 90 derecedir.`
+        yanlis_secenek_tipleri: ["Dar açı ölçüsü", "Geniş açı ölçüsü", "Doğru açı ölçüsü"],
+        gercek_yasam_baglantisi: "Bir resim çerçevesinin köşelerinin tam 90 derece olması, çerçevenin düzgün durmasını sağlar.",
+        seviye: 'temel', cozum_anahtari: `Kare ve dikdörtgen gibi şekillerin tüm iç açıları 90 derecedir ve bunlara dik açı denir. Açı ölçer (gönye) ile ölçülebilir.`
     }]}]
   },
   "M.4.2.2.1": {
@@ -2039,8 +2039,8 @@ export const ARCHIVE_DATA: Record<string, ArchiveQuiz> = {
         soru_metni: `Bütün kenar uzunlukları birbirinden farklı olan üçgene ne ad verilir?`,
         secenekler: { A: 'Eşkenar üçgen', B: 'İkizkenar üçgen', C: 'Çeşitkenar üçgen', D: 'Dik üçgen' },
         dogru_cevap: 'C',
-        yanlis_secenek_tipleri: ["Tüm kenarları eşit olan", "İki kenarı eşit olan", "Açıya göre isimlendirme"],
-        gercek_yasam_baglantisi: "Farklı şekillerdeki arazi parçaları veya mimari tasarımlar, farklı üçgen türlerine örnek olabilir.",
+        yanlis_secenek_tipleri: ["Tüm kenarları eşit olan", "İki kenarı eşit olan", "Açısına göre sınıflandırma"],
+        gercek_yasam_baglantisi: "Çevremizdeki üçgen şeklindeki nesneler (çatı, sandviç dilimi vb.) kenar uzunluklarına göre farklılık gösterebilir.",
         seviye: 'temel', cozum_anahtari: `Üç kenarı da eşitse eşkenar, iki kenarı eşitse ikizkenar, tüm kenarları farklıysa çeşitkenar üçgen denir.`
     }]}]
   },
@@ -2049,12 +2049,12 @@ export const ARCHIVE_DATA: Record<string, ArchiveQuiz> = {
     templates: [{ id: 'system-default-M.4.2.2.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
         sinif: 4, unite_adi: "Geometri", unite_no: 2, kazanim_kodu: "M.4.2.2.2", kazanim_metni: "Üçgenleri açılarına göre sınıflandırır.",
         soru_tipi: 'coktan_secmeli',
-        soru_metni: `Bir iç açısı 90 dereceden büyük olan üçgene ne ad verilir?`,
+        soru_metni: `Bir açısı 90 dereceden büyük olan üçgene ne ad verilir?`,
         secenekler: { A: 'Dar açılı üçgen', B: 'Dik açılı üçgen', C: 'Geniş açılı üçgen', D: 'Eşkenar üçgen' },
         dogru_cevap: 'C',
-        yanlis_secenek_tipleri: ["Tüm açıları dar olan", "Bir açısı dik olan", "Kenara göre isimlendirme"],
-        gercek_yasam_baglantisi: "Bir elbise askısının şekli genellikle geniş açılı bir üçgene benzer.",
-        seviye: 'temel', cozum_anahtari: `Tüm açıları 90°'den küçükse dar açılı, bir açısı 90° ise dik açılı, bir açısı 90°'den büyükse geniş açılı üçgen denir.`
+        yanlis_secenek_tipleri: ["Tüm açıları dar olan", "Bir açısı dik olan", "Kenarına göre sınıflandırma"],
+        gercek_yasam_baglantisi: "Bazı binaların mimarisinde estetik amaçlı geniş açılı üçgenler kullanılır.",
+        seviye: 'temel', cozum_anahtari: `Tüm açıları 90 dereceden küçükse dar açılı, bir açısı 90 derece ise dik açılı, bir açısı 90 dereceden büyükse geniş açılı üçgen denir.`
     }]}]
   },
   "M.4.2.2.3": {
@@ -2063,11 +2063,11 @@ export const ARCHIVE_DATA: Record<string, ArchiveQuiz> = {
         sinif: 4, unite_adi: "Geometri", unite_no: 2, kazanim_kodu: "M.4.2.2.3", kazanim_metni: "Kare ve dikdörtgenin kenar ve açı özelliklerini belirler.",
         soru_tipi: 'coktan_secmeli',
         soru_metni: `Aşağıdakilerden hangisi hem kare hem de dikdörtgen için ortak bir özelliktir?`,
-        secenekler: { A: 'Tüm kenarları eşittir.', B: 'Tüm iç açıları 90 derecedir.', C: 'Sadece iki kenarı eşittir.', D: 'Köşegenleri dik kesişir.' },
+        secenekler: { A: 'Bütün kenarları eşittir.', B: 'Bütün açıları dik açıdır.', C: 'İki kısa, iki uzun kenarı vardır.', D: 'Köşegenleri birbirini dik keser.' },
         dogru_cevap: 'B',
-        yanlis_secenek_tipleri: ["Sadece kareye ait özellik", "Sadece dikdörtgene ait özellik"],
-        gercek_yasam_baglantisi: "Bir pencere çerçevesinin dikdörtgen mi kare mi olduğunu kenar ve açı özelliklerine bakarak anlarız.",
-        seviye: 'orta', cozum_anahtari: `Hem karenin hem de dikdörtgenin tüm iç açıları 90 derecelik dik açılardır. Ancak sadece karenin tüm kenarları eşittir.`
+        yanlis_secenek_tipleri: ["Sadece karenin özelliği", "Sadece dikdörtgenin özelliği"],
+        gercek_yasam_baglantisi: "Bir marangoz, kare veya dikdörtgen bir masa yaparken tüm köşelerin 90 derece olduğundan emin olmalıdır.",
+        seviye: 'orta', cozum_anahtari: `Hem karenin hem de dikdörtgenin bütün iç açıları 90 derecedir. Ancak sadece karenin tüm kenarları eşittir.`
     }]}]
   },
   "M.4.2.3.1": {
@@ -2075,12 +2075,12 @@ export const ARCHIVE_DATA: Record<string, ArchiveQuiz> = {
     templates: [{ id: 'system-default-M.4.2.3.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
         sinif: 4, unite_adi: "Geometri", unite_no: 2, kazanim_kodu: "M.4.2.3.1", kazanim_metni: "Düzlemsel şekillerin simetri doğrularını belirler.",
         soru_tipi: 'coktan_secmeli',
-        soru_metni: `Alfabemizdeki "H" harfinin kaç tane simetri doğrusu vardır?`,
-        secenekler: { A: '0', B: '1', C: '2', D: '4' },
-        dogru_cevap: 'C',
-        yanlis_secenek_tipleri: ["Simetrisi olmayan harfle karıştırma", "Yanlış sayma"],
-        gercek_yasam_baglantisi: "Bir kelebeğin kanatları, bir yaprak veya insan yüzü gibi doğadaki birçok şeyde simetri görülür.",
-        seviye: 'orta', cozum_anahtari: `"H" harfinin hem yatay hem de dikey olmak üzere iki tane simetri doğrusu vardır.`
+        soru_metni: `Bir dikdörtgenin kaç tane simetri doğrusu vardır?`,
+        secenekler: { A: '1', B: '2', C: '4', D: 'Sonsuz' },
+        dogru_cevap: 'B',
+        yanlis_secenek_tipleri: ["Karenin simetri doğrusu sayısı", "Dairenin simetri doğrusu sayısı"],
+        gercek_yasam_baglantisi: "Bir kağıdı katlayıp kestiğimizde simetrik şekiller elde ederiz. Katlama çizgisi simetri doğrusudur.",
+        seviye: 'orta', cozum_anahtari: `Kare olmayan bir dikdörtgenin, karşılıklı kenarlarının orta noktalarını birleştiren 2 tane simetri doğrusu vardır.`
     }]}]
   },
   "M.4.3.1.1": {
@@ -2088,12 +2088,12 @@ export const ARCHIVE_DATA: Record<string, ArchiveQuiz> = {
     templates: [{ id: 'system-default-M.4.3.1.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
         sinif: 4, unite_adi: "Ölçme", unite_no: 3, kazanim_kodu: "M.4.3.1.1", kazanim_metni: "Uzunluk ölçme birimleri ile ilgili problemleri çözer.",
         soru_tipi: 'coktan_secmeli',
-        soru_metni: `Ali'nin boyu 1 metre 45 santimetredir. Kardeşi Ahmet, Ali'den 20 santimetre daha kısadır. Ahmet'in boyu ne kadardır?`,
-        secenekler: { A: '1 m 25 cm', B: '1 m 65 cm', C: '1 m 20 cm', D: '1 m 45 cm' },
+        soru_metni: `Ali'nin boyu 1 metre 45 santimetredir. Kardeşi Ahmet'in boyu ise Ali'den 12 santimetre daha kısadır. Ahmet'in boyu ne kadardır?`,
+        secenekler: { A: '1 m 33 cm', B: '1 m 57 cm', C: '1 m 23 cm', D: '133 m' },
         dogru_cevap: 'A',
-        yanlis_secenek_tipleri: ["Toplama yapma", "Yanlış çıkarma"],
-        gercek_yasam_baglantisi: "İki şehir arasındaki mesafeyi ve ne kadar yol kaldığını hesaplamak için uzunluk ölçüleriyle problem çözeriz.",
-        seviye: 'ileri', cozum_anahtari: `Ahmet daha kısa olduğu için çıkarma işlemi yapılır. 1 metre 45 cm'den 20 cm çıkarılırsa 1 metre 25 cm kalır.`
+        yanlis_secenek_tipleri: ["Toplama yapma", "Yanlış çıkarma", "Birimleri yanlış yazma"],
+        gercek_yasam_baglantisi: "İki şehir arasındaki mesafeyi ve ne kadar yol kaldığını hesaplarken uzunluk ölçü birimleriyle problem çözeriz.",
+        seviye: 'ileri', cozum_anahtari: `Ahmet daha kısa olduğu için çıkarma işlemi yapılır. 145 cm'den 12 cm çıkarılırsa 133 cm kalır. Bu da 1 metre 33 santimetredir.`
     }]}]
   },
   "M.4.3.1.2": {
@@ -2101,12 +2101,12 @@ export const ARCHIVE_DATA: Record<string, ArchiveQuiz> = {
     templates: [{ id: 'system-default-M.4.3.1.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
         sinif: 4, unite_adi: "Ölçme", unite_no: 3, kazanim_kodu: "M.4.3.1.2", kazanim_metni: "Metre, santimetre ve milimetre arasındaki ilişkiyi açıklar.",
         soru_tipi: 'coktan_secmeli',
-        soru_metni: `32 santimetre kaç milimetredir?`,
-        secenekler: { A: '3.2', B: '320', C: '3200', D: '32' },
+        soru_metni: `5 santimetre kaç milimetredir?`,
+        secenekler: { A: '5', B: '50', C: '500', D: '0.5' },
         dogru_cevap: 'B',
-        yanlis_secenek_tipleri: ["100 ile çarpma", "Aynı bırakma"],
-        gercek_yasam_baglantisi: "Mühendislik veya terzilik gibi hassas ölçüm gerektiren işlerde milimetre birimi kullanılır.",
-        seviye: 'orta', cozum_anahtari: `1 santimetre 10 milimetredir. Bu nedenle 32 santimetreyi milimetreye çevirmek için 10 ile çarparız: 32 x 10 = 320 mm.`
+        yanlis_secenek_tipleri: ["Birim çevirme hatası (100 ile çarpma)", "Bölme yapma"],
+        gercek_yasam_baglantisi: "Bir marangoz hassas ölçümler yaparken hem santimetre hem de milimetre kullanır.",
+        seviye: 'temel', cozum_anahtari: `1 santimetre 10 milimetreye eşittir. Bu yüzden 5 santimetre 5 x 10 = 50 milimetredir.`
     }]}]
   },
   "M.4.3.1.3": {
@@ -2114,9 +2114,207 @@ export const ARCHIVE_DATA: Record<string, ArchiveQuiz> = {
     templates: [{ id: 'system-default-M.4.3.1.3', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
         sinif: 4, unite_adi: "Ölçme", unite_no: 3, kazanim_kodu: "M.4.3.1.3", kazanim_metni: "Kilometre ve metre arasındaki ilişkiyi açıklar.",
         soru_tipi: 'coktan_secmeli',
-        soru_metni: `5 kilometre kaç metredir?`,
-        secenekler: { A: '50', B: '500', C: '5000', D: '50000' },
+        soru_metni: `3 kilometre 250 metre, toplam kaç metredir?`,
+        secenekler: { A: '325', B: '3250', C: '30250', D: '550' },
+        dogru_cevap: 'B',
+        yanlis_secenek_tipleri: ["Yanlış birim çevirme", "Sıfırları yanlış yerleştirme"],
+        gercek_yasam_baglantisi: "Koşu parkurunun 2.5 kilometre olması, 2500 metre koşulacağı anlamına gelir.",
+        seviye: 'orta', cozum_anahtari: `1 kilometre 1000 metredir. 3 kilometre 3000 metre eder. Üzerine 250 metre eklenince toplam 3250 metre olur.`
+    }]}]
+  },
+  "M.4.3.2.1": {
+    gradeName: "4. Sınıf", unitName: "Ölçme", kazanimName: "Kare ve dikdörtgenin çevre uzunlukları ile kenar uzunlukları arasındaki ilişkiyi açıklar.",
+    templates: [{ id: 'system-default-M.4.3.2.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
+        sinif: 4, unite_adi: "Ölçme", unite_no: 3, kazanim_kodu: "M.4.3.2.1", kazanim_metni: "Kare ve dikdörtgenin çevre uzunlukları ile kenar uzunlukları arasındaki ilişkiyi açıklar.",
+        soru_tipi: 'coktan_secmeli',
+        soru_metni: `Kısa kenarı 15 cm, uzun kenarı 25 cm olan bir dikdörtgenin çevresi kaç santimetredir?`,
+        secenekler: { A: '40', B: '65', C: '80', D: '375' },
         dogru_cevap: 'C',
-        yanlis_secenek_tipleri: ["10 ile çarpma", "100 ile çarpma"],
-        gercek_yasam_baglantisi: "Koşu parkurunun uzunluğunu ifade ederken hem kilometre hem de metre cinsinden söyleyebiliriz (örn: 5000 metre veya 5 km).",
-        seviye: 'orta', cozum_anahtari: `1 kilometre 1000 metredir. Bu nedenle 5 kilometreyi metreye çevirmek için 1000 ile çarparız: 5
+        yanlis_secenek_tipleri: ["Sadece iki kenarı toplama", "Yanlış toplama", "Alan hesaplama"],
+        gercek_yasam_baglantisi: "Dikdörtgen şeklindeki bir fotoğraf çerçevesinin etrafına kurdele sarmak için ne kadar kurdele gerektiğini çevre hesaplayarak buluruz.",
+        seviye: 'orta', cozum_anahtari: `Dikdörtgenin çevresi, iki kısa kenar ile iki uzun kenarın toplamına eşittir. Çevre = 2 x (kısa kenar + uzun kenar) = 2 x (15 + 25) = 2 x 40 = 80 cm.`
+    }]}]
+  },
+  "M.4.3.2.2": {
+    gradeName: "4. Sınıf", unitName: "Ölçme", kazanimName: "Çevre uzunluğu ile ilgili problemleri çözer.",
+    templates: [{ id: 'system-default-M.4.3.2.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
+        sinif: 4, unite_adi: "Ölçme", unite_no: 3, kazanim_kodu: "M.4.3.2.2", kazanim_metni: "Çevre uzunluğu ile ilgili problemleri çözer.",
+        soru_tipi: 'coktan_secmeli',
+        soru_metni: `Çevre uzunluğu 120 metre olan kare şeklindeki bir bahçenin bir kenar uzunluğu kaç metredir?`,
+        secenekler: { A: '60', B: '40', C: '30', D: '20' },
+        dogru_cevap: 'C',
+        yanlis_secenek_tipleri: ["2'ye bölme", "3'e bölme", "6'ya bölme"],
+        gercek_yasam_baglantisi: "Kare şeklindeki bir masanın etrafına ne kadar süsleme şeridi gerektiğini hesaplarken çevre problemleri çözeriz.",
+        seviye: 'ileri', cozum_anahtari: `Karenin 4 kenarı da eşit olduğu için bir kenar uzunluğunu bulmak için çevre uzunluğu 4'e bölünür. 120 ÷ 4 = 30 metre.`
+    }]}]
+  },
+  "M.4.3.2.3": {
+    gradeName: "4. Sınıf", unitName: "Ölçme", kazanimName: "Üçgenin çevre uzunluğunu hesaplar.",
+    templates: [{ id: 'system-default-M.4.3.2.3', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
+        sinif: 4, unite_adi: "Ölçme", unite_no: 3, kazanim_kodu: "M.4.3.2.3", kazanim_metni: "Üçgenin çevre uzunluğunu hesaplar.",
+        soru_tipi: 'coktan_secmeli',
+        soru_metni: `Kenar uzunlukları 12 cm, 15 cm ve 18 cm olan bir üçgenin çevre uzunluğu kaç santimetredir?`,
+        secenekler: { A: '30', B: '33', C: '45', D: '27' },
+        dogru_cevap: 'C',
+        yanlis_secenek_tipleri: ["İki kenarı toplama", "Yanlış toplama"],
+        gercek_yasam_baglantisi: "Üçgen şeklindeki bir parkın etrafında bir tur yürüyüş yapıldığında ne kadar mesafe katedildiği çevre hesaplayarak bulunur.",
+        seviye: 'orta', cozum_anahtari: `Bir üçgenin çevre uzunluğu, üç kenar uzunluğunun toplanmasıyla bulunur. 12 + 15 + 18 = 45 cm.`
+    }]}]
+  },
+  "M.4.3.3.1": {
+    gradeName: "4. Sınıf", unitName: "Ölçme", kazanimName: "Dikdörtgenin alanını hesaplar.",
+    templates: [{ id: 'system-default-M.4.3.3.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
+        sinif: 4, unite_adi: "Ölçme", unite_no: 3, kazanim_kodu: "M.4.3.3.1", kazanim_metni: "Dikdörtgenin alanını hesaplar.",
+        soru_tipi: 'coktan_secmeli',
+        soru_metni: `Kısa kenarı 8 metre, uzun kenarı 12 metre olan dikdörtgen şeklindeki bir odanın alanı kaç metrekaredir?`,
+        secenekler: { A: '20', B: '40', C: '96', D: '100' },
+        dogru_cevap: 'C',
+        yanlis_secenek_tipleri: ["Çevre hesaplama (toplama)", "Yanlış çarpma"],
+        gercek_yasam_baglantisi: "Odamızın zeminine halı almak istediğimizde, odanın alanını hesaplayarak doğru boyutta bir halı seçebiliriz.",
+        seviye: 'orta', cozum_anahtari: `Dikdörtgenin alanı, kısa kenar ile uzun kenarın çarpılmasıyla bulunur. 8 x 12 = 96 metrekare.`
+    }]}]
+  },
+  "M.4.3.3.2": {
+    gradeName: "4. Sınıf", unitName: "Ölçme", kazanimName: "Alanı ile ilgili problemleri çözer.",
+    templates: [{ id: 'system-default-M.4.3.3.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
+        sinif: 4, unite_adi: "Ölçme", unite_no: 3, kazanim_kodu: "M.4.3.3.2", kazanim_metni: "Alanı ile ilgili problemleri çözer.",
+        soru_tipi: 'coktan_secmeli',
+        soru_metni: `Alanı 50 metrekare olan dikdörtgen bir bahçenin uzun kenarı 10 metre ise kısa kenarı kaç metredir?`,
+        secenekler: { A: '5', B: '15', C: '40', D: '500' },
+        dogru_cevap: 'A',
+        yanlis_secenek_tipleri: ["Çevre ile karıştırma", "Çıkarma yapma", "Çarpma yapma"],
+        gercek_yasam_baglantisi: "Bir duvarı boyamak için ne kadar boya gerektiğini, duvarın alanını ve boyanın ne kadar alanı kapladığını bilerek hesaplarız.",
+        seviye: 'ileri', cozum_anahtari: `Dikdörtgenin alanı uzun kenar ile kısa kenarın çarpımıdır. Kısa kenarı bulmak için alan, uzun kenara bölünür: 50 ÷ 10 = 5 metre.`
+    }]}]
+  },
+  "M.4.3.4.1": {
+    gradeName: "4. Sınıf", unitName: "Ölçme", kazanimName: "Zaman ölçü birimleri arasındaki ilişkiyi açıklar.",
+    templates: [{ id: 'system-default-M.4.3.4.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
+        sinif: 4, unite_adi: "Ölçme", unite_no: 3, kazanim_kodu: "M.4.3.4.1", kazanim_metni: "Zaman ölçü birimleri arasındaki ilişkiyi açıklar.",
+        soru_tipi: 'coktan_secmeli',
+        soru_metni: `3 dakika 15 saniye, toplam kaç saniyedir?`,
+        secenekler: { A: '48', B: '180', C: '195', D: '315' },
+        dogru_cevap: 'C',
+        yanlis_secenek_tipleri: ["Yanlış birim çevirme", "Sadece dakikayı çevirme"],
+        gercek_yasam_baglantisi: "Bir yarışmayı 130 saniyede bitiren bir sporcunun süresini '2 dakika 10 saniye' olarak ifade ederiz.",
+        seviye: 'orta', cozum_anahtari: `1 dakika 60 saniyedir. 3 dakika, 3 x 60 = 180 saniyedir. Üzerine 15 saniye daha eklenince toplam 195 saniye olur.`
+    }]}]
+  },
+  "M.4.3.4.2": {
+    gradeName: "4. Sınıf", unitName: "Ölçme", kazanimName: "Zaman ölçme birimleri ile ilgili problemleri çözer.",
+    templates: [{ id: 'system-default-M.4.3.4.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
+        sinif: 4, unite_adi: "Ölçme", unite_no: 3, kazanim_kodu: "M.4.3.4.2", kazanim_metni: "Zaman ölçme birimleri ile ilgili problemleri çözer.",
+        soru_tipi: 'coktan_secmeli',
+        soru_metni: `Saat 14:40'ta başlayan bir film, 1 saat 30 dakika sürdüğüne göre film saat kaçta biter?`,
+        secenekler: { A: '15:10', B: '16:00', C: '16:10', D: '15:70' },
+        dogru_cevap: 'C',
+        yanlis_secenek_tipleri: ["Sadece saati ekleme", "Yanlış toplama", "Dakikayı 60'tan büyük bırakma"],
+        gercek_yasam_baglantisi: "Bir yolculuğa çıktığımızda, başlangıç saatini ve yolculuk süresini bilerek varış saatimizi hesaplayabiliriz.",
+        seviye: 'ileri', cozum_anahtari: `14:40'a önce 1 saat eklenir, saat 15:40 olur. Sonra 30 dakika eklenir. 40 + 30 = 70 dakika. 70 dakika, 1 saat 10 dakikadır. 15:00'e 1 saat 10 dakika eklenince 16:10 bulunur.`
+    }]}]
+  },
+  "M.4.4.1.1": {
+    gradeName: "4. Sınıf", unitName: "Veri İşleme", kazanimName: "Sütun grafiği oluşturur ve yorumlar.",
+    templates: [{ id: 'system-default-M.4.4.1.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
+        sinif: 4, unite_adi: "Veri İşleme", unite_no: 4, kazanim_kodu: "M.4.4.1.1", kazanim_metni: "Sütun grafiği oluşturur ve yorumlar.",
+        soru_tipi: 'coktan_secmeli',
+        soru_metni: `Bir kitaplıktaki kitap türleri sütun grafiği ile gösterilmiştir.\n\nHikaye:     ████████ (8)\nRoman:      ██████ (6)\nŞiir:       ███ (3)\n\nGrafiğe göre kitaplıkta en az bulunan kitap türü hangisidir?`,
+        secenekler: { A: 'Hikaye', B: 'Roman', C: 'Şiir', D: 'Masal' },
+        dogru_cevap: 'C',
+        yanlis_secenek_tipleri: ["En çok olan", "Diğerlerinden biri", "Grafikte olmayan"],
+        gercek_yasam_baglantisi: "Haberlerde veya gazetelerde seçim sonuçları, hava durumu tahminleri gibi veriler genellikle sütun grafikleriyle gösterilir.",
+        seviye: 'temel', cozum_anahtari: `Grafikte en kısa sütun 'Şiir' türüne aittir. Bu, en az sayıda olanın şiir kitabı olduğunu gösterir.`
+    }]}]
+  },
+  "M.4.4.1.2": {
+    gradeName: "4. Sınıf", unitName: "Veri İşleme", kazanimName: "Sütun grafiği, tablo ve diğer grafiklerle gösterilen bilgileri kullanarak günlük hayatla ilgili problemler çözer.",
+    templates: [{ id: 'system-default-M.4.4.1.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
+        sinif: 4, unite_adi: "Veri İşleme", unite_no: 4, kazanim_kodu: "M.4.4.1.2", kazanim_metni: "Sütun grafiği, tablo ve diğer grafiklerle gösterilen bilgileri kullanarak günlük hayatla ilgili problemler çözer.",
+        soru_tipi: 'coktan_secmeli',
+        soru_metni: `Bir manavın bir günde sattığı meyve miktarları grafikte gösterilmiştir.\n\nElma:   ██████████ (10 kg)\nArmut:  ██████ (6 kg)\nMuz:    ████████ (8 kg)\n\nGrafiğe göre manav, elmadan armuttan kaç kg daha fazla satmıştır?`,
+        secenekler: { A: '2', B: '4', C: '16', D: '6' },
+        dogru_cevap: 'B',
+        yanlis_secenek_tipleri: ["Yanlış çıkarma", "Toplama yapma", "Armut miktarını cevap sanma"],
+        gercek_yasam_baglantisi: "Bir ay boyunca biriktirdiğimiz ve harcadığımız parayı bir grafikte göstererek ne kadar tasarruf ettiğimizi hesaplayabiliriz.",
+        seviye: 'ileri', cozum_anahtari: `Grafiğe göre 10 kg elma ve 6 kg armut satılmıştır. Aradaki farkı bulmak için çıkarma işlemi yapılır: 10 - 6 = 4 kg.`
+    }]}]
+  },
+
+  // =================================================================
+  // 5. SINIF
+  // =================================================================
+  "M.5.1.1.1": {
+    gradeName: "5. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Milyonlu sayıları okur ve yazar.",
+    templates: [{ id: 'system-default-M.5.1.1.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
+        sinif: 5, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.5.1.1.1", kazanim_metni: "Milyonlu sayıları okur ve yazar.",
+        soru_tipi: 'coktan_secmeli',
+        soru_metni: `Okunuşu "iki milyon yüz kırk beş bin üç yüz yirmi" olan sayı hangisidir?`,
+        secenekler: { A: '2 145 320', B: '214 532', C: '20 145 320', D: '2 145 032' },
+        dogru_cevap: 'A',
+        yanlis_secenek_tipleri: ["Milyon bölüğünü atlama", "Yanlış bölük", "Basamak değeri hatası"],
+        gercek_yasam_baglantisi: "Bir ülkenin nüfusu veya büyük bir şirketin geliri gibi çok büyük sayıları ifade etmek için milyonlu sayılar kullanılır.",
+        seviye: 'temel', cozum_anahtari: `Sayı, bölüklerine göre yazılır. Milyonlar bölüğünde 2, binler bölüğünde 145 ve birler bölüğünde 320 vardır.`
+    }]}]
+  },
+  "M.5.1.1.2": {
+    gradeName: "5. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Doğal sayıları en yakın onluğa, yüzlüğe veya binliğe yuvarlar.",
+    templates: [{ id: 'system-default-M.5.1.1.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
+        sinif: 5, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.5.1.1.2", kazanim_metni: "Doğal sayıları en yakın onluğa, yüzlüğe veya binliğe yuvarlar.",
+        soru_tipi: 'coktan_secmeli',
+        soru_metni: `8752 sayısını en yakın binliğe yuvarladığımızda hangi sayıyı elde ederiz?`,
+        secenekler: { A: '8000', B: '8700', C: '8800', D: '9000' },
+        dogru_cevap: 'D',
+        yanlis_secenek_tipleri: ["Aşağı yuvarlama", "En yakın yüzlüğe yuvarlama", "En yakın onluğa yuvarlama"],
+        gercek_yasam_baglantisi: "Bir stadyumdaki seyirci sayısını 'yaklaşık 9000 kişi' olarak ifade etmek, sayıları yuvarlama becerisidir.",
+        seviye: 'orta', cozum_anahtari: `Bir sayıyı en yakın binliğe yuvarlarken yüzler basamağındaki rakama bakılır. 7 rakamı 5'ten büyük olduğu için sayı bir üst binliğe, yani 9000'e yuvarlanır.`
+    }]}]
+  },
+  "M.5.1.1.3": {
+    gradeName: "5. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Sayı ve şekil örüntülerinin kuralını bulur ve örüntüyü genişletir.",
+    templates: [{ id: 'system-default-M.5.1.1.3', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
+        sinif: 5, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.5.1.1.3", kazanim_metni: "Sayı ve şekil örüntülerinin kuralını bulur ve örüntüyü genişletir.",
+        soru_tipi: 'coktan_secmeli',
+        soru_metni: `Adım sayısı ile adım sayısı arasındaki ilişki "adım sayısının 4 katının 3 eksiği" olan bir sayı örüntüsünün 5. adımı kaçtır?`,
+        secenekler: { A: '17', B: '20', C: '23', D: '19' },
+        dogru_cevap: 'A',
+        yanlis_secenek_tipleri: ["Sadece 4 ile çarpma", "Çarpma yerine toplama", "Hesaplama hatası"],
+        gercek_yasam_baglantisi: "Bir apartmandaki kat sayısına göre daire numarasını bulmak veya bir taksinin ücretini kilometreye göre hesaplamak örüntü kuralı bulmaya örnektir.",
+        seviye: 'ileri', cozum_anahtari: `Kurala göre adım sayısı (5) önce 4 ile çarpılır (5 x 4 = 20), sonra sonuçtan 3 çıkarılır (20 - 3 = 17).`
+    }]}]
+  },
+  "M.5.1.2.1": {
+    gradeName: "5. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Doğal sayılarla zihinden toplama ve çıkarma işlemlerinde strateji belirler ve kullanır.",
+    templates: [{ id: 'system-default-M.5.1.2.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
+        sinif: 5, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.5.1.2.1", kazanim_metni: "Doğal sayılarla zihinden toplama ve çıkarma işlemlerinde strateji belirler ve kullanır.",
+        soru_tipi: 'coktan_secmeli',
+        soru_metni: `48 + 35 işlemini zihinden yaparken "48'e önce 30 ekleyip sonra 5 eklemek" stratejisini kullanan bir öğrenci hangi sonucu bulur?`,
+        secenekler: { A: '73', B: '78', C: '83', D: '85' },
+        dogru_cevap: 'C',
+        yanlis_secenek_tipleri: ["Sadece onlukları toplama", "Yanlış toplama"],
+        gercek_yasam_baglantisi: "Alışverişte 52 TL'lik bir ürüne 29 TL'lik başka bir ürün eklediğimizde toplamı zihinden (52+30-1 gibi) hesaplayabiliriz.",
+        seviye: 'orta', cozum_anahtari: `Bu stratejide önce onluklar eklenir: 48 + 30 = 78. Sonra birlikler eklenir: 78 + 5 = 83. Bu, sayıları parçalayarak toplama stratejisidir.`
+    }]}]
+  },
+  "M.5.1.2.2": {
+    gradeName: "5. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Doğal sayılarla çarpma ve bölme işlemlerinin sonuçlarını tahmin eder.",
+    templates: [{ id: 'system-default-M.5.1.2.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
+        sinif: 5, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.5.1.2.2", kazanim_metni: "Doğal sayılarla çarpma ve bölme işlemlerinin sonuçlarını tahmin eder.",
+        soru_tipi: 'coktan_secmeli',
+        soru_metni: `312 x 18 işleminin tahmini sonucu aşağıdakilerden hangisidir? (Sayıları en yakın yüzlüğe ve onluğa yuvarlayınız)`,
+        secenekler: { A: '3000', B: '6000', C: '6200', D: '5616' },
+        dogru_cevap: 'B',
+        yanlis_secenek_tipleri: ["Yanlış yuvarlama", "Gerçek sonuç"],
+        gercek_yasam_baglantisi: "Yaklaşık 28 öğrencinin olduğu 22 sınıflı bir okulun toplam öğrenci sayısını tahmin etmek için bu beceriyi kullanırız.",
+        seviye: 'orta', cozum_anahtari: `312 en yakın yüzlüğe 300, 18 en yakın onluğa 20 olarak yuvarlanır. Tahmini sonuç 300 x 20 = 6000'dir.`
+    }]}]
+  },
+  "M.5.1.2.3": {
+    gradeName: "5. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Bir doğal sayının karesini ve küpünü hesaplar.",
+    templates: [{ id: 'system-default-M.5.1.2.3', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: [{
+        sinif: 5, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.5.1.2.3", kazanim_metni: "Bir doğal sayının karesini ve küpünü hesaplar.",
+        soru_tipi: 'coktan_secmeli',
+        soru_metni: `4'ün küpü ile 5'in karesinin toplamı kaçtır?`,
+        secenekler: { A: '21', B: '89', C: '64', D: '25' },
+        dogru_cevap: 'B',
+        yanlis_secenek_tipleri: ["Küp ve kareyi karıştırma", "Sadece birini hesaplama"],
+        gercek_yasam_baglantisi: "Alan hesaplamalarında
