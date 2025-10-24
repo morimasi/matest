@@ -2,6 +2,108 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  :root, .light {
+    --bg-from: theme('colors.sky.200');
+    --bg-to: theme('colors.violet.300');
+    
+    --text-primary: theme('colors.slate.900');
+    --text-secondary: theme('colors.slate.600');
+    --text-muted: theme('colors.slate.500');
+    --text-accent: theme('colors.blue.600');
+    --text-inverted: theme('colors.white');
+
+    --bg-component: rgba(255, 255, 255, 0.5);
+    --bg-component-solid: theme('colors.white');
+    --bg-component-hover: rgba(255, 255, 255, 0.8);
+    --bg-component-active: theme('colors.white');
+    --bg-interactive-muted: rgba(0, 0, 0, 0.05);
+
+    --border-color: rgba(255, 255, 255, 0.5);
+    --border-muted: rgba(203, 213, 225, 0.5); /* slate-300/50 */
+
+    --shadow-color: theme('colors.black');
+
+    --accent-gradient-from: theme('colors.blue.500');
+    --accent-gradient-via: theme('colors.purple.500');
+    --accent-gradient-to: theme('colors.pink.500');
+  }
+
+  .dark {
+    --bg-from: #0F172A; /* slate-900 */
+    --bg-to: #312E81; /* indigo-900 */
+    
+    --text-primary: theme('colors.slate.200');
+    --text-secondary: theme('colors.slate.400');
+    --text-muted: theme('colors.slate.500');
+    --text-accent: theme('colors.sky.400');
+    --text-inverted: theme('colors.slate.900');
+
+    --bg-component: rgba(15, 23, 42, 0.5); /* slate-900/50 */
+    --bg-component-solid: theme('colors.slate.800');
+    --bg-component-hover: rgba(30, 41, 59, 0.7); /* slate-800/70 */
+    --bg-component-active: theme('colors.slate.700');
+    --bg-interactive-muted: rgba(255, 255, 255, 0.05);
+
+    --border-color: rgba(255, 255, 255, 0.1);
+    --border-muted: rgba(71, 85, 105, 0.7); /* slate-600/70 */
+
+    --shadow-color: theme('colors.black');
+
+    --accent-gradient-from: theme('colors.sky.500');
+    --accent-gradient-via: theme('colors.violet.500');
+    --accent-gradient-to: theme('colors.fuchsia.500');
+  }
+
+  .serene {
+    --bg-from: #E0F2F1; /* teal-50 */
+    --bg-to: #B2DFDB; /* teal-200 */
+    
+    --text-primary: theme('colors.gray.800');
+    --text-secondary: theme('colors.gray.600');
+    --text-muted: theme('colors.gray.500');
+    --text-accent: theme('colors.teal.600');
+    --text-inverted: theme('colors.white');
+
+    --bg-component: rgba(255, 255, 255, 0.6);
+    --bg-component-solid: theme('colors.white');
+    --bg-component-hover: rgba(255, 255, 255, 0.9);
+    --bg-component-active: theme('colors.white');
+    --bg-interactive-muted: rgba(0, 0, 0, 0.04);
+    
+    --border-color: rgba(255, 255, 255, 0.7);
+    --border-muted: rgba(209, 213, 219, 0.5); /* gray-300/50 */
+    
+    --accent-gradient-from: theme('colors.teal.500');
+    --accent-gradient-via: theme('colors.cyan.500');
+    --accent-gradient-to: theme('colors.emerald.500');
+  }
+
+  .playful {
+    --bg-from: #FFF7ED; /* orange-50 */
+    --bg-to: #FFEDD5; /* orange-200 */
+    
+    --text-primary: theme('colors.amber.900');
+    --text-secondary: theme('colors.amber.700');
+    --text-muted: theme('colors.orange.600');
+    --text-accent: theme('colors.red.600');
+    --text-inverted: theme('colors.white');
+
+    --bg-component: rgba(255, 255, 255, 0.7);
+    --bg-component-solid: theme('colors.white');
+    --bg-component-hover: rgba(255, 255, 255, 0.95);
+    --bg-component-active: theme('colors.white');
+    --bg-interactive-muted: rgba(0, 0, 0, 0.04);
+
+    --border-color: rgba(255, 255, 255, 0.8);
+    --border-muted: rgba(253, 230, 138, 0.5); /* amber-200/50 */
+    
+    --accent-gradient-from: theme('colors.red.500');
+    --accent-gradient-via: theme('colors.orange.500');
+    --accent-gradient-to: theme('colors.yellow.500');
+  }
+}
+
 @layer components {
   .toggle-checkbox {
     @apply appearance-none w-10 h-5 bg-slate-300 rounded-full relative cursor-pointer transition-all duration-300 ease-in-out;
