@@ -1,8 +1,10 @@
+
+
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getQuiz, updateQuiz } from '../services/storageService';
 import { generateSingleQuestion } from '../services/geminiService';
-import { SavedQuiz as SavedQuizType, Kazanim } from '../types';
+import { SavedQuiz as SavedQuizType, Kazanim, DetailedQuestion } from '../types';
 import QuizView from './QuizView';
 import { CURRICULUM_DATA } from '../constants';
 
@@ -50,6 +52,12 @@ const SavedQuiz: React.FC = () => {
         }
     };
 
+    const handleUpdateQuiz = (updatedQuestions: DetailedQuestion[]) => {
+        if (!quiz) return;
+        setQuiz(prevQuiz => prevQuiz ? { ...prevQuiz, questions: updatedQuestions } : null);
+        updateQuiz(quiz.id, updatedQuestions);
+    };
+
 
     if (quiz === undefined) {
         return ( // Loading state
@@ -89,6 +97,7 @@ const SavedQuiz: React.FC = () => {
                 quizId={quiz.id}
                 onRemixQuestion={handleRemixQuestion}
                 remixingIndex={remixingIndex}
+                onUpdateQuiz={handleUpdateQuiz}
              />
         </div>
     );

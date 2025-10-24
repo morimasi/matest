@@ -5,7 +5,7 @@ import CurriculumSelector from './CurriculumSelector';
 import QuizView from './QuizView';
 import { CURRICULUM_DATA } from '../constants';
 import { generateQuizStream } from '../services/geminiService';
-import { saveQuiz as saveQuizToStorage, saveQuizToArchive } from '../services/storageService';
+import { saveQuiz as saveQuizToStorage, saveQuizToArchive, updateQuiz } from '../services/storageService';
 import { SavedQuiz, QuestionType, DetailedQuestion } from '../types';
 
 const usePersistentState = <T,>(key: string, defaultValue: T): [T, React.Dispatch<React.SetStateAction<T>>] => {
@@ -154,6 +154,14 @@ Teşekkürler.
         window.location.href = mailtoLink;
         setFeedbackSent(true);
     };
+
+    const handleUpdateQuiz = (updatedQuestions: DetailedQuestion[]) => {
+        if (!generatedQuiz) return;
+        const updatedQuizData = { ...generatedQuiz, questions: updatedQuestions };
+        setGeneratedQuiz(updatedQuizData);
+        setQuestionsForView(updatedQuestions);
+        updateQuiz(generatedQuiz.id, updatedQuestions);
+    };
     
     const hasQuizToShow = questionsForView.length > 0 || generatedQuiz;
 
@@ -202,6 +210,7 @@ Teşekkürler.
                         quizId={generatedQuiz ? generatedQuiz.id : 'generating'}
                         onArchive={generatedQuiz ? handleArchiveQuiz : undefined}
                         isArchived={isArchived}
+                        onUpdateQuiz={handleUpdateQuiz}
                     />
                     
                     {generatedQuiz && (

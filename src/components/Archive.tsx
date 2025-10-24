@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { CURRICULUM_DATA } from '../constants';
 import { ARCHIVE_DATA } from '../archive';
-import { Grade, Unit, Kazanim, ArchiveQuiz, QuizTemplate } from '../types';
+import { Grade, Unit, Kazanim, ArchiveQuiz, QuizTemplate, DetailedQuestion } from '../types';
 import QuizView from './QuizView';
 import { ArchiveIcon, TrashIcon } from './icons';
 import { getArchivedQuizzes, deleteQuizFromArchive, updateArchivedQuiz } from '../services/storageService';
@@ -119,6 +119,17 @@ const Archive: React.FC = () => {
     }
   };
 
+  const handleUpdateArchivedQuiz = (updatedQuestions: DetailedQuestion[]) => {
+    if (!selectedTemplate || !selectedKazanim || selectedTemplate.isSystemTemplate) return;
+
+    updateArchivedQuiz(selectedKazanim.id, selectedTemplate.id, updatedQuestions);
+
+    const updatedTemplate = { ...selectedTemplate, questions: updatedQuestions };
+    setSelectedTemplate(updatedTemplate);
+    setTemplatesForSelectedKazanim(prev => prev.map(t => t.id === updatedTemplate.id ? updatedTemplate : t));
+    refreshUserArchive();
+  };
+
   return (
     <div className="bg-white/50 backdrop-blur-xl p-6 sm:p-8 rounded-3xl shadow-2xl border border-white/50 animate-fade-in-up">
       <h2 className="text-2xl font-bold text-slate-800 mb-6">Sınav Arşivi</h2>
@@ -193,6 +204,7 @@ const Archive: React.FC = () => {
                     quizId={`archive-${selectedKazanim?.id}-${selectedTemplate.id}`}
                     onRemixQuestion={!selectedTemplate.isSystemTemplate ? handleRemixQuestion : undefined}
                     remixingIndex={remixingIndex}
+                    onUpdateQuiz={!selectedTemplate.isSystemTemplate ? handleUpdateArchivedQuiz : undefined}
                 />
             </div>
         ) : templatesForSelectedKazanim.length > 0 ? (

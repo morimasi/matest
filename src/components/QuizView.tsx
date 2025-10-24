@@ -1,7 +1,5 @@
 
 
-
-
 import React, { useRef, useState, useEffect } from 'react';
 import { DetailedQuestion, ChartData } from '../types';
 import { DownloadIcon, PrintIcon, ShareIcon, SparklesIcon, SettingsIcon, CopyIcon, CheckIcon, RefreshCwIcon, ArchiveAddIcon } from './icons';
@@ -15,14 +13,47 @@ interface QuizViewProps {
   remixingIndex?: number | null;
   onArchive?: () => void;
   isArchived?: boolean;
+  onUpdateQuiz?: (updatedQuestions: DetailedQuestion[]) => void;
 }
 
 const VIEW_SETTINGS_KEY = 'quizViewSettings';
 const NOTES_PREFIX = 'quizNotes_';
 
-const ChartRenderer: React.FC<{ data: ChartData }> = ({ data }) => {
+type EditingTarget = {
+  questionIndex: number;
+  field: 'soru_metni' | 'secenek' | 'dogru_cevap' | 'cozum_anahtari' | 'gercek_yasam_baglantisi' | 'grafik_baslik' | 'grafik_veri_etiket' | 'grafik_veri_deger';
+  optionKey?: 'A' | 'B' | 'C' | 'D';
+  dataIndex?: number;
+};
+
+
+const ChartRenderer: React.FC<{ 
+    data: ChartData, 
+    questionIndex: number, 
+    isEditable: boolean,
+    editingTarget: EditingTarget | null,
+    editingValue: string,
+    setEditingValue: (value: string) => void,
+    handleStartEditing: (target: EditingTarget, value: string) => void,
+    handleSaveChanges: () => void,
+    handleKeyDown: (e: React.KeyboardEvent) => void
+}> = ({ 
+    data, 
+    questionIndex, 
+    isEditable, 
+    editingTarget, 
+    editingValue, 
+    setEditingValue,
+    handleStartEditing, 
+    handleSaveChanges, 
+    handleKeyDown 
+}) => {
   if (!data || !data.veri || data.veri.length === 0) {
     return null;
+  }
+  
+  const isEditing = (field: EditingTarget['field'], dataIndex?: number) => {
+      return editingTarget?.questionIndex === questionIndex && editingTarget?.field === field && (dataIndex === undefined || editingTarget?.dataIndex === dataIndex);
   }
 
   const renderChart = () => {
@@ -39,8 +70,40 @@ const ChartRenderer: React.FC<{ data: ChartData }> = ({ data }) => {
             <tbody>
               {data.veri.map((item, index) => (
                 <tr key={index} className="bg-white">
-                  <td className="border border-slate-300 p-2">{item.etiket}</td>
-                  <td className="border border-slate-300 p-2 text-center">{item.deger}</td>
+                  <td className="border border-slate-300 p-2">
+                     {isEditing('grafik_veri_etiket', index) ? (
+                        <input
+                            type="text"
+                            value={editingValue}
+                            onChange={(e) => setEditingValue(e.target.value)}
+                            onBlur={handleSaveChanges}
+                            onKeyDown={handleKeyDown}
+                            className="w-full p-1 bg-yellow-100/50 border border-blue-400 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            autoFocus
+                        />
+                    ) : (
+                        <span onDoubleClick={() => isEditable && handleStartEditing({ questionIndex, field: 'grafik_veri_etiket', dataIndex: index }, item.etiket)} className={`w-full block ${isEditable ? 'editable-field' : ''}`}>
+                            {item.etiket}
+                        </span>
+                    )}
+                  </td>
+                  <td className="border border-slate-300 p-2 text-center">
+                     {isEditing('grafik_veri_deger', index) ? (
+                        <input
+                            type="number"
+                            value={editingValue}
+                            onChange={(e) => setEditingValue(e.target.value)}
+                            onBlur={handleSaveChanges}
+                            onKeyDown={handleKeyDown}
+                            className="w-full p-1 text-center bg-yellow-100/50 border border-blue-400 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            autoFocus
+                        />
+                    ) : (
+                        <span onDoubleClick={() => isEditable && handleStartEditing({ questionIndex, field: 'grafik_veri_deger', dataIndex: index }, String(item.deger))} className={`w-full block ${isEditable ? 'editable-field' : ''}`}>
+                           {item.deger}
+                        </span>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -48,27 +111,53 @@ const ChartRenderer: React.FC<{ data: ChartData }> = ({ data }) => {
         );
 
       case 'nesne_grafiği':
-        return (
-          <div className="space-y-2 my-4" style={{ pageBreakInside: 'avoid' }}>
-            {data.veri.map((item, index) => (
-              <div key={index} className="flex items-center">
-                <span className="w-28 font-medium shrink-0 text-right pr-4">{item.etiket}:</span>
-                <span className="flex flex-wrap gap-1 text-2xl">{Array.from({ length: item.deger }, (_, i) => <span key={i}>{item.nesne || '●'}</span>)}</span>
-              </div>
-            ))}
-          </div>
-        );
-
       case 'sutun_grafiği':
         return (
           <div className="space-y-3 my-4" style={{ pageBreakInside: 'avoid' }}>
             {data.veri.map((item, index) => (
               <div key={index} className="flex items-center gap-2">
-                <span className="w-28 text-right font-medium shrink-0">{item.etiket}</span>
+                <div className="w-28 text-right font-medium shrink-0">
+                    {isEditing('grafik_veri_etiket', index) ? (
+                         <input
+                            type="text"
+                            value={editingValue}
+                            onChange={(e) => setEditingValue(e.target.value)}
+                            onBlur={handleSaveChanges}
+                            onKeyDown={handleKeyDown}
+                            className="w-full p-1 text-right bg-yellow-100/50 border border-blue-400 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            autoFocus
+                        />
+                    ) : (
+                        <span onDoubleClick={() => isEditable && handleStartEditing({ questionIndex, field: 'grafik_veri_etiket', dataIndex: index }, item.etiket)} className={`w-full block ${isEditable ? 'editable-field' : ''}`}>
+                            {item.etiket}
+                        </span>
+                    )}
+                </div>
                 <div className="flex-grow flex flex-wrap gap-1 items-center">
-                  {Array.from({ length: item.deger }, (_, i) => (
-                    <div key={i} className="w-4 h-5 bg-purple-500 rounded-sm"></div>
-                  ))}
+                   {data.tip === 'nesne_grafiği' ? (
+                     <span className="flex flex-wrap gap-1 text-2xl">{Array.from({ length: item.deger }, (_, i) => <span key={i}>{item.nesne || '●'}</span>)}</span>
+                   ) : (
+                     Array.from({ length: item.deger }, (_, i) => (
+                        <div key={i} className="w-4 h-5 bg-purple-500 rounded-sm"></div>
+                     ))
+                   )}
+                   {isEditable && (
+                    isEditing('grafik_veri_deger', index) ? (
+                         <input
+                            type="number"
+                            value={editingValue}
+                            onChange={(e) => setEditingValue(e.target.value)}
+                            onBlur={handleSaveChanges}
+                            onKeyDown={handleKeyDown}
+                            className="w-16 ml-2 p-1 text-center bg-yellow-100/50 border border-blue-400 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            autoFocus
+                        />
+                    ): (
+                         <span onDoubleClick={() => handleStartEditing({ questionIndex, field: 'grafik_veri_deger', dataIndex: index }, String(item.deger))} className={`ml-2 p-1 rounded-md ${isEditable ? 'editable-field' : ''}`}>
+                           ({item.deger})
+                        </span>
+                    )
+                   )}
                 </div>
               </div>
             ))}
@@ -82,20 +171,39 @@ const ChartRenderer: React.FC<{ data: ChartData }> = ({ data }) => {
 
   return (
     <div className="my-4 p-4 bg-white/40 border border-slate-200/80 rounded-lg">
-      <h4 className="font-bold text-center text-slate-700 mb-3">{data.baslik}</h4>
+       <h4 className="font-bold text-center text-slate-700 mb-3">
+            {isEditing('grafik_baslik') ? (
+                <input
+                    type="text"
+                    value={editingValue}
+                    onChange={(e) => setEditingValue(e.target.value)}
+                    onBlur={handleSaveChanges}
+                    onKeyDown={handleKeyDown}
+                    className="w-full text-center p-1 bg-yellow-100/50 border border-blue-400 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    autoFocus
+                />
+            ) : (
+                <span onDoubleClick={() => isEditable && handleStartEditing({ questionIndex, field: 'grafik_baslik' }, data.baslik)} className={`w-full block ${isEditable ? 'editable-field' : ''}`}>
+                    {data.baslik}
+                </span>
+            )}
+       </h4>
       {renderChart()}
       {data.not && <p className="text-xs text-center text-slate-500 mt-2">{data.not}</p>}
     </div>
   );
 };
 
-const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQuestion, remixingIndex, onArchive, isArchived }) => {
+const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQuestion, remixingIndex, onArchive, isArchived, onUpdateQuiz }) => {
   const quizRef = useRef<HTMLDivElement>(null);
   const [showAnswers, setShowAnswers] = useState(false);
   const [isTeacherView, setIsTeacherView] = useState(true);
   const [isDownloading, setIsDownloading] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [copyStatus, setCopyStatus] = useState<'idle' | 'copied'>('idle');
+
+  const [editingTarget, setEditingTarget] = useState<EditingTarget | null>(null);
+  const [editingValue, setEditingValue] = useState<string>('');
 
   const [settings, setSettings] = useState(() => {
     const initialSettings = {
@@ -137,8 +245,74 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
   const handleNoteChange = (index: number, text: string) => {
     setCustomTeacherNotes(prev => ({ ...prev, [index]: text }));
   };
+
+  const isEditable = showAnswers && isTeacherView && !!onUpdateQuiz && quizId !== 'generating';
+
+  const handleCancelEditing = () => {
+    setEditingTarget(null);
+    setEditingValue('');
+  };
+
+  const handleSaveChanges = () => {
+    if (!editingTarget || !onUpdateQuiz) {
+        handleCancelEditing();
+        return;
+    }
+
+    const { questionIndex, field, optionKey, dataIndex } = editingTarget;
+    
+    // Deep copy to avoid mutation
+    const newQuestions: DetailedQuestion[] = JSON.parse(JSON.stringify(questions));
+    const questionToUpdate = newQuestions[questionIndex];
+
+    switch (field) {
+        case 'soru_metni': questionToUpdate.soru_metni = editingValue; break;
+        case 'cozum_anahtari': questionToUpdate.cozum_anahtari = editingValue; break;
+        case 'gercek_yasam_baglantisi': questionToUpdate.gercek_yasam_baglantisi = editingValue; break;
+        case 'dogru_cevap': questionToUpdate.dogru_cevap = editingValue; break;
+        case 'secenek':
+            if (optionKey && questionToUpdate.secenekler) {
+                questionToUpdate.secenekler[optionKey] = editingValue;
+            }
+            break;
+        case 'grafik_baslik':
+            if (questionToUpdate.grafik_verisi) questionToUpdate.grafik_verisi.baslik = editingValue;
+            break;
+        case 'grafik_veri_etiket':
+            if (questionToUpdate.grafik_verisi && dataIndex !== undefined) questionToUpdate.grafik_verisi.veri[dataIndex].etiket = editingValue;
+            break;
+        case 'grafik_veri_deger':
+            if (questionToUpdate.grafik_verisi && dataIndex !== undefined) questionToUpdate.grafik_verisi.veri[dataIndex].deger = Number(editingValue) || 0;
+            break;
+    }
+
+    onUpdateQuiz(newQuestions);
+    handleCancelEditing();
+  };
+
+  const handleStartEditing = (target: EditingTarget, value: string) => {
+    if (!isEditable) return;
+    setEditingTarget(target);
+    setEditingValue(value);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey && !(e.target instanceof HTMLTextAreaElement)) {
+        e.preventDefault();
+        handleSaveChanges();
+    } else if (e.key === 'Escape') {
+        handleCancelEditing();
+    }
+  };
   
   if (!questions || questions.length === 0) return null;
+
+  const isEditingCheck = (questionIndex: number, field: EditingTarget['field'], optionKey?: string, dataIndex?: number) => {
+    return editingTarget?.questionIndex === questionIndex &&
+           editingTarget?.field === field &&
+           editingTarget?.optionKey === optionKey &&
+           editingTarget?.dataIndex === dataIndex;
+  };
 
   const uniqueUnitNames = [...new Set(questions.map(q => q.unite_adi))].join(' & ');
   const uniqueKazanimCodes = [...new Set(questions.map(q => q.kazanim_kodu))].join(', ');
@@ -393,8 +567,30 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
               
               <div className="flex justify-between items-start">
                   <div className="flex-1">
-                    {q.grafik_verisi && <ChartRenderer data={q.grafik_verisi} />}
-                    <p className="font-semibold mb-3 inline whitespace-pre-wrap" style={{color: 'inherit'}}>{`${index + 1}. ${q.soru_metni}`}</p>
+                    {q.grafik_verisi && <ChartRenderer 
+                        data={q.grafik_verisi} 
+                        questionIndex={index} 
+                        isEditable={isEditable}
+                        editingTarget={editingTarget}
+                        editingValue={editingValue}
+                        setEditingValue={setEditingValue}
+                        handleStartEditing={handleStartEditing}
+                        handleSaveChanges={handleSaveChanges}
+                        handleKeyDown={handleKeyDown}
+                    />}
+                    {isEditingCheck(index, 'soru_metni') ? (
+                        <textarea
+                            value={editingValue}
+                            onChange={(e) => setEditingValue(e.target.value)}
+                            onBlur={handleSaveChanges}
+                            onKeyDown={handleKeyDown}
+                            className="w-full font-semibold p-1 bg-yellow-100/50 border border-blue-400 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            rows={3}
+                            autoFocus
+                        />
+                    ) : (
+                       <p onDoubleClick={() => handleStartEditing({ questionIndex: index, field: 'soru_metni' }, q.soru_metni)} className={`font-semibold mb-3 inline whitespace-pre-wrap ${isEditable ? 'editable-field' : ''}`} style={{color: 'inherit'}}>{`${index + 1}. ${q.soru_metni}`}</p>
+                    )}
                   </div>
                   {onRemixQuestion && showAnswers && isTeacherView && (
                     <button 
@@ -417,22 +613,37 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
               
               {q.soru_tipi === 'coktan_secmeli' && q.secenekler && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 mt-2 pl-2 options-grid">
-                  {Object.entries(q.secenekler).map(([key, optionText]) => {
+                  {(Object.keys(q.secenekler) as Array<keyof typeof q.secenekler>).map((key) => {
+                    const optionText = q.secenekler![key];
                     const isCorrect = showAnswers && key === q.dogru_cevap;
+                    const isOptionEditing = isEditingCheck(index, 'secenek', key);
+                    
                     return (
-                      <div key={key} className={`p-2 rounded-md transition-all duration-300 ${isCorrect ? 'bg-green-100 text-green-800 font-bold' : ''}`}>
-                        <span>{key}) {optionText}</span>
+                      <div key={key} className={`flex items-center p-2 rounded-md transition-all duration-300 ${isCorrect ? 'bg-green-100 text-green-800 font-bold' : ''}`}>
+                        <span className="mr-2">{key})</span>
+                        {isOptionEditing ? (
+                             <input
+                                type="text"
+                                value={editingValue}
+                                onChange={(e) => setEditingValue(e.target.value)}
+                                onBlur={handleSaveChanges}
+                                onKeyDown={handleKeyDown}
+                                className="w-full p-1 bg-yellow-100/50 border border-blue-400 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                autoFocus
+                            />
+                        ) : (
+                             <span onDoubleClick={() => handleStartEditing({ questionIndex: index, field: 'secenek', optionKey: key }, optionText)} className={`flex-1 ${isEditable ? 'editable-field' : ''}`}>
+                                {optionText}
+                             </span>
+                        )}
                       </div>
                     );
                   })}
                 </div>
               )}
 
-              {q.soru_tipi === 'dogru_yanlis' && (
-                <div className="flex items-center gap-4 mt-2 pl-2">
-                    <div className={`p-2 rounded-md transition-all duration-300 border w-24 text-center ${showAnswers && q.dogru_cevap === 'Doğru' ? 'bg-green-100 text-green-800 font-bold border-green-200' : 'bg-slate-50 border-slate-200'}`}>Doğru</div>
-                    <div className={`p-2 rounded-md transition-all duration-300 border w-24 text-center ${showAnswers && q.dogru_cevap === 'Yanlış' ? 'bg-green-100 text-green-800 font-bold border-green-200' : 'bg-slate-50 border-slate-200'}`}>Yanlış</div>
-                </div>
+              {q.soru_tipi === 'dogru_yanlis' && showAnswers && (
+                 <p className="mt-2 pl-2 p-2 rounded-md bg-green-100 text-green-800 font-bold inline-block">Cevap: {q.dogru_cevap}</p>
               )}
 
               {q.soru_tipi === 'bosluk_doldurma' && showAnswers && (
@@ -445,10 +656,33 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                 <div className="mt-4 ml-6 p-3 bg-blue-900/10 backdrop-blur-sm border border-blue-500/20 rounded-xl space-y-2">
                     <h4 className="font-semibold text-sm text-blue-800 flex items-center gap-2"><SparklesIcon className="w-4 h-4"/> Öğretmen Notu</h4>
                     <p className="text-sm text-blue-700"><strong>Kazanım:</strong> {q.kazanim_kodu}</p>
-                    <p className="text-sm text-blue-700"><strong>Çözüm:</strong> {q.cozum_anahtari}</p>
+                     <div className="text-sm text-blue-700">
+                      <strong>Çözüm: </strong>
+                        {isEditingCheck(index, 'cozum_anahtari') ? (
+                           <textarea value={editingValue} onChange={(e) => setEditingValue(e.target.value)} onBlur={handleSaveChanges} onKeyDown={handleKeyDown} rows={2} className="w-full mt-1 p-1 bg-yellow-100/50 border border-blue-400 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" autoFocus />
+                        ) : (
+                          <span onDoubleClick={() => handleStartEditing({questionIndex: index, field: 'cozum_anahtari'}, q.cozum_anahtari)} className={`${isEditable ? 'editable-field' : ''}`}>{q.cozum_anahtari}</span>
+                        )}
+                    </div>
                     <p className="text-sm text-blue-700"><strong>Seviye:</strong> <span className="capitalize px-2 py-0.5 bg-blue-200 text-blue-800 rounded-full text-xs">{q.seviye}</span></p>
                     <div className="pt-2 border-t border-blue-100">
-                        <p className="text-sm text-blue-700"><strong>Gerçek Yaşam Bağlantısı:</strong> {q.gercek_yasam_baglantisi}</p>
+                         <strong className="text-sm text-blue-700">Doğru Cevap: </strong>
+                         {isEditingCheck(index, 'dogru_cevap') ? (
+                           <select value={editingValue} onChange={(e) => {setEditingValue(e.target.value);}} onBlur={handleSaveChanges} onKeyDown={handleKeyDown} className="p-1 bg-yellow-100/50 border border-blue-400 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" autoFocus>
+                                {q.secenekler && Object.keys(q.secenekler).map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                                {q.soru_tipi === 'dogru_yanlis' && <> <option value="Doğru">Doğru</option> <option value="Yanlış">Yanlış</option> </>}
+                           </select>
+                         ) : (
+                            <span onDoubleClick={() => handleStartEditing({questionIndex: index, field: 'dogru_cevap'}, q.dogru_cevap)} className={`font-bold text-green-700 px-2 rounded ${isEditable ? 'editable-field' : ''}`}>{q.dogru_cevap}</span>
+                         )}
+                    </div>
+                    <div className="pt-2 border-t border-blue-100">
+                        <strong className="text-sm text-blue-700">Gerçek Yaşam Bağlantısı: </strong>
+                         {isEditingCheck(index, 'gercek_yasam_baglantisi') ? (
+                           <textarea value={editingValue} onChange={(e) => setEditingValue(e.target.value)} onBlur={handleSaveChanges} onKeyDown={handleKeyDown} rows={2} className="w-full mt-1 p-1 bg-yellow-100/50 border border-blue-400 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" autoFocus />
+                        ) : (
+                          <span onDoubleClick={() => handleStartEditing({questionIndex: index, field: 'gercek_yasam_baglantisi'}, q.gercek_yasam_baglantisi)} className={`${isEditable ? 'editable-field' : ''}`}>{q.gercek_yasam_baglantisi}</span>
+                        )}
                     </div>
                     {q.soru_tipi === 'coktan_secmeli' && q.yanlis_secenek_tipleri && q.yanlis_secenek_tipleri.length > 0 && (
                         <div className="pt-2 border-t border-blue-100">
@@ -478,6 +712,15 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
         </div>
       </div>
        <style>{`
+        .editable-field {
+            border-radius: 4px;
+            padding: 2px 4px;
+        }
+        .editable-field:hover {
+            background-color: rgba(254, 240, 138, 0.4);
+            cursor: text;
+            transition: background-color 0.2s ease-in-out;
+        }
         .quiz-paper { background-color: var(--bg-color); }
         .quiz-paper.notebook {
             background-image: linear-gradient(to bottom, #e2e8f0 1px, transparent 1px);
