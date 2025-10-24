@@ -329,30 +329,31 @@ const CurriculumSelector: React.FC<CurriculumSelectorProps> = ({
             </div>
         )}
          <div className="pt-2">
-            <label htmlFor="custom-prompt" className="block text-sm font-medium text-slate-600 mb-1">Ek Talimatlar (İsteğe Bağlı)</label>
-            <div className="relative">
-                <textarea
-                    id="custom-prompt"
-                    rows={3}
-                    className="w-full p-2.5 bg-white/60 border border-slate-300/50 rounded-md shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-300 pr-12"
-                    placeholder="Örn: Sorular Ege Bölgesi'ndeki şehirlerle ilgili olsun."
-                    value={customPrompt}
-                    onChange={(e) => setCustomPrompt(e.target.value)}
-                />
+            <div className="flex justify-between items-center mb-1">
+                <label htmlFor="custom-prompt" className="block text-sm font-medium text-slate-600">Ek Talimatlar (İsteğe Bağlı)</label>
                 <button
                     type="button"
                     onClick={handleToggleListening}
                     title={isListening ? "Dinlemeyi Durdur" : "Sesli Komut Ver"}
-                    className={`absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-400 ${
+                    className={`flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-400 ${
                         isListening 
-                        ? 'text-red-600 bg-red-100 animate-pulse' 
-                        : 'text-slate-500 hover:bg-slate-200/60'
+                        ? 'bg-red-500 text-white animate-pulse' 
+                        : 'bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold'
                     }`}
                     disabled={recognitionRef.current === null}
                 >
-                    <MicrophoneIcon className="w-5 h-5" />
+                    <MicrophoneIcon className="w-4 h-4" />
+                    {isListening ? "Dinleniyor..." : "Sesli Komut"}
                 </button>
             </div>
+            <textarea
+                id="custom-prompt"
+                rows={3}
+                className="w-full p-2.5 bg-white/60 border border-slate-300/50 rounded-md shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-300"
+                placeholder="Örn: Sorular Ege Bölgesi'ndeki şehirlerle ilgili olsun."
+                value={customPrompt}
+                onChange={(e) => setCustomPrompt(e.target.value)}
+            />
             <p className="text-xs text-slate-500 mt-1">Yapay zekaya daha spesifik veya yaratıcı sorular üretmesi için ek talimatlar verebilirsiniz.</p>
         </div>
       </div>
