@@ -1,7 +1,7 @@
 
 
 import React, { useRef, useState, useEffect } from 'react';
-import { DetailedQuestion } from '../types';
+import { DetailedQuestion, ChartData } from '../types';
 import { DownloadIcon, PrintIcon, ShareIcon, SparklesIcon, SettingsIcon, CopyIcon, CheckIcon, RefreshCwIcon, ArchiveAddIcon } from './icons';
 
 
@@ -17,6 +17,80 @@ interface QuizViewProps {
 
 const VIEW_SETTINGS_KEY = 'quizViewSettings';
 const NOTES_PREFIX = 'quizNotes_';
+
+const ChartRenderer: React.FC<{ data: ChartData }> = ({ data }) => {
+  if (!data || !data.veri || data.veri.length === 0) {
+    return null;
+  }
+
+  const renderChart = () => {
+    switch (data.tip) {
+      case 'siklik_tablosu':
+        return (
+          <table className="w-full my-4 border-collapse text-left max-w-sm mx-auto" style={{ pageBreakInside: 'avoid' }}>
+            <thead className="bg-slate-100 font-semibold">
+              <tr>
+                <th className="border border-slate-300 p-2 capitalize">Kategori</th>
+                <th className="border border-slate-300 p-2 capitalize text-center">Sayı</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.veri.map((item, index) => (
+                <tr key={index} className="bg-white">
+                  <td className="border border-slate-300 p-2">{item.etiket}</td>
+                  <td className="border border-slate-300 p-2 text-center">{item.deger}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        );
+
+      case 'nesne_grafiği':
+        return (
+          <div className="space-y-2 my-4" style={{ pageBreakInside: 'avoid' }}>
+            {data.veri.map((item, index) => (
+              <div key={index} className="flex items-center">
+                <span className="w-28 font-medium shrink-0 text-right pr-4">{item.etiket}:</span>
+                <span className="flex flex-wrap gap-1 text-2xl">{Array.from({ length: item.deger }, (_, i) => <span key={i}>{item.nesne || '●'}</span>)}</span>
+                <span className="ml-2 font-semibold text-slate-600">({item.deger})</span>
+              </div>
+            ))}
+          </div>
+        );
+
+      case 'sutun_grafiği':
+        const maxValue = Math.max(...data.veri.map(item => item.deger), 0);
+        return (
+          <div className="space-y-3 my-4" style={{ pageBreakInside: 'avoid' }}>
+            {data.veri.map((item, index) => (
+              <div key={index} className="flex items-center gap-2">
+                <span className="w-28 text-right font-medium shrink-0">{item.etiket}</span>
+                <div className="flex-grow bg-slate-200 rounded-full h-6">
+                  <div
+                    className="bg-gradient-to-r from-blue-400 to-purple-500 h-6 rounded-full flex items-center justify-end pr-2 text-white text-sm font-bold"
+                    style={{ width: `${maxValue > 0 ? (item.deger / maxValue) * 100 : 0}%`, minWidth: '2rem' }}
+                  >
+                   {item.deger}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className="my-4 p-4 bg-white/40 border border-slate-200/80 rounded-lg">
+      <h4 className="font-bold text-center text-slate-700 mb-3">{data.baslik}</h4>
+      {renderChart()}
+      {data.not && <p className="text-xs text-center text-slate-500 mt-2">{data.not}</p>}
+    </div>
+  );
+};
 
 const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQuestion, remixingIndex, onArchive, isArchived }) => {
   const quizRef = useRef<HTMLDivElement>(null);
@@ -313,6 +387,7 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
         <div className="space-y-8">
           {questions.map((q, index) => (
             <div key={index} className="text-slate-800 break-inside-avoid relative">
+              {q.grafik_verisi && <ChartRenderer data={q.grafik_verisi} />}
               <div className="flex justify-between items-start">
                   <p className="font-semibold mb-3 inline flex-1 whitespace-pre-wrap" style={{color: 'inherit'}}>{`${index + 1}. ${q.soru_metni}`}</p>
                   {onRemixQuestion && showAnswers && isTeacherView && (

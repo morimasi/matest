@@ -1,5 +1,18 @@
 export type QuestionType = 'coktan_secmeli' | 'dogru_yanlis' | 'bosluk_doldurma';
 
+export interface ChartDataItem {
+  etiket: string;
+  deger: number;
+  nesne?: string; // Nesne grafikleri için, örn: '🍎'
+}
+
+export interface ChartData {
+  tip: 'siklik_tablosu' | 'nesne_grafiği' | 'sutun_grafiği';
+  baslik: string;
+  veri: ChartDataItem[];
+  not?: string; // örn: "Her nesne 1 öğrenciyi göstermektedir."
+}
+
 export interface DetailedQuestion {
   sinif: number;
   unite_adi: string;
@@ -8,6 +21,7 @@ export interface DetailedQuestion {
   kazanim_metni: string;
   soru_tipi: QuestionType;
   soru_metni: string;
+  grafik_verisi?: ChartData; // Grafik verisi için yeni alan
   secenekler?: {
     A: string;
     B: string;

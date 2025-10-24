@@ -10,36 +10,27 @@ const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 const getPromptAndSchema = (grade: string, units: string, kazanims: Kazanim[], questionCount: number, questionType: QuestionType, customPrompt?: string, includeCharts?: boolean, numOperations?: number) => {
     
     const chartInstruction = includeCharts
-    ? `\n\nÖNEMLİ GRAFİK/TABLO KURALI:
-Eğer bir kazanım "çetele tablosu", "sıklık tablosu", "nesne grafiği" veya "sütun grafiği" ile ilgiliyse, soru metni ("soru_metni" alanı) İÇERİSİNDE, sorunun başında bu grafiği veya tabloyu zengin ve çok satırlı bir metin formatında (ASCII karakterler kullanarak) OLUŞTURMALISIN. Bu görsel bölüm, sorunun geri kalanından açıkça ayrılmalıdır.
+    ? `
+ÖNEMLİ GRAFİK/TABLO KURALI:
+Eğer bir kazanım "çetele tablosu", "sıklık tablosu", "nesne grafiği" veya "sütun grafiği" ile ilgiliyse, soru metnini ("soru_metni" alanı) bu grafiği içermeyecek şekilde sade tutmalısın. Bunun yerine, grafiğin verilerini JSON formatında "grafik_verisi" adlı ayrı bir alana eklemelisin. ASCII-tabanlı, metin formatında grafikler KESİNLİKLE OLUŞTURMA.
 
-Örnek Formatlar:
-1.  **Sıklık Tablosu Örneği:**
-    Aşağıdaki sıklık tablosunda bir manavdaki meyve sayıları verilmiştir.
-    +-----------+--------+
-    | Meyve     | Sayısı |
-    +-----------+--------+
-    | Elma      |   12   |
-    | Armut     |    8   |
-    | Çilek     |   15   |
-    +-----------+--------+
-    Tabloya göre manavda en çok hangi meyve vardır?
+"grafik_verisi" alanı aşağıdaki yapıda olmalıdır:
+- "tip": Grafiğin türünü belirtir ('siklik_tablosu', 'nesne_grafiği', 'sutun_grafiği').
+- "baslik": Grafik için kısa bir başlık (örn: "Sınıftaki Öğrencilerin Göz Renkleri").
+- "veri": Bir dizi (array) olmalıdır. Her eleman bir etiketi ve sayısal bir değeri içermelidir (örn: [{"etiket": "Elma", "deger": 8}]).
+  - Eğer "tip" olarak 'nesne_grafiği' seçilirse, her veri elemanına ek olarak bir "nesne" alanı ekleyerek grafikte kullanılacak sembolü (örn: '🍎') belirtmelisin.
+- "not": (İsteğe bağlı) Grafiğin altında gösterilecek bir not (örn: "Her şekil 2 öğrenciyi temsil etmektedir.").
 
-2.  **Sütun Grafiği Örneği:**
-    Bir sınıftaki öğrencilerin en sevdiği dersler grafikte gösterilmiştir.
-    Matematik: ████████ (8)
-    Türkçe   : ██████ (6)
-    Hayat B. : █████ (5)
-    Grafiğe göre en az sevilen ders hangisidir?
-
-3.  **Çetele Tablosu Örneği:**
-    Aşağıdaki çetele tablosu, bir otoparktaki araba renklerini göstermektedir.
-    Kırmızı: ||||| ||
-    Beyaz  : ||||| ||||
-    Siyah  : |||||
-    Tabloya göre otoparkta toplam kaç araba vardır?
-
-Bu kurala mutlaka uymalısın. Grafik veya tablo, sorunun anlaşılması için ZORUNLUDUR.
+Örnek "grafik_verisi" JSON objesi:
+{
+  "tip": "sutun_grafiği",
+  "baslik": "En Sevilen Meyveler",
+  "veri": [
+    { "etiket": "Elma", "deger": 12 },
+    { "etiket": "Çilek", "deger": 18 },
+    { "etiket": "Muz", "deger": 9 }
+  ]
+}
 `
     : '';
 
@@ -87,7 +78,30 @@ Lütfen çıktı olarak sadece soruları içeren bir JSON nesnesi döndür. Her 
         kazanim_kodu: { type: Type.STRING, description: "Sorunun ilgili olduğu kazanım kodu." },
         kazanim_metni: { type: Type.STRING, description: "Sorunun ilgili olduğu kazanım metni." },
         soru_tipi: { type: Type.STRING, description: "Sorunun tipi (örn: 'coktan_secmeli')." },
-        soru_metni: { type: Type.STRING, description: "Sorunun metni." },
+        soru_metni: { type: Type.STRING, description: "Sorunun metni. Grafik veya tablo içermemelidir." },
+        grafik_verisi: {
+          type: Type.OBJECT,
+          description: "Soru bir grafik veya tablo gerektiriyorsa, bu alanda yapısal verileri barındırır. ASCII grafikler KULLANILMAMALIDIR.",
+          properties: {
+            tip: { type: Type.STRING, description: "Grafik türü: 'siklik_tablosu', 'nesne_grafiği', veya 'sutun_grafiği'." },
+            baslik: { type: Type.STRING, description: "Grafik için bir başlık." },
+            veri: {
+              type: Type.ARRAY,
+              description: "Grafik verilerini içeren bir dizi.",
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  etiket: { type: Type.STRING, description: "Veri noktasının etiketi (örn: 'Elma')." },
+                  deger: { type: Type.NUMBER, description: "Veri noktasının sayısal değeri (örn: 12)." },
+                  nesne: { type: Type.STRING, description: "Nesne grafikleri için kullanılacak sembol (örn: '🍎')." }
+                },
+                required: ["etiket", "deger"]
+              }
+            },
+            not: { type: Type.STRING, description: "Grafik altında gösterilecek ek not." }
+          },
+          required: ["tip", "baslik", "veri"]
+        },
         dogru_cevap: { type: Type.STRING, description: "Sorunun doğru cevabı." },
         gercek_yasam_baglantisi: { type: Type.STRING, description: "Kazanımın günlük yaşamla bağlantısı." },
         seviye: { type: Type.STRING, description: "Sorunun zorluk seviyesi (temel, orta, ileri)." },
@@ -237,7 +251,7 @@ export const generateSingleQuestion = async (grade: string, unit: string, kazani
         // Remix işlemi sırasında, eğer kazanım metni 'tablo' veya 'grafik' içeriyorsa,
         // tutarlılık için grafik/tablo kuralını otomatik olarak etkinleştir.
         const isDataKazanim = kazanim.name.includes('tablo') || kazanim.name.includes('grafik');
-        const { prompt: basePrompt, singleSchema } = getPromptAndSchema(grade, unit, [kazanim], 1, questionType, "", isDataKazanim);
+        const { prompt: basePrompt, singleSchema } = getPromptAndSchema(grade, unit, [kazanim], 1, questionType, "", isDataKazanim, 0);
         const remixPrompt = `${basePrompt}\n\nÖNEMLİ KURAL: Üreteceğin yeni soru, aşağıdaki sorudan MUTLAKA farklı olmalıdır:\n"${existingQuestionText}"`;
 
         const response = await ai.models.generateContent({
