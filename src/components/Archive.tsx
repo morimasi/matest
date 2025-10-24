@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { CURRICULUM_DATA } from '../constants';
-import { ARCHIVE_DATA } from '../archiveData';
+import { ARCHIVE_DATA } from '../archive';
 import { Grade, Unit, Kazanim, ArchiveQuiz, QuizTemplate } from '../types';
 import QuizView from './QuizView';
 import { ArchiveIcon, TrashIcon } from './icons';
