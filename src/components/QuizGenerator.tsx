@@ -50,6 +50,7 @@ const QuizGenerator: React.FC = () => {
     const [currentGradeName, setCurrentGradeName] = useState<string>('');
 
     const [feedbackSent, setFeedbackSent] = useState(false);
+    const [feedbackText, setFeedbackText] = useState('');
     const [isArchived, setIsArchived] = useState(false);
 
 
@@ -75,6 +76,7 @@ const QuizGenerator: React.FC = () => {
         setQuestionsForView([]);
         setCurrentGradeName(gradeData.name);
         setFeedbackSent(false);
+        setFeedbackText('');
         setIsArchived(false);
 
         const allQuestions: DetailedQuestion[] = [];
@@ -122,6 +124,34 @@ const QuizGenerator: React.FC = () => {
         } catch (err) {
             setError("Sınav arşive eklenirken bir hata oluştu.");
         }
+    };
+
+    const handleSendFeedback = (quickFeedback?: string) => {
+        if (!generatedQuiz) return;
+
+        const subject = "AI Sınav Asistanı Geri Bildirimi";
+        const body = `
+Merhaba,
+
+AI Sınav Asistanı hakkında geri bildirimde bulunmak istiyorum.
+
+Sınav ID: ${generatedQuiz.id}
+Sınıf: ${generatedQuiz.gradeName}
+Kazanımlar: ${[...new Set(generatedQuiz.questions.map(q => q.kazanim_kodu))].join(', ')}
+
+---
+Geri Bildirim Tipi: ${quickFeedback || 'Genel Yorum'}
+Kullanıcı Yorumu:
+${quickFeedback ? '(Hızlı geri bildirim, ek yorum yok)' : feedbackText}
+---
+
+Teşekkürler.
+        `;
+        
+        const mailtoLink = `mailto:ornek-eposta@adresiniz.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        
+        window.location.href = mailtoLink;
+        setFeedbackSent(true);
     };
     
     const hasQuizToShow = questionsForView.length > 0 || generatedQuiz;
@@ -185,13 +215,19 @@ const QuizGenerator: React.FC = () => {
                                 <>
                                 <p className="text-slate-500 mt-2 text-center text-sm">Üretilen soruların kalitesini artırmamıza yardımcı olun.</p>
                                 <div className="mt-4 flex flex-wrap justify-center gap-3">
-                                    <button onClick={() => setFeedbackSent(true)} className="px-4 py-2 text-sm bg-white/60 border border-slate-300/50 rounded-full hover:bg-white/80 transition-all">Soru Hatalı</button>
-                                    <button onClick={() => setFeedbackSent(true)} className="px-4 py-2 text-sm bg-white/60 border border-slate-300/50 rounded-full hover:bg-white/80 transition-all">Zorluk Seviyesi Uygun Değil</button>
-                                    <button onClick={() => setFeedbackSent(true)} className="px-4 py-2 text-sm bg-white/60 border border-slate-300/50 rounded-full hover:bg-white/80 transition-all">Bağlantı Zayıf</button>
+                                    <button onClick={() => handleSendFeedback('Soru Hatalı')} className="px-4 py-2 text-sm bg-white/60 border border-slate-300/50 rounded-full hover:bg-white/80 transition-all">Soru Hatalı</button>
+                                    <button onClick={() => handleSendFeedback('Zorluk Seviyesi Uygun Değil')} className="px-4 py-2 text-sm bg-white/60 border border-slate-300/50 rounded-full hover:bg-white/80 transition-all">Zorluk Seviyesi Uygun Değil</button>
+                                    <button onClick={() => handleSendFeedback('Bağlantı Zayıf')} className="px-4 py-2 text-sm bg-white/60 border border-slate-300/50 rounded-full hover:bg-white/80 transition-all">Bağlantı Zayıf</button>
                                 </div>
                                 <div className="mt-4">
-                                    <textarea rows={2} placeholder="Diğer yorumlarınız..." className="w-full p-2.5 text-sm bg-white/60 border border-slate-300/50 rounded-md shadow-sm focus:ring-1 focus:ring-purple-500"></textarea>
-                                    <button onClick={() => setFeedbackSent(true)} className="w-full mt-2 bg-purple-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-purple-600 transition-all">
+                                    <textarea 
+                                        rows={2} 
+                                        placeholder="Diğer yorumlarınız..." 
+                                        className="w-full p-2.5 text-sm bg-white/60 border border-slate-300/50 rounded-md shadow-sm focus:ring-1 focus:ring-purple-500"
+                                        value={feedbackText}
+                                        onChange={(e) => setFeedbackText(e.target.value)}
+                                    ></textarea>
+                                    <button onClick={() => handleSendFeedback()} className="w-full mt-2 bg-purple-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-purple-600 transition-all">
                                         Gönder
                                     </button>
                                 </div>
