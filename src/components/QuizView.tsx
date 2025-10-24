@@ -1,7 +1,7 @@
 
 
 import React, { useRef, useState, useEffect } from 'react';
-import { DetailedQuestion } from '../types';
+import { DetailedQuestion, ChartData } from '../types';
 import { DownloadIcon, PrintIcon, ShareIcon, SparklesIcon, SettingsIcon, CopyIcon, CheckIcon, RefreshCwIcon, ArchiveAddIcon } from './icons';
 
 
@@ -17,6 +17,81 @@ interface QuizViewProps {
 
 const VIEW_SETTINGS_KEY = 'quizViewSettings';
 const NOTES_PREFIX = 'quizNotes_';
+
+const ChartRenderer: React.FC<{ chartData: ChartData }> = ({ chartData }) => {
+    const maxValue = Math.max(...chartData.data.map(d => d.value), 1);
+
+    const renderChart = () => {
+        switch (chartData.type) {
+            case 'siklik_tablosu':
+                return (
+                    <table className="w-full my-4 border-collapse text-center table-auto text-sm sm:text-base">
+                        <thead>
+                            <tr className="bg-slate-100">
+                                <th className="border p-2 font-semibold text-slate-700">Kategori</th>
+                                <th className="border p-2 font-semibold text-slate-700">Sıklık (Sayı)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {chartData.data.map((item, index) => (
+                                <tr key={index} className="border-b bg-white">
+                                    <td className="border p-2 font-medium">{item.label}</td>
+                                    <td className="border p-2 font-mono">{item.value}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                );
+
+            case 'nesne_grafik':
+                return (
+                    <div className="my-4 space-y-2">
+                        {chartData.data.map((item, index) => (
+                            <div key={index} className="grid grid-cols-[80px_1fr_auto] items-center gap-3 text-sm sm:text-base">
+                                <span className="font-semibold text-right flex-shrink-0">{item.label}</span>
+                                <div className="flex flex-wrap gap-x-1 gap-y-0.5 text-xl py-1 border-l border-r px-2 border-slate-200" aria-label={`${item.label}, ${item.value} adet`}>
+                                    {Array.from({ length: item.value }).map((_, i) => (
+                                        <span key={i} role="img" aria-hidden="true">{item.symbol || '●'}</span>
+                                    ))}
+                                </div>
+                                <span className="font-mono text-slate-600">({item.value})</span>
+                            </div>
+                        ))}
+                    </div>
+                );
+            
+            case 'sutun_grafik':
+                return (
+                    <div className="my-4 p-4 border rounded-lg bg-slate-50/50">
+                        <div className="flex gap-4 items-end" style={{ height: '150px' }}>
+                            {chartData.data.map((item, index) => (
+                                <div key={index} className="flex-1 flex flex-col items-center justify-end gap-1">
+                                    <span className="text-xs font-semibold text-slate-700">{item.value}</span>
+                                    <div 
+                                        className="w-full bg-blue-400 rounded-t-md hover:bg-blue-500 transition-all"
+                                        style={{ height: `${(item.value / maxValue) * 100}%` }}
+                                        title={`${item.label}: ${item.value}`}
+                                    ></div>
+                                    <span className="text-xs font-medium text-slate-600 text-center break-words">{item.label}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                );
+
+            default:
+                return null;
+        }
+    };
+    
+    return (
+        <div className="my-3 -ml-2 sm:ml-0 p-3 border rounded-xl bg-white/50 shadow-inner overflow-x-auto">
+            {chartData.title && <h5 className="font-bold text-center text-slate-700 mb-3">{chartData.title}</h5>}
+            {renderChart()}
+        </div>
+    );
+};
+
 
 const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQuestion, remixingIndex, onArchive, isArchived }) => {
   const quizRef = useRef<HTMLDivElement>(null);
@@ -318,14 +393,18 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
         <div className="space-y-8">
           {questions.map((q, index) => (
             <div key={index} className="text-slate-800 break-inside-avoid relative">
-              <div className="flex justify-between items-start">
-                  <p className="font-semibold mb-3 inline flex-1 whitespace-pre-wrap" style={{color: 'inherit'}}>{`${index + 1}. ${q.soru_metni}`}</p>
+              <div className="flex justify-between items-start gap-2">
+                  <p className="font-semibold mb-2 flex-shrink-0">{`${index + 1}.`}</p>
+                  <div className="flex-grow">
+                     {q.grafik_verisi && <ChartRenderer chartData={q.grafik_verisi} />}
+                     <p className="whitespace-pre-wrap" style={{color: 'inherit'}}>{q.soru_metni}</p>
+                  </div>
                   {onRemixQuestion && showAnswers && isTeacherView && (
                     <button 
                         onClick={() => onRemixQuestion(index)} 
                         disabled={remixingIndex === index}
                         title="Bu soruyu yeniden oluştur"
-                        className="p-1 ml-2 rounded-full text-blue-500 hover:bg-blue-500/10 disabled:text-slate-400 disabled:cursor-wait"
+                        className="p-1 ml-2 rounded-full text-blue-500 hover:bg-blue-500/10 disabled:text-slate-400 disabled:cursor-wait flex-shrink-0"
                     >
                        {remixingIndex === index ? (
                            <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -340,7 +419,7 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
               </div>
               
               {q.soru_tipi === 'coktan_secmeli' && q.secenekler && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 mt-2 pl-2 options-grid">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 mt-2 pl-6 options-grid">
                   {Object.entries(q.secenekler).map(([key, optionText]) => {
                     const isCorrect = showAnswers && key === q.dogru_cevap;
                     return (
@@ -353,14 +432,14 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
               )}
 
               {q.soru_tipi === 'dogru_yanlis' && (
-                <div className="flex items-center gap-4 mt-2 pl-2">
+                <div className="flex items-center gap-4 mt-2 pl-6">
                     <div className={`p-2 rounded-md transition-all duration-300 border w-24 text-center ${showAnswers && q.dogru_cevap === 'Doğru' ? 'bg-green-100 text-green-800 font-bold border-green-200' : 'bg-slate-50 border-slate-200'}`}>Doğru</div>
                     <div className={`p-2 rounded-md transition-all duration-300 border w-24 text-center ${showAnswers && q.dogru_cevap === 'Yanlış' ? 'bg-green-100 text-green-800 font-bold border-green-200' : 'bg-slate-50 border-slate-200'}`}>Yanlış</div>
                 </div>
               )}
 
               {q.soru_tipi === 'bosluk_doldurma' && showAnswers && (
-                <div className="mt-2 pl-2">
+                <div className="mt-2 pl-6">
                     <p className="p-2 rounded-md bg-green-100 text-green-800 font-bold inline-block">Cevap: {q.dogru_cevap}</p>
                 </div>
               )}
