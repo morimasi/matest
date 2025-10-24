@@ -214,6 +214,8 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
         pageStyle: 'normal',
         showBorder: false,
         textColor: '#1e293b',
+        pageMarginTop: 2, // cm
+        pageMarginBottom: 2, // cm
     };
     try {
         const savedSettings = localStorage.getItem(VIEW_SETTINGS_KEY);
@@ -330,7 +332,7 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
         width: quizElement.style.width,
         boxShadow: quizElement.style.boxShadow,
     };
-    quizElement.style.columnCount = '1';
+    quizElement.style.columnCount = '1'; 
     quizElement.style.width = '800px'; 
     quizElement.style.boxShadow = 'none';
     
@@ -350,27 +352,32 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
             format: 'a4'
         });
 
+        const cmToPt = 28.3465;
+        const sideMarginPt = 2 * cmToPt;
+        const topMarginPt = settings.pageMarginTop * cmToPt;
+        const bottomMarginPt = settings.pageMarginBottom * cmToPt;
+
         const pdfWidth = pdf.internal.pageSize.getWidth();
         const pdfHeight = pdf.internal.pageSize.getHeight();
-        const margin = 40;
 
         const imgProps = pdf.getImageProperties(imgData);
         const ratio = imgProps.height / imgProps.width;
         
-        const imgWidthInPdf = pdfWidth - (margin * 2);
+        const imgWidthInPdf = pdfWidth - (sideMarginPt * 2);
         const imgHeightInPdf = imgWidthInPdf * ratio;
 
+        const pageContentHeight = pdfHeight - topMarginPt - bottomMarginPt;
         let heightLeft = imgHeightInPdf;
         let position = 0;
         
-        pdf.addImage(imgData, 'PNG', margin, margin, imgWidthInPdf, imgHeightInPdf);
-        heightLeft -= (pdfHeight - (margin * 2));
+        pdf.addImage(imgData, 'PNG', sideMarginPt, topMarginPt, imgWidthInPdf, imgHeightInPdf);
+        heightLeft -= pageContentHeight;
 
         while (heightLeft > 0) {
-            position -= (pdfHeight - (margin * 2));
+            position -= pageContentHeight;
             pdf.addPage();
-            pdf.addImage(imgData, 'PNG', margin, position + margin, imgWidthInPdf, imgHeightInPdf);
-            heightLeft -= (pdfHeight - (margin * 2));
+            pdf.addImage(imgData, 'PNG', sideMarginPt, position + topMarginPt, imgWidthInPdf, imgHeightInPdf);
+            heightLeft -= pageContentHeight;
         }
         
         pdf.save(`${grade}-${uniqueUnitNames}-sinav.pdf`);
@@ -386,7 +393,22 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
     }
   };
 
-  const handlePrint = () => { window.print(); };
+  const handlePrint = () => { 
+    const styleId = 'dynamic-print-style';
+    let style = document.getElementById(styleId) as HTMLStyleElement | null;
+    if (!style) {
+        style = document.createElement('style');
+        style.id = styleId;
+        document.head.appendChild(style);
+    }
+    style.innerHTML = `
+        @page {
+            size: A4;
+            margin: ${settings.pageMarginTop}cm 2cm ${settings.pageMarginBottom}cm 2cm;
+        }
+    `;
+    window.print();
+  };
 
   const handleShare = async () => {
     if (navigator.share) {
@@ -517,6 +539,16 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                             <select value={settings.pageStyle} onChange={e => setSettings({...settings, pageStyle: e.target.value})} className="w-full p-1.5 text-sm bg-white/60 border border-slate-300/50 rounded-md shadow-sm focus:ring-1 focus:ring-purple-500">
                                 <option value="normal">Standart</option><option value="notebook">Defter Stili</option>
                             </select>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-xs font-medium text-slate-600 mb-1">Üst Boşluk (cm)</label>
+                                <input type="number" step="0.1" value={settings.pageMarginTop} onChange={e => setSettings({...settings, pageMarginTop: parseFloat(e.target.value) || 0})} className="w-full p-1.5 text-sm bg-white/60 border border-slate-300/50 rounded-md shadow-sm focus:ring-1 focus:ring-purple-500" />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-medium text-slate-600 mb-1">Alt Boşluk (cm)</label>
+                                <input type="number" step="0.1" value={settings.pageMarginBottom} onChange={e => setSettings({...settings, pageMarginBottom: parseFloat(e.target.value) || 0})} className="w-full p-1.5 text-sm bg-white/60 border border-slate-300/50 rounded-md shadow-sm focus:ring-1 focus:ring-purple-500" />
+                            </div>
                         </div>
                         <div className="flex items-center justify-between">
                             <label className="text-sm font-medium text-slate-600">Sayfa Kenarlığı</label>
@@ -728,10 +760,6 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
         .quiz-paper.bordered { border: 2px solid black; }
 
         @media print {
-            @page {
-                size: A4;
-                margin: 2cm;
-            }
             body { 
                 background: white !important; 
                 -webkit-print-color-adjust: exact;
@@ -754,7 +782,7 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                 column-count: var(--column-count) !important;
                 column-gap: var(--column-gap) !important;
                 width: 100% !important;
-                padding: 0 !important;
+                padding: 1cm !important;
             }
             .quiz-paper header {
                 break-after: avoid;
@@ -767,9 +795,6 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                 page-break-inside: avoid;
                 orphans: 3;
                 widows: 3;
-            }
-            .quiz-paper .options-grid {
-                 display: block !important;
             }
             .quiz-paper.bordered {
                 border: 2px solid black !important;
