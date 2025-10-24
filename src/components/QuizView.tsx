@@ -310,11 +310,11 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
             </div>
         </header>
 
-        <ol className="space-y-8 list-decimal list-inside">
+        <div className="space-y-8">
           {questions.map((q, index) => (
-            <li key={index} className="text-slate-800 break-inside-avoid relative">
+            <div key={index} className="text-slate-800 break-inside-avoid relative">
               <div className="flex justify-between items-start">
-                  <p className="font-semibold mb-3 inline flex-1 whitespace-pre-wrap" style={{color: 'inherit'}}>{q.soru_metni}</p>
+                  <p className="font-semibold mb-3 inline flex-1 whitespace-pre-wrap" style={{color: 'inherit'}}>{`${index + 1}. ${q.soru_metni}`}</p>
                   {onRemixQuestion && showAnswers && isTeacherView && (
                     <button 
                         onClick={() => onRemixQuestion(index)} 
@@ -392,9 +392,9 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                     </div>
                 </div>
               )}
-            </li>
+            </div>
           ))}
-        </ol>
+        </div>
       </div>
        <style>{`
         .quiz-paper { background-color: var(--bg-color); }
@@ -437,10 +437,10 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
             .quiz-paper header {
                 break-after: avoid;
             }
-            .quiz-paper p, .quiz-paper li, .quiz-paper div {
+            .quiz-paper p, .quiz-paper div {
                 overflow-wrap: break-word;
             }
-            .quiz-paper li.break-inside-avoid {
+            .quiz-paper div.break-inside-avoid {
                 break-inside: avoid;
                 page-break-inside: avoid;
                 orphans: 3;
