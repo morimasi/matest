@@ -149,7 +149,7 @@ ${quickFeedback ? '(Hızlı geri bildirim, ek yorum yok)' : feedbackText}
 Teşekkürler.
         `;
         
-        const mailtoLink = `mailto:${recipient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        const mailtoLink = `mailto:${recipient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body.trim())}`;
         
         window.location.href = mailtoLink;
         setFeedbackSent(true);
