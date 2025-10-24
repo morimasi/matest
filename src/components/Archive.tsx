@@ -65,10 +65,11 @@ const Archive: React.FC = () => {
   const handleDeleteTemplate = (kazanim: Kazanim, template: QuizTemplate) => {
     if (window.confirm(`Bu şablonu (${new Date(template.createdAt).toLocaleString('tr-TR')}) silmek istediğinizden emin misiniz?`)) {
         deleteQuizFromArchive(kazanim.id, template.id);
-        refreshUserArchive();
         
-        // Refresh the view
-        const updatedUserTemplates = (userArchive[kazanim.id]?.templates || []).filter(t => t.id !== template.id);
+        const updatedUserArchive = getArchivedQuizzes();
+        setUserArchive(updatedUserArchive);
+        
+        const updatedUserTemplates = (updatedUserArchive[kazanim.id]?.templates || []);
         const systemTemplates = ARCHIVE_DATA[kazanim.id]?.templates || [];
         const allTemplates = [...systemTemplates, ...updatedUserTemplates];
         
@@ -104,11 +105,10 @@ const Archive: React.FC = () => {
             
             updateArchivedQuiz(selectedKazanim.id, selectedTemplate.id, newQuestions);
             
-            // Update local state to show changes immediately
             const updatedTemplate = { ...selectedTemplate, questions: newQuestions };
             setSelectedTemplate(updatedTemplate);
-            refreshUserArchive();
             setTemplatesForSelectedKazanim(prev => prev.map(t => t.id === updatedTemplate.id ? updatedTemplate : t));
+            refreshUserArchive();
         } else {
              throw new Error("Yapay zeka yeni bir soru üretemedi.");
         }
@@ -140,7 +140,6 @@ const Archive: React.FC = () => {
             </div>
         )}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Sütun 1: Sınıflar */}
         <div className="space-y-2">
           <h3 className="font-semibold text-slate-700 border-b-2 border-purple-300 pb-2 mb-3">Sınıflar</h3>
           {CURRICULUM_DATA.map(grade => (
@@ -154,7 +153,6 @@ const Archive: React.FC = () => {
           ))}
         </div>
 
-        {/* Sütun 2: Üniteler */}
         <div className="space-y-2">
           <h3 className="font-semibold text-slate-700 border-b-2 border-blue-300 pb-2 mb-3">Üniteler</h3>
           {selectedGrade ? (
@@ -172,7 +170,6 @@ const Archive: React.FC = () => {
           )}
         </div>
         
-        {/* Sütun 3: Kazanımlar */}
         <div className="space-y-2">
            <h3 className="font-semibold text-slate-700 border-b-2 border-green-300 pb-2 mb-3">Kazanımlar</h3>
           {selectedUnit ? (

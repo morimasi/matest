@@ -2,9 +2,6 @@ import { ArchiveQuiz, DetailedQuestion } from '../types';
 import { createNumericOptions } from './helpers';
 
 export const ARCHIVE_DATA_GRADE_1: Record<string, ArchiveQuiz> = {
-  // =================================================================
-  // 1. SINIF
-  // =================================================================
   "M.1.1.1.1": {
     gradeName: "1. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Nesne sayısı 20’ye kadar (20 dâhil) olan bir topluluktaki nesnelerin sayısını belirler ve bu sayıyı rakamla yazar.",
     templates: [{ id: 'system-default-M.1.1.1.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
@@ -359,7 +356,15 @@ export const ARCHIVE_DATA_GRADE_1: Record<string, ArchiveQuiz> = {
         return {
           sinif: 1, unite_adi: "Veri İşleme", unite_no: 4, kazanim_kodu: "M.1.4.1.1", kazanim_metni: "En çok iki veri grubuna ait basit tabloları okur.",
           soru_tipi: 'coktan_secmeli',
-          soru_metni: `Bir çiftlikteki hayvanların sayısı tabloda gösterilmiştir.\n\n+----------+--------+\n| Hayvan   | Sayısı |\n+----------+--------+\n| İnek     |    ${inek}    |\n| Tavuk    |    ${tavuk}    |\n+----------+--------+\n\nTabloya göre çiftlikte kaç tane tavuk vardır?`,
+          soru_metni: `Bir çiftlikteki hayvanların sayısı tabloda gösterilmiştir. Tabloya göre çiftlikte kaç tane tavuk vardır?`,
+          grafik_verisi: {
+            tip: "siklik_tablosu",
+            baslik: "Çiftlikteki Hayvanlar",
+            veri: [
+              { etiket: "İnek", deger: inek },
+              { etiket: "Tavuk", deger: tavuk }
+            ]
+          },
           secenekler: options,
           dogru_cevap: correctAnswerKey,
           yanlis_secenek_tipleri: ["Diğer hayvanın sayısı", "Yakın sayı", "Yanlış satırı okuma"],

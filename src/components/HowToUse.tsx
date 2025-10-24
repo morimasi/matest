@@ -4,22 +4,23 @@ const guideSections = [
     {
         title: "1. Adım: Yeni Sınav Oluşturma",
         description: "Yapay zeka destekli sınav oluşturucu, MEB müfredatına uygun, özelleştirilebilir ve anında sınavlar hazırlamanızı sağlar.",
-        imageUrl: "https://placehold.co/600x400/e0e7ff/4338ca?text=Yeni+Sınav+Parametreleri",
+        imageUrl: "https://storage.googleapis.com/aistudio-bucket/1721832906596-0.png",
         steps: [
             "**Sınıf ve Ünite Seçimi:** Sınav hazırlamak istediğiniz sınıfı ve ilgili bir veya birden fazla üniteyi seçin.",
             "**Kazanım Filtreleme (İsteğe Bağlı):** Belirli kazanımlara odaklanmak isterseniz, ilgili kazanımları seçerek soruları daraltabilirsiniz. Seçim yapmazsanız, seçili ünitelerdeki tüm kazanımlardan sorular üretilir.",
             "**Soru Sayısı ve Tipi:** Sınavınızda yer alacak soru sayısını ve tipini (çoktan seçmeli, doğru/yanlış, boşluk doldurma) belirleyin.",
-            "**Gelişmiş Ayarlar:** 'Problem Tipi' ile soruların zorluk derecesini (kaç işlem gerektireceği), 'Grafik/Tablo Ekle' ile 'Veri İşleme' kazanımlarına özel metin tabanlı görseller eklenmesini sağlayabilirsiniz.",
+            "**Gelişmiş Ayarlar:** 'Problem Tipi' ile soruların zorluk derecesini (kaç işlem gerektireceği), 'Grafik/Tablo Ekle' ile 'Veri İşleme' kazanımlarına özel yapısal veriler eklenmesini sağlayabilirsiniz.",
             "**Ek Talimatlar:** Yapay zekaya özel direktifler vererek (örn: 'Sorular hayvanlarla ilgili olsun.') sınavınızı daha da kişiselleştirin.",
             "**Oluştur:** 'AI ile Sınav Oluştur' butonuna tıkladığınızda sınavınızın soru soru, gerçek zamanlı olarak oluşturulduğunu göreceksiniz."
         ]
     },
     {
-        title: "2. Adım: Sınavı Görüntüleme ve Özelleştirme",
-        description: "Oluşturulan sınavı anında görüntüleyebilir, yazdırma ayarlarını düzenleyebilir ve çeşitli formatlarda dışa aktarabilirsiniz.",
-        imageUrl: "https://placehold.co/600x400/dbeafe/1e40af?text=Gelişmiş+Görüntüleme+ve+Ayarlar",
+        title: "2. Adım: Sınavı Görüntüleme ve Düzenleme",
+        description: "Oluşturulan sınavı anında görüntüleyebilir, yazdırma ayarlarını düzenleyebilir ve hatta içeriğini doğrudan düzenleyebilirsiniz.",
+        imageUrl: "https://storage.googleapis.com/aistudio-bucket/1721832906596-1.png",
         steps: [
             "**Cevapları ve Notları Gösterme:** 'Cevapları Göster' ve 'Öğretmen Notları' seçenekleri ile çözüm anahtarlarını, kazanım bilgilerini ve pedagojik notları görüntüleyebilirsiniz.",
+            "**Anında Düzenleme:** Öğretmen notları açıkken, soru metni, seçenekler, cevaplar gibi alanlara **çift tıklayarak** metinleri anında düzenleyebilirsiniz. Değişiklikleriniz otomatik olarak kaydedilir.",
             "**Soru Yenileme (Remix):** Beğenmediğiniz bir soruyu, öğretmen notları açıkken yanında çıkan yenileme ikonuna tıklayarak yapay zekanın aynı kazanıma uygun yeni bir soru üretmesini sağlayabilirsiniz.",
             "**Yazdırma Ayarları:** 'Ayarlar' ikonuna tıklayarak yazı tipi (Disleksi dostu dahil), punto boyutu, sütun sayısı, sayfa stili gibi görsel ayarları zevkinize göre düzenleyebilirsiniz.",
             "**Dışa Aktarma ve Arşivleme:** Sınavınızı 'Yazdır', 'PDF Olarak İndir', 'Paylaş' butonları ile kolayca paylaşabilir veya 'Arşive Ekle' butonuyla kalıcı olarak saklayabilirsiniz."
@@ -28,7 +29,7 @@ const guideSections = [
     {
         title: "3. Adım: Geçmiş Sınavları Yönetme",
         description: "Daha önce oluşturduğunuz tüm sınavlar otomatik olarak 'Geçmiş' bölümüne kaydedilir. Bu bölüm, çalışmalarınızı organize etmenizi sağlar.",
-        imageUrl: "https://placehold.co/600x400/e0f2fe/0891b2?text=Geçmiş+ve+Organizasyon",
+        imageUrl: "https://storage.googleapis.com/aistudio-bucket/1721832906596-2.png",
         steps: [
             "**Kronolojik Sıralama:** Sınavlarınız 'Bugün', 'Dün', 'Bu Hafta' gibi zaman blokları halinde gruplanır, böylece aradığınızı kolayca bulursunuz.",
             "**Yeniden Adlandırma:** Her sınava, içeriğini daha iyi hatırlamanızı sağlayacak özel isimler verebilirsiniz.",
@@ -39,11 +40,11 @@ const guideSections = [
     {
         title: "4. Adım: Sınav Arşivinin Gücünü Keşfedin",
         description: "Arşiv, hem sistem tarafından sunulan hazır şablonları hem de sizin 'Geçmiş' bölümünden kaydettiklerinizi içeren kalıcı bir kütüphanedir.",
-        imageUrl: "https://placehold.co/600x400/f3e8ff/7e22ce?text=Kazanım+Bazlı+Sınav+Arşivi",
+        imageUrl: "https://storage.googleapis.com/aistudio-bucket/1721832906597-3.png",
         steps: [
             "**Filtreleme:** Sınıf, ünite ve kazanım seçerek aradığınız konudaki hazır sınav şablonlarına anında ulaşın.",
             "**Sistem ve Kişisel Şablonlar:** 'Sistem Şablonları' hazır ve değiştirilemezken, 'Kişisel Şablonlar' sizin arşivlediğiniz ve üzerinde değişiklik yapabileceğiniz sınavlardır.",
-            "**Kişisel Şablonları Düzenleme:** Kendi arşivlediğiniz sınavlardaki soruları, 'Soru Yenileme (Remix)' özelliği ile dilediğiniz gibi güncelleyebilirsiniz.",
+            "**Kişisel Şablonları Düzenleme:** Kendi arşivlediğiniz sınavlardaki soruları, anında düzenleme veya 'Soru Yenileme (Remix)' özelliği ile dilediğiniz gibi güncelleyebilirsiniz.",
             "**Görüntüleme ve Kullanma:** İstediğiniz şablonu seçerek içeriğini görüntüleyebilir, yazdırabilir veya PDF olarak indirebilirsiniz."
         ]
     }

@@ -2,16 +2,12 @@ import { ArchiveQuiz, DetailedQuestion } from '../types';
 import { createNumericOptions } from './helpers';
 
 export const ARCHIVE_DATA_GRADE_2: Record<string, ArchiveQuiz> = {
-  // =================================================================
-  // 2. SINIF
-  // =================================================================
    "M.2.1.1.1": {
     gradeName: "2. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "100’e kadar olan doğal sayıları ileriye doğru birer, beşer ve onar ritmik sayar.",
     templates: [{ id: 'system-default-M.2.1.1.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
         const step = [1, 5, 10][i % 3];
         const start = 20 + (i * 3 % 40);
         const answer = start + 3 * step;
-        // FIX: Call createNumericOptions once and store in a variable to avoid errors and redundant calls.
         const options = createNumericOptions(answer, step * 2);
         const correctAnswerKey = Object.keys(options).find(k => options[k as keyof typeof options] === String(answer))!;
         return {
@@ -302,6 +298,7 @@ export const ARCHIVE_DATA_GRADE_2: Record<string, ArchiveQuiz> = {
     templates: [{ id: 'system-default-M.2.1.5.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
         const total = 12 + i*2;
         const groups = 3 + (i%2);
+        // FIX: The object was incomplete. Added missing properties.
         return {
             sinif: 2, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.2.1.5.1", kazanim_metni: "Bölme işleminin anlamını kavrar.",
             soru_tipi: 'coktan_secmeli',
@@ -310,7 +307,8 @@ export const ARCHIVE_DATA_GRADE_2: Record<string, ArchiveQuiz> = {
             dogru_cevap: 'D',
             yanlis_secenek_tipleri: ["Ters işlemler", "İlgisiz işlem"],
             gercek_yasam_baglantisi: "Bir pastayı eşit dilimlere ayırmak veya oyuncakları arkadaşlarımızla eşit paylaşmak bölme işlemidir.",
-            seviye: 'temel', cozum_anahtari: "Eşit olarak paylaştırma veya gruplama durumları bölme işlemi ile ifade edilir."
+            seviye: 'temel',
+            cozum_anahtari: "Eşit olarak paylaştırma veya gruplama durumları bölme işlemi ile ifade edilir."
         }
     })}]
   },

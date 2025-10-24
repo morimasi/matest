@@ -10,18 +10,15 @@ export const createNumericOptions = (correctAnswer: number, range = 5, count = 4
     let newOption = correctAnswer + (randomFactor * step * (options.length)); // Vary the distance
     if (newOption < 0) newOption = correctAnswer + options.length; // Avoid negative numbers for simple cases
     
-    // Final check for uniqueness and non-negativity and not being too close
     const uniqueAndNotTooClose = !options.includes(newOption) && newOption >= 0 && Math.abs(newOption - correctAnswer) > 0;
     
     if (uniqueAndNotTooClose) {
       options.push(newOption);
     } else {
-       // If a duplicate is generated, try a slightly different value
        options.push(correctAnswer + options.length + (Math.floor(Math.random() * 3) + 1));
     }
   }
 
-  // Final check for uniqueness before returning
   const uniqueOptions = [...new Set(options)];
   while(uniqueOptions.length < count) {
     uniqueOptions.push(correctAnswer + 10 + uniqueOptions.length);

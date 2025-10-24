@@ -102,8 +102,6 @@ export const saveQuizToArchive = (quiz: SavedQuiz): void => {
         };
 
         if (currentArchive[kazanimCode]) {
-          // FIX: Defensively ensure the templates array exists before pushing to it.
-          // This prevents a crash if the stored archive entry is malformed.
           if (!Array.isArray(currentArchive[kazanimCode].templates)) {
             currentArchive[kazanimCode].templates = [];
           }

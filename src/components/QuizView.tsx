@@ -1,5 +1,6 @@
 
 
+
 import React, { useRef, useState, useEffect } from 'react';
 import { DetailedQuestion, ChartData } from '../types';
 import { DownloadIcon, PrintIcon, ShareIcon, SparklesIcon, SettingsIcon, CopyIcon, CheckIcon, RefreshCwIcon, ArchiveAddIcon } from './icons';
@@ -261,7 +262,6 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
 
     const { questionIndex, field, optionKey, dataIndex } = editingTarget;
     
-    // Deep copy to avoid mutation
     const newQuestions: DetailedQuestion[] = JSON.parse(JSON.stringify(questions));
     const questionToUpdate = newQuestions[questionIndex];
 
@@ -307,7 +307,8 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
   
   if (!questions || questions.length === 0) return null;
 
-  const isEditingCheck = (questionIndex: number, field: EditingTarget['field'], optionKey?: string, dataIndex?: number) => {
+  // FIX: Make the type of `optionKey` more specific to avoid type errors.
+  const isEditingCheck = (questionIndex: number, field: EditingTarget['field'], optionKey?: 'A' | 'B' | 'C' | 'D', dataIndex?: number) => {
     return editingTarget?.questionIndex === questionIndex &&
            editingTarget?.field === field &&
            editingTarget?.optionKey === optionKey &&
@@ -326,24 +327,22 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
 
     const quizElement = quizRef.current;
     
-    // Temporarily apply styles for better PDF capture
     const originalStyles = {
         columnCount: quizElement.style.columnCount,
         width: quizElement.style.width,
         boxShadow: quizElement.style.boxShadow,
     };
-    // Force single column for consistent, multi-page layout
     quizElement.style.columnCount = '1';
-    quizElement.style.width = '800px'; // A fixed width can help with consistency
+    quizElement.style.width = '800px'; 
     quizElement.style.boxShadow = 'none';
     
     try {
         const canvas = await html2canvas(quizElement, {
-            scale: 2.5, // Higher resolution for crisp text
+            scale: 2.5, 
             useCORS: true,
             windowWidth: quizElement.scrollWidth,
             windowHeight: quizElement.scrollHeight,
-            backgroundColor: null, // Use element's background
+            backgroundColor: null, 
         });
 
         const imgData = canvas.toDataURL('image/png');
@@ -382,7 +381,6 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
         console.error("Error generating PDF:", error);
         alert("PDF oluşturulurken bir hata oluştu.");
     } finally {
-        // Restore original styles
         quizElement.style.columnCount = originalStyles.columnCount;
         quizElement.style.width = originalStyles.width;
         quizElement.style.boxShadow = originalStyles.boxShadow;
@@ -669,7 +667,8 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                          <strong className="text-sm text-blue-700">Doğru Cevap: </strong>
                          {isEditingCheck(index, 'dogru_cevap') ? (
                            <select value={editingValue} onChange={(e) => {setEditingValue(e.target.value);}} onBlur={handleSaveChanges} onKeyDown={handleKeyDown} className="p-1 bg-yellow-100/50 border border-blue-400 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" autoFocus>
-                                {q.secenekler && Object.keys(q.secenekler).map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                                {/* FIX: Cast Object.keys to a more specific type to resolve TypeScript error. */}
+                                {q.secenekler && (Object.keys(q.secenekler) as Array<keyof typeof q.secenekler>).map(opt => <option key={opt} value={opt}>{opt}</option>)}
                                 {q.soru_tipi === 'dogru_yanlis' && <> <option value="Doğru">Doğru</option> <option value="Yanlış">Yanlış</option> </>}
                            </select>
                          ) : (

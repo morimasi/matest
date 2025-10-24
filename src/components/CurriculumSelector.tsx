@@ -78,7 +78,6 @@ const CurriculumSelector: React.FC<CurriculumSelectorProps> = ({
       : [...selectedUnits, unitId];
     setSelectedUnits(newSelectedUnits);
     
-    // Deselect kazanims that are not in the newly selected units
     const currentGradeData = curriculumData.find(g => g.id === selectedGrade);
     const allowedKazanimIds = currentGradeData?.units
         .filter(u => newSelectedUnits.includes(u.id))
@@ -116,7 +115,6 @@ const CurriculumSelector: React.FC<CurriculumSelectorProps> = ({
       <h2 className="text-xl font-bold text-slate-800 mb-6 text-center">Sınav Parametreleri</h2>
       <div className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Sınıf Seçimi */}
           <div>
             <label htmlFor="grade-select" className="block text-sm font-medium text-slate-600 mb-1">Sınıf</label>
             <select
@@ -132,7 +130,6 @@ const CurriculumSelector: React.FC<CurriculumSelectorProps> = ({
             </select>
           </div>
 
-          {/* Ünite Seçimi */}
           <div className="relative" ref={unitSelectorRef}>
              <label htmlFor="unit-select" className="block text-sm font-medium text-slate-600 mb-1">Ünite(ler)</label>
               <button
@@ -165,7 +162,6 @@ const CurriculumSelector: React.FC<CurriculumSelectorProps> = ({
                 )}
           </div>
 
-          {/* Kazanım Seçimi */}
           <div className="relative" ref={kazanimSelectorRef}>
             <label htmlFor="kazanim-select" className="block text-sm font-medium text-slate-600 mb-1">Kazanım(lar) (İsteğe Bağlı)</label>
             <button
@@ -204,7 +200,6 @@ const CurriculumSelector: React.FC<CurriculumSelectorProps> = ({
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Soru Sayısı Seçimi */}
           <div>
             <label htmlFor="question-count-select" className="block text-sm font-medium text-slate-600 mb-1">Soru Sayısı</label>
             <select
@@ -231,7 +226,6 @@ const CurriculumSelector: React.FC<CurriculumSelectorProps> = ({
             </select>
           </div>
 
-           {/* Soru Tipi Seçimi */}
           <div>
             <label htmlFor="question-type-select" className="block text-sm font-medium text-slate-600 mb-1">Soru Tipi</label>
             <select
@@ -246,7 +240,6 @@ const CurriculumSelector: React.FC<CurriculumSelectorProps> = ({
             </select>
           </div>
 
-          {/* İşlem Sayısı Seçimi */}
           <div>
             <label htmlFor="operation-count-select" className="block text-sm font-medium text-slate-600 mb-1">Problem Tipi</label>
             <select
@@ -267,7 +260,7 @@ const CurriculumSelector: React.FC<CurriculumSelectorProps> = ({
                 <label className="p-3 flex items-center justify-between bg-white/60 border border-slate-300/50 rounded-md shadow-sm cursor-pointer hover:bg-white/80 transition-all duration-300">
                     <div>
                         <span className="font-semibold text-slate-700">Grafik/Tablo Ekle</span>
-                        <p className="text-xs text-slate-500 mt-1 pr-4">"Veri İşleme" kazanımları için sorulara metin tabanlı grafikler (çetele, sıklık vb.) ekler.</p>
+                        <p className="text-xs text-slate-500 mt-1 pr-4">"Veri İşleme" kazanımları için sorulara yapısal grafik verileri ekler.</p>
                     </div>
                     <input
                         type="checkbox"

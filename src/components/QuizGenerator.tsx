@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import CurriculumSelector from './CurriculumSelector';
 import QuizView from './QuizView';
 import { CURRICULUM_DATA } from '../constants';
-import { generateQuizStream } from '../services/geminiService';
+import { generateQuizStream, generateSingleQuestion } from '../services/geminiService';
 import { saveQuiz as saveQuizToStorage, saveQuizToArchive, updateQuiz } from '../services/storageService';
 import { SavedQuiz, QuestionType, DetailedQuestion } from '../types';
 
@@ -41,7 +41,6 @@ const QuizGenerator: React.FC = () => {
     const [includeCharts, setIncludeCharts] = usePersistentState<boolean>('qg_includeCharts', false);
     const [numOperations, setNumOperations] = usePersistentState<number>('qg_numOperations', 0);
 
-
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     
@@ -52,6 +51,7 @@ const QuizGenerator: React.FC = () => {
     const [feedbackSent, setFeedbackSent] = useState(false);
     const [feedbackText, setFeedbackText] = useState('');
     const [isArchived, setIsArchived] = useState(false);
+    const [remixingIndex, setRemixingIndex] = useState<number | null>(null);
 
 
     const handleGenerateQuiz = async () => {
@@ -163,6 +163,38 @@ Teşekkürler.
         updateQuiz(generatedQuiz.id, updatedQuestions);
     };
     
+    const handleRemixQuestion = async (questionIndex: number) => {
+        const quiz = generatedQuiz;
+        if (!quiz) return;
+        setRemixingIndex(questionIndex);
+        setError(null);
+
+        try {
+            const oldQuestion = quiz.questions[questionIndex];
+            const gradeData = CURRICULUM_DATA.find(g => g.name === quiz.gradeName);
+            const unitData = gradeData?.units.find(u => u.name === oldQuestion.unite_adi);
+            const kazanimData = unitData?.kazanimlar.find(k => k.id === oldQuestion.kazanim_kodu);
+
+            if (!gradeData || !unitData || !kazanimData) {
+                throw new Error("Soru için müfredat verisi bulunamadı.");
+            }
+
+            const newQuestion = await generateSingleQuestion(gradeData.name, unitData.name, kazanimData, oldQuestion.soru_tipi, oldQuestion.soru_metni);
+
+            if (newQuestion) {
+                const newQuestions = [...quiz.questions];
+                newQuestions[questionIndex] = newQuestion;
+                handleUpdateQuiz(newQuestions);
+            } else {
+                 throw new Error("Yapay zeka yeni bir soru üretemedi.");
+            }
+        } catch (err: any) {
+            setError(err.message || "Soru yenilenirken bir hata oluştu.");
+        } finally {
+            setRemixingIndex(null);
+        }
+    };
+
     const hasQuizToShow = questionsForView.length > 0 || generatedQuiz;
 
     return (
@@ -211,6 +243,8 @@ Teşekkürler.
                         onArchive={generatedQuiz ? handleArchiveQuiz : undefined}
                         isArchived={isArchived}
                         onUpdateQuiz={handleUpdateQuiz}
+                        onRemixQuestion={handleRemixQuestion}
+                        remixingIndex={remixingIndex}
                     />
                     
                     {generatedQuiz && (

@@ -12,7 +12,6 @@ const HistoryList: React.FC = () => {
     const [history, setHistory] = useState<SavedQuiz[]>([]);
     const [archivedStatus, setArchivedStatus] = useState<Record<string, boolean>>({});
     
-    // State for renaming
     const [editingQuizId, setEditingQuizId] = useState<string | null>(null);
     const [editingName, setEditingName] = useState('');
 
@@ -38,7 +37,6 @@ const HistoryList: React.FC = () => {
         yesterday.setDate(today.getDate() - 1);
         
         const dayOfWeek = today.getDay();
-        // JS getDay() is Sun=0, Mon=1... For Turkey, week starts on Monday.
         const dayDiff = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
         
         const startOfWeek = new Date(today);
@@ -65,7 +63,6 @@ const HistoryList: React.FC = () => {
             }
         });
 
-        // Filter out empty groups
         return Object.fromEntries(Object.entries(groups).filter(([, quizzes]) => quizzes.length > 0));
 
     }, [history]);
@@ -127,7 +124,6 @@ const HistoryList: React.FC = () => {
                     <div key={groupName}>
                         <h3 className="text-lg font-semibold text-slate-600 mb-3 border-b border-slate-300/70 pb-2">{groupName}</h3>
                         <div className="space-y-4">
-                           {/* FIX: Cast `quizzes` to `SavedQuiz[]` to resolve TypeScript error on `.map`. */}
                            {(quizzes as SavedQuiz[]).map((quiz) => {
                                 const firstQuestion = quiz.questions[0];
                                 const quizTitle = quiz.customName || `${quiz.gradeName} - ${firstQuestion.unite_adi}`;
