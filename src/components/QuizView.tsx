@@ -2,7 +2,7 @@
 
 import React, { useRef, useState, useEffect } from 'react';
 import { DetailedQuestion } from '../types';
-import { DownloadIcon, PrintIcon, ShareIcon, SparklesIcon, SettingsIcon, CopyIcon, CheckIcon, RefreshCwIcon, EditIcon } from './icons';
+import { DownloadIcon, PrintIcon, ShareIcon, SparklesIcon, SettingsIcon, CopyIcon, CheckIcon, RefreshCwIcon, EditIcon, XIcon } from './icons';
 
 
 interface QuizViewProps {
@@ -241,7 +241,7 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
   const quizContentStyle: React.CSSProperties & { [key: `--${string}`]: string | number } = {
     '--text-color': settings.textColor,
     '--line-height': `${settings.fontSize * 1.6}pt`,
-    '--bg-color': 'white',
+    '--bg-color': 'white', // Sınav kağıdı her zaman beyaz
     '--column-count': settings.columns,
     '--column-gap': '2rem',
     fontFamily: settings.fontFamily,
@@ -256,356 +256,369 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
 
 
   return (
-    <div className="bg-white/50 backdrop-blur-xl p-6 sm:p-8 rounded-3xl shadow-2xl border border-white/50 mt-8 printable-area">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 print:hidden non-printable">
-        <div>
-            <h2 className="text-2xl font-bold text-slate-800">Oluşturulan Sınav</h2>
-            <p className="text-slate-500 max-w-md">{`${grade} | ${uniqueUnitNames} | ${uniqueKazanimCodes}`}</p>
-        </div>
-        <div className="flex items-center gap-2 flex-wrap">
-          <button onClick={handlePrint} title="Yazdır" className="p-2 rounded-full hover:bg-black/10 transition-all duration-300"><PrintIcon className="w-6 h-6 text-slate-600" /></button>
-          <button onClick={handleDownloadPdf} disabled={isDownloading} title="PDF Olarak İndir" className="p-2 rounded-full hover:bg-black/10 transition-all duration-300 disabled:opacity-50">
-            {isDownloading ? (
-                <svg className="animate-spin h-6 w-6 text-slate-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-            ) : (
-                <DownloadIcon className="w-6 h-6 text-slate-600" />
-            )}
+    <>
+      <div className={`fixed top-0 right-0 h-full z-50 non-printable`}>
+          <button 
+              onClick={() => setIsSettingsOpen(!isSettingsOpen)} 
+              title="Yazdırma Ayarları" 
+              className={`absolute top-1/2 -translate-y-1/2 transition-all duration-300 ease-in-out ${isSettingsOpen ? 'right-80' : 'right-0'} bg-[--bg-component-solid] p-3 rounded-l-full shadow-lg border-y border-l border-[--border-color]`}
+          >
+              <SettingsIcon className="w-6 h-6 text-[--text-accent] animate-spin-slow" />
           </button>
-          <button onClick={handleShare} title="Paylaş" className="p-2 rounded-full hover:bg-black/10 transition-all duration-300"><ShareIcon className="w-6 h-6 text-slate-600" /></button>
-          <button onClick={handleCopyLink} title="Bağlantıyı Kopyala" className="p-2 rounded-full hover:bg-black/10 transition-all duration-300">
-             {copyStatus === 'copied' ? <CheckIcon className="w-6 h-6 text-green-600" /> : <CopyIcon className="w-6 h-6 text-slate-600" />}
-          </button>
-           {onUpdateQuiz && (
-              <button onClick={handleToggleEdit} title={isEditing ? "Değişiklikleri Kaydet" : "Sınavı Düzenle"} className="p-2 rounded-full hover:bg-black/10 transition-all duration-300">
-                {isEditing ? <CheckIcon className="w-6 h-6 text-green-600" /> : <EditIcon className="w-6 h-6 text-slate-600" />}
-              </button>
-            )}
-          <div className="relative">
-             <button onClick={() => setIsSettingsOpen(!isSettingsOpen)} title="Yazdırma Ayarları" className="p-2 rounded-full hover:bg-black/10 transition-all duration-300">
-                <SettingsIcon className="w-6 h-6 text-slate-600" />
-            </button>
-            {isSettingsOpen && (
-                <div className="absolute right-0 top-full mt-2 w-80 bg-white/80 backdrop-blur-lg p-4 rounded-2xl shadow-2xl border border-white/50 z-10">
-                    <h4 className="font-bold text-slate-700 mb-4 text-center">Yazdırma ve Görünüm Ayarları</h4>
-                    <div className="space-y-4">
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-xs font-medium text-slate-600 mb-1">Font Ailesi</label>
-                                <select value={settings.fontFamily} onChange={e => setSettings({...settings, fontFamily: e.target.value})} className="w-full p-1.5 text-sm bg-white/60 border border-slate-300/50 rounded-md shadow-sm focus:ring-1 focus:ring-purple-500">
-                                    <option value="'Inter', sans-serif">Standart (Inter)</option>
-                                    <option value="'OpenDyslexic', sans-serif">Disleksi Dostu</option>
-                                    <option value="'Comic Neue', cursive">Comic Neue</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-xs font-medium text-slate-600 mb-1">Yazı Tipi Boyutu</label>
-                                <select value={settings.fontSize} onChange={e => setSettings({...settings, fontSize: parseInt(e.target.value)})} className="w-full p-1.5 text-sm bg-white/60 border border-slate-300/50 rounded-md shadow-sm focus:ring-1 focus:ring-purple-500">
-                                    {[8, 9, 10, 11, 12, 13, 14, 16, 18, 20].map(size => <option key={size} value={size}>{size}pt</option>)}
-                                </select>
-                            </div>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-xs font-medium text-slate-600 mb-1">Sütun</label>
-                                <select value={settings.columns} onChange={e => setSettings({...settings, columns: parseInt(e.target.value)})} className="w-full p-1.5 text-sm bg-white/60 border border-slate-300/50 rounded-md shadow-sm focus:ring-1 focus:ring-purple-500">
-                                    <option value="1">Tek Sütun</option>
-                                    <option value="2">İki Sütun</option>
-                                    <option value="3">Üç Sütun</option>
-                                    <option value="4">Dört Sütun</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-xs font-medium text-slate-600 mb-1">Hizalama</label>
-                                <select value={settings.textAlign} onChange={e => setSettings({...settings, textAlign: e.target.value})} className="w-full p-1.5 text-sm bg-white/60 border border-slate-300/50 rounded-md shadow-sm focus:ring-1 focus:ring-purple-500">
-                                    <option value="left">Sola Dayalı</option>
-                                    <option value="center">Ortalanmış</option>
-                                    <option value="right">Sağa Dayalı</option>
-                                </select>
-                            </div>
-                        </div>
+          
+          <div className={`h-full w-80 bg-[--bg-component] backdrop-blur-xl shadow-2xl border-l border-[--border-color] transition-transform duration-300 transform ${isSettingsOpen ? 'translate-x-0' : 'translate-x-full'} overflow-y-auto`}>
+              <div className="p-4">
+                  <div className="flex justify-between items-center mb-4">
+                      <h4 className="font-bold text-[--text-primary]">Yazdırma Ayarları</h4>
+                      <button onClick={() => setIsSettingsOpen(false)} className="p-1 rounded-full hover:bg-[--bg-interactive-muted]">
+                          <XIcon className="w-5 h-5 text-[--text-secondary]" />
+                      </button>
+                  </div>
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-xs font-medium text-slate-600 mb-1">Soru Aralığı ({settings.questionSpacing}pt)</label>
-                            <input type="range" min="12" max="64" step="4" value={settings.questionSpacing} onChange={e => setSettings({...settings, questionSpacing: parseInt(e.target.value)})} className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer"/>
-                        </div>
-                         <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-xs font-medium text-slate-600 mb-1">Üst Boşluk (cm)</label>
-                                <input type="number" min="0" max="5" step="0.5" value={settings.pageMarginTop} onChange={e => setSettings({...settings, pageMarginTop: parseFloat(e.target.value)})} className="w-full p-1.5 text-sm bg-white/60 border border-slate-300/50 rounded-md shadow-sm focus:ring-1 focus:ring-purple-500"/>
-                            </div>
-                            <div>
-                                <label className="block text-xs font-medium text-slate-600 mb-1">Alt Boşluk (cm)</label>
-                                <input type="number" min="0" max="5" step="0.5" value={settings.pageMarginBottom} onChange={e => setSettings({...settings, pageMarginBottom: parseFloat(e.target.value)})} className="w-full p-1.5 text-sm bg-white/60 border border-slate-300/50 rounded-md shadow-sm focus:ring-1 focus:ring-purple-500"/>
-                            </div>
-                        </div>
-                         <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-xs font-medium text-slate-600 mb-1">Sol Boşluk (cm)</label>
-                                <input type="number" min="0" max="5" step="0.5" value={settings.pageMarginLeft} onChange={e => setSettings({...settings, pageMarginLeft: parseFloat(e.target.value)})} className="w-full p-1.5 text-sm bg-white/60 border border-slate-300/50 rounded-md shadow-sm focus:ring-1 focus:ring-purple-500"/>
-                            </div>
-                            <div>
-                                <label className="block text-xs font-medium text-slate-600 mb-1">Sağ Boşluk (cm)</label>
-                                <input type="number" min="0" max="5" step="0.5" value={settings.pageMarginRight} onChange={e => setSettings({...settings, pageMarginRight: parseFloat(e.target.value)})} className="w-full p-1.5 text-sm bg-white/60 border border-slate-300/50 rounded-md shadow-sm focus:ring-1 focus:ring-purple-500"/>
-                            </div>
-                        </div>
-                         <div>
-                            <label className="block text-xs font-medium text-slate-600 mb-1">Sayfa Stili</label>
-                            <select value={settings.pageStyle} onChange={e => setSettings({...settings, pageStyle: e.target.value})} className="w-full p-1.5 text-sm bg-white/60 border border-slate-300/50 rounded-md shadow-sm focus:ring-1 focus:ring-purple-500">
-                                <option value="normal">Standart</option>
-                                <option value="notebook">Defter Stili</option>
-                                <option value="kareli">Kareli</option>
-                                <option value="noktali">Noktalı</option>
+                            <label className="block text-xs font-medium text-[--text-secondary] mb-1">Font Ailesi</label>
+                            <select value={settings.fontFamily} onChange={e => setSettings({...settings, fontFamily: e.target.value})} className="w-full p-1.5 text-sm bg-[--bg-component-hover] border border-[--border-muted] rounded-md shadow-sm focus:ring-1 focus:ring-purple-500 text-[--text-primary]">
+                                <option value="'Inter', sans-serif">Standart (Inter)</option>
+                                <option value="'OpenDyslexic', sans-serif">Disleksi Dostu</option>
+                                <option value="'Comic Neue', cursive">Comic Neue</option>
                             </select>
                         </div>
-                        <div className="flex items-center justify-between">
-                            <label className="text-sm font-medium text-slate-600">Sayfa Kenarlığı</label>
-                            <input type="checkbox" checked={settings.showBorder} onChange={e => setSettings({...settings, showBorder: e.target.checked})} className="toggle-checkbox" />
-                        </div>
-                        <div className="flex items-center justify-between">
-                            <label className="text-sm font-medium text-slate-600">Metin Rengi</label>
-                            <input type="color" value={settings.textColor} onChange={e => setSettings({...settings, textColor: e.target.value})} className="w-8 h-8 p-0 border-none rounded-md cursor-pointer" />
+                        <div>
+                            <label className="block text-xs font-medium text-[--text-secondary] mb-1">Yazı Tipi Boyutu</label>
+                            <select value={settings.fontSize} onChange={e => setSettings({...settings, fontSize: parseInt(e.target.value)})} className="w-full p-1.5 text-sm bg-[--bg-component-hover] border border-[--border-muted] rounded-md shadow-sm focus:ring-1 focus:ring-purple-500 text-[--text-primary]">
+                                {[8, 9, 10, 11, 12, 13, 14, 16, 18, 20].map(size => <option key={size} value={size}>{size}pt</option>)}
+                            </select>
                         </div>
                     </div>
-                </div>
-            )}
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-xs font-medium text-[--text-secondary] mb-1">Sütun</label>
+                            <select value={settings.columns} onChange={e => setSettings({...settings, columns: parseInt(e.target.value)})} className="w-full p-1.5 text-sm bg-[--bg-component-hover] border border-[--border-muted] rounded-md shadow-sm focus:ring-1 focus:ring-purple-500 text-[--text-primary]">
+                                <option value="1">Tek Sütun</option>
+                                <option value="2">İki Sütun</option>
+                                <option value="3">Üç Sütun</option>
+                                <option value="4">Dört Sütun</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-xs font-medium text-[--text-secondary] mb-1">Hizalama</label>
+                            <select value={settings.textAlign} onChange={e => setSettings({...settings, textAlign: e.target.value})} className="w-full p-1.5 text-sm bg-[--bg-component-hover] border border-[--border-muted] rounded-md shadow-sm focus:ring-1 focus:ring-purple-500 text-[--text-primary]">
+                                <option value="left">Sola Dayalı</option>
+                                <option value="center">Ortalanmış</option>
+                                <option value="right">Sağa Dayalı</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label className="block text-xs font-medium text-[--text-secondary] mb-1">Soru Aralığı ({settings.questionSpacing}pt)</label>
+                        <input type="range" min="12" max="64" step="4" value={settings.questionSpacing} onChange={e => setSettings({...settings, questionSpacing: parseInt(e.target.value)})} className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer"/>
+                    </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-xs font-medium text-[--text-secondary] mb-1">Üst Boşluk (cm)</label>
+                            <input type="number" min="0" max="5" step="0.5" value={settings.pageMarginTop} onChange={e => setSettings({...settings, pageMarginTop: parseFloat(e.target.value)})} className="w-full p-1.5 text-sm bg-[--bg-component-hover] border border-[--border-muted] rounded-md shadow-sm focus:ring-1 focus:ring-purple-500 text-[--text-primary]"/>
+                        </div>
+                        <div>
+                            <label className="block text-xs font-medium text-[--text-secondary] mb-1">Alt Boşluk (cm)</label>
+                            <input type="number" min="0" max="5" step="0.5" value={settings.pageMarginBottom} onChange={e => setSettings({...settings, pageMarginBottom: parseFloat(e.target.value)})} className="w-full p-1.5 text-sm bg-[--bg-component-hover] border border-[--border-muted] rounded-md shadow-sm focus:ring-1 focus:ring-purple-500 text-[--text-primary]"/>
+                        </div>
+                    </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-xs font-medium text-[--text-secondary] mb-1">Sol Boşluk (cm)</label>
+                            <input type="number" min="0" max="5" step="0.5" value={settings.pageMarginLeft} onChange={e => setSettings({...settings, pageMarginLeft: parseFloat(e.target.value)})} className="w-full p-1.5 text-sm bg-[--bg-component-hover] border border-[--border-muted] rounded-md shadow-sm focus:ring-1 focus:ring-purple-500 text-[--text-primary]"/>
+                        </div>
+                        <div>
+                            <label className="block text-xs font-medium text-[--text-secondary] mb-1">Sağ Boşluk (cm)</label>
+                            <input type="number" min="0" max="5" step="0.5" value={settings.pageMarginRight} onChange={e => setSettings({...settings, pageMarginRight: parseFloat(e.target.value)})} className="w-full p-1.5 text-sm bg-[--bg-component-hover] border border-[--border-muted] rounded-md shadow-sm focus:ring-1 focus:ring-purple-500 text-[--text-primary]"/>
+                        </div>
+                    </div>
+                      <div>
+                        <label className="block text-xs font-medium text-[--text-secondary] mb-1">Sayfa Stili</label>
+                        <select value={settings.pageStyle} onChange={e => setSettings({...settings, pageStyle: e.target.value})} className="w-full p-1.5 text-sm bg-[--bg-component-hover] border border-[--border-muted] rounded-md shadow-sm focus:ring-1 focus:ring-purple-500 text-[--text-primary]">
+                            <option value="normal">Standart</option>
+                            <option value="notebook">Defter Stili</option>
+                            <option value="kareli">Kareli</option>
+                            <option value="noktali">Noktalı</option>
+                        </select>
+                    </div>
+                    <div className="flex items-center justify-between">
+                        <label className="text-sm font-medium text-[--text-secondary]">Sayfa Kenarlığı</label>
+                        <input type="checkbox" checked={settings.showBorder} onChange={e => setSettings({...settings, showBorder: e.target.checked})} className="toggle-checkbox" />
+                    </div>
+                    <div className="flex items-center justify-between">
+                        <label className="text-sm font-medium text-[--text-secondary]">Metin Rengi</label>
+                        <input type="color" value={settings.textColor} onChange={e => setSettings({...settings, textColor: e.target.value})} className="w-8 h-8 p-0 border-none rounded-md cursor-pointer bg-transparent" />
+                    </div>
+                  </div>
+              </div>
           </div>
-          <div className="flex items-center gap-4 ml-4 border-l border-slate-300/70 pl-4">
-            <label className="flex items-center cursor-pointer">
-              <span className="mr-2 text-sm font-medium text-slate-700">Cevapları Göster</span>
-              <input type="checkbox" checked={showAnswers} onChange={() => setShowAnswers(!showAnswers)} className="toggle-checkbox" />
-            </label>
-             {showAnswers && (
+      </div>
+      <div className="bg-[--bg-component] backdrop-blur-xl p-6 sm:p-8 rounded-3xl shadow-2xl border border-[--border-color] mt-8 printable-area">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 print:hidden non-printable">
+          <div>
+              <h2 className="text-2xl font-bold text-[--text-primary]">Oluşturulan Sınav</h2>
+              <p className="text-[--text-secondary] max-w-md">{`${grade} | ${uniqueUnitNames} | ${uniqueKazanimCodes}`}</p>
+          </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <button onClick={handlePrint} title="Yazdır" className="p-2 rounded-full hover:bg-[--bg-interactive-muted] transition-all duration-300"><PrintIcon className="w-6 h-6 text-[--text-secondary]" /></button>
+            <button onClick={handleDownloadPdf} disabled={isDownloading} title="PDF Olarak İndir" className="p-2 rounded-full hover:bg-[--bg-interactive-muted] transition-all duration-300 disabled:opacity-50">
+              {isDownloading ? (
+                  <svg className="animate-spin h-6 w-6 text-[--text-secondary]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+              ) : (
+                  <DownloadIcon className="w-6 h-6 text-[--text-secondary]" />
+              )}
+            </button>
+            <button onClick={handleShare} title="Paylaş" className="p-2 rounded-full hover:bg-[--bg-interactive-muted] transition-all duration-300"><ShareIcon className="w-6 h-6 text-[--text-secondary]" /></button>
+            <button onClick={handleCopyLink} title="Bağlantıyı Kopyala" className="p-2 rounded-full hover:bg-[--bg-interactive-muted] transition-all duration-300">
+              {copyStatus === 'copied' ? <CheckIcon className="w-6 h-6 text-green-600" /> : <CopyIcon className="w-6 h-6 text-[--text-secondary]" />}
+            </button>
+            {onUpdateQuiz && (
+                <button onClick={handleToggleEdit} title={isEditing ? "Değişiklikleri Kaydet" : "Sınavı Düzenle"} className="p-2 rounded-full hover:bg-[--bg-interactive-muted] transition-all duration-300">
+                  {isEditing ? <CheckIcon className="w-6 h-6 text-green-600" /> : <EditIcon className="w-6 h-6 text-[--text-secondary]" />}
+                </button>
+              )}
+
+            <div className="flex items-center gap-4 ml-4 border-l border-[--border-muted] pl-4">
               <label className="flex items-center cursor-pointer">
-                <span className="mr-2 text-sm font-medium text-slate-700">Öğretmen Notları</span>
-                <input type="checkbox" checked={isTeacherView} onChange={() => setIsTeacherView(!isTeacherView)} className="toggle-checkbox" />
+                <span className="mr-2 text-sm font-medium text-[--text-secondary]">Cevapları Göster</span>
+                <input type="checkbox" checked={showAnswers} onChange={() => setShowAnswers(!showAnswers)} className="toggle-checkbox" />
               </label>
-            )}
+              {showAnswers && (
+                <label className="flex items-center cursor-pointer">
+                  <span className="mr-2 text-sm font-medium text-[--text-secondary]">Öğretmen Notları</span>
+                  <input type="checkbox" checked={isTeacherView} onChange={() => setIsTeacherView(!isTeacherView)} className="toggle-checkbox" />
+                </label>
+              )}
+            </div>
           </div>
         </div>
-      </div>
-      
-      <div className="bg-slate-200/70 p-4 sm:p-8 rounded-b-2xl non-printable-bg">
-        <div id="quiz-paper" ref={quizRef} style={quizContentStyle} className={`quiz-paper ${settings.showBorder ? 'bordered' : ''} ${settings.pageStyle}`}>
-            <header className="text-center mb-8">
-                <h1 className="text-xl font-bold">Matematik Değerlendirme</h1>
-                <p className="text-sm opacity-80">{`${grade} / Ünite(ler): ${uniqueUnitNames}`}</p>
-                <p className="text-sm opacity-70 mt-1"><strong>Kazanım(lar):</strong> {uniqueKazanimCodes}</p>
-                <div className="grid grid-cols-3 gap-4 mt-6 border-t border-b py-2 text-left">
-                    <p><strong>Adı Soyadı:</strong> ....................................</p>
-                    <p><strong>Tarih:</strong> ..... / ..... / ..........</p>
-                    <p><strong>Puan:</strong> ............</p>
-                </div>
-            </header>
-
-            <div className="flex flex-col" style={{ gap: `${settings.questionSpacing}pt` }}>
-            {currentQuestions.map((q, index) => (
-                <div key={index} className="text-slate-800 break-inside-avoid relative">
-                  <div className="flex justify-between items-start gap-2">
-                      <div className="flex-1 flex items-start">
-                        <span className="font-semibold mr-2">{`${index + 1}. `}</span>
-                        <p 
-                            className={`flex-1 whitespace-pre-wrap ${isEditing ? 'editable-field' : ''}`}
-                            contentEditable={isEditing}
-                            suppressContentEditableWarning={true}
-                            onBlur={(e) => handleContentUpdate(e, index, ['soru_metni'])}
-                        >
-                          {q.soru_metni}
-                        </p>
-                      </div>
-                      {onRemixQuestion && showAnswers && isTeacherView && (
-                          <button 
-                              onClick={() => onRemixQuestion(index)} 
-                              disabled={remixingIndex === index || isEditing}
-                              title="Bu soruyu yeniden oluştur"
-                              className="p-1 rounded-full text-blue-500 hover:bg-blue-500/10 disabled:text-slate-400 disabled:cursor-wait"
-                          >
-                          {remixingIndex === index ? (
-                              <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                  </svg>
-                          ) : (
-                              <RefreshCwIcon className="w-4 h-4"/>
-                          )}
-                          </button>
-                      )}
+        
+        <div className="bg-[--bg-interactive-muted] p-4 sm:p-8 rounded-b-2xl non-printable-bg">
+          <div id="quiz-paper" ref={quizRef} style={quizContentStyle} className={`quiz-paper ${settings.showBorder ? 'bordered' : ''} ${settings.pageStyle}`}>
+              <header className="text-center mb-8">
+                  <h1 className="text-xl font-bold">Matematik Değerlendirme</h1>
+                  <p className="text-sm opacity-80">{`${grade} / Ünite(ler): ${uniqueUnitNames}`}</p>
+                  <p className="text-sm opacity-70 mt-1"><strong>Kazanım(lar):</strong> {uniqueKazanimCodes}</p>
+                  <div className="grid grid-cols-3 gap-4 mt-6 border-t border-b py-2 text-left">
+                      <p><strong>Adı Soyadı:</strong> ....................................</p>
+                      <p><strong>Tarih:</strong> ..... / ..... / ..........</p>
+                      <p><strong>Puan:</strong> ............</p>
                   </div>
+              </header>
 
-                {q.grafik_verisi && (
-                  <div className="my-4 p-4 border rounded-lg bg-slate-50/70 text-sm">
-                      <h4 
-                        className={`font-bold text-center ${isEditing ? 'editable-field' : ''}`}
-                        contentEditable={isEditing}
-                        suppressContentEditableWarning={true}
-                        onBlur={(e) => handleContentUpdate(e, index, ['grafik_verisi', 'baslik'])}
-                      >
-                        {q.grafik_verisi.baslik}
-                      </h4>
-                      
-                      {q.grafik_verisi.tip === 'siklik_tablosu' && (
-                          <table className="w-full mt-2 border-collapse">
-                              <thead>
-                                  <tr>
-                                      <th className="border p-2 bg-slate-100">Veri</th>
-                                      <th className="border p-2 bg-slate-100">Sıklık</th>
-                                  </tr>
-                              </thead>
-                              <tbody>
-                                  {q.grafik_verisi.veri.map((item, i) => (
-                                      <tr key={i}>
-                                          <td 
-                                            className={`border p-2 ${isEditing ? 'editable-field' : ''}`}
-                                            contentEditable={isEditing}
-                                            suppressContentEditableWarning={true}
-                                            onBlur={(e) => handleContentUpdate(e, index, ['grafik_verisi', 'veri', i, 'etiket'])}
-                                          >{item.etiket}</td>
-                                          <td 
-                                            className={`border p-2 text-center ${isEditing ? 'editable-field' : ''}`}
-                                            contentEditable={isEditing}
-                                            suppressContentEditableWarning={true}
-                                            onBlur={(e) => handleContentUpdate(e, index, ['grafik_verisi', 'veri', i, 'deger'])}
-                                          >{item.deger}</td>
-                                      </tr>
-                                  ))}
-                              </tbody>
-                          </table>
-                      )}
-                      {q.grafik_verisi.tip === 'sutun_grafiği' && (
-                           <div className="space-y-2 mt-2">
-                                {q.grafik_verisi.veri.map((item, i) => (
-                                <div key={i} className="flex items-center gap-2">
-                                    <span 
-                                        className={`w-24 text-right pr-2 shrink-0 ${isEditing ? 'editable-field' : ''}`}
-                                        contentEditable={isEditing}
-                                        suppressContentEditableWarning={true}
-                                        onBlur={(e) => handleContentUpdate(e, index, ['grafik_verisi', 'veri', i, 'etiket'])}
-                                    >{item.etiket}:</span>
-                                    <div className="flex-1 bg-slate-200 rounded-full h-5 flex items-center">
-                                        <div className="bg-blue-500 h-full text-xs font-medium text-white text-right pr-1 flex items-center justify-end rounded-full" style={{ width: `${(item.deger / Math.max(1, ...q.grafik_verisi!.veri.map(d => d.deger))) * 100}%` }}>
-                                          <span 
-                                            className={`${isEditing ? 'editable-field bg-white/30 rounded px-1' : ''}`}
-                                            contentEditable={isEditing}
-                                            suppressContentEditableWarning={true}
-                                            onBlur={(e) => handleContentUpdate(e, index, ['grafik_verisi', 'veri', i, 'deger'])}
-                                          >{item.deger}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                ))}
-                            </div>
-                      )}
-                      {q.grafik_verisi.tip === 'nesne_grafiği' && (
-                          <div className="mt-2 space-y-1">
-                              {q.grafik_verisi.veri.map((item, i) => (
-                                  <div key={i} className="flex items-start">
-                                      <span 
-                                        className={`w-24 text-right pr-2 shrink-0 ${isEditing ? 'editable-field' : ''}`}
-                                        contentEditable={isEditing}
-                                        suppressContentEditableWarning={true}
-                                        onBlur={(e) => handleContentUpdate(e, index, ['grafik_verisi', 'veri', i, 'etiket'])}
-                                      >{item.etiket}:</span>
-                                      <div className="flex-1 flex flex-wrap gap-1">
-                                        {Array.from({ length: item.deger }).map((_, j) => (
-                                          <span key={j}>{item.nesne || '■'}</span>
-                                        ))}
-                                         {isEditing && 
-                                            <span 
-                                                className="text-xs text-blue-600 font-bold ml-2 editable-field" 
-                                                contentEditable={isEditing} 
-                                                suppressContentEditableWarning={true}
-                                                onBlur={(e) => handleContentUpdate(e, index, ['grafik_verisi', 'veri', i, 'deger'])}
-                                            >({item.deger})</span>
-                                          }
-                                      </div>
-                                  </div>
-                              ))}
-                          </div>
-                      )}
-                      
-                      {q.grafik_verisi.not && <p 
-                        className={`text-xs text-center mt-2 text-slate-500 ${isEditing ? 'editable-field' : ''}`}
-                        contentEditable={isEditing}
-                        suppressContentEditableWarning={true}
-                        onBlur={(e) => handleContentUpdate(e, index, ['grafik_verisi', 'not'])}
-                      >{q.grafik_verisi.not}</p>}
-                  </div>
-                )}
-                
-                {q.soru_tipi === 'coktan_secmeli' && q.secenekler && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 mt-2 pl-2 options-grid">
-                    {Object.entries(q.secenekler).map(([key, optionText]) => {
-                        const isCorrect = showAnswers && key === q.dogru_cevap;
-                        return (
-                        <div key={key} className={`flex items-start p-2 rounded-md transition-all duration-300 ${isCorrect ? 'bg-green-100 text-green-800 font-bold' : ''}`}>
-                            <span>{key})&nbsp;</span>
-                            <span
-                              className={`flex-1 ${isEditing ? 'editable-field' : ''}`}
+              <div className="flex flex-col" style={{ gap: `${settings.questionSpacing}pt` }}>
+              {currentQuestions.map((q, index) => (
+                  <div key={index} className="text-slate-800 break-inside-avoid relative">
+                    <div className="flex justify-between items-start gap-2">
+                        <div className="flex-1 flex items-start">
+                          <span className="font-semibold mr-2">{`${index + 1}. `}</span>
+                          <p 
+                              className={`flex-1 whitespace-pre-wrap ${isEditing ? 'editable-field' : ''}`}
                               contentEditable={isEditing}
                               suppressContentEditableWarning={true}
-                              onBlur={(e) => handleContentUpdate(e, index, ['secenekler', key])}
-                            >{optionText}</span>
+                              onBlur={(e) => handleContentUpdate(e, index, ['soru_metni'])}
+                          >
+                            {q.soru_metni}
+                          </p>
                         </div>
-                        );
-                    })}
+                        {onRemixQuestion && showAnswers && isTeacherView && (
+                            <button 
+                                onClick={() => onRemixQuestion(index)} 
+                                disabled={remixingIndex === index || isEditing}
+                                title="Bu soruyu yeniden oluştur"
+                                className="p-1 rounded-full text-blue-500 hover:bg-blue-500/10 disabled:text-slate-400 disabled:cursor-wait"
+                            >
+                            {remixingIndex === index ? (
+                                <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                            ) : (
+                                <RefreshCwIcon className="w-4 h-4"/>
+                            )}
+                            </button>
+                        )}
                     </div>
-                )}
 
-                {q.soru_tipi === 'dogru_yanlis' && (
-                    <div className="flex items-center gap-4 mt-2 pl-2">
-                        <div className={`p-2 rounded-md transition-all duration-300 border w-24 text-center ${showAnswers && q.dogru_cevap === 'Doğru' ? 'bg-green-100 text-green-800 font-bold border-green-200' : 'bg-slate-50 border-slate-200'}`}>Doğru</div>
-                        <div className={`p-2 rounded-md transition-all duration-300 border w-24 text-center ${showAnswers && q.dogru_cevap === 'Yanlış' ? 'bg-green-100 text-green-800 font-bold border-green-200' : 'bg-slate-50 border-slate-200'}`}>Yanlış</div>
-                    </div>
-                )}
-
-                {q.soru_tipi === 'bosluk_doldurma' && showAnswers && (
-                    <div className="mt-2 pl-2">
-                        <p className="p-2 rounded-md bg-green-100 text-green-800 font-bold inline-block">Cevap: <span
-                           className={`${isEditing ? 'editable-field' : ''}`}
-                           contentEditable={isEditing}
-                           suppressContentEditableWarning={true}
-                           onBlur={(e) => handleContentUpdate(e, index, ['dogru_cevap'])}
-                          >{q.dogru_cevap}</span></p>
-                    </div>
-                )}
-
-                {showAnswers && isTeacherView && (
-                    <div className="mt-4 ml-6 p-3 bg-blue-900/10 backdrop-blur-sm border border-blue-500/20 rounded-xl space-y-2">
-                        <h4 className="font-semibold text-sm text-blue-800 flex items-center gap-2"><SparklesIcon className="w-4 h-4"/> Öğretmen Notu</h4>
-                        <p className="text-sm text-blue-700"><strong>Kazanım:</strong> <span className={`${isEditing ? 'editable-field' : ''}`} contentEditable={isEditing} suppressContentEditableWarning={true} onBlur={(e) => handleContentUpdate(e, index, ['kazanim_kodu'])}>{q.kazanim_kodu}</span></p>
-                        <p className="text-sm text-blue-700"><strong>Çözüm:</strong> <span className={`${isEditing ? 'editable-field' : ''}`} contentEditable={isEditing} suppressContentEditableWarning={true} onBlur={(e) => handleContentUpdate(e, index, ['cozum_anahtari'])}>{q.cozum_anahtari}</span></p>
-                        <p className="text-sm text-blue-700"><strong>Seviye:</strong> <span className={`capitalize px-2 py-0.5 bg-blue-200 text-blue-800 rounded-full text-xs ${isEditing ? 'editable-field' : ''}`} contentEditable={isEditing} suppressContentEditableWarning={true} onBlur={(e) => handleContentUpdate(e, index, ['seviye'])}>{q.seviye}</span></p>
-                         <p className="text-sm text-blue-700"><strong>Doğru Cevap:</strong> <span className={`font-bold ${isEditing ? 'editable-field' : ''}`} contentEditable={isEditing} suppressContentEditableWarning={true} onBlur={(e) => handleContentUpdate(e, index, ['dogru_cevap'])}>{q.dogru_cevap}</span></p>
-                        <div className="pt-2 border-t border-blue-100">
-                            <p className="text-sm text-blue-700"><strong>Gerçek Yaşam Bağlantısı:</strong> <span className={`${isEditing ? 'editable-field' : ''}`} contentEditable={isEditing} suppressContentEditableWarning={true} onBlur={(e) => handleContentUpdate(e, index, ['gercek_yasam_baglantisi'])}>{q.gercek_yasam_baglantisi}</span></p>
-                        </div>
-                        {q.soru_tipi === 'coktan_secmeli' && q.yanlis_secenek_tipleri && q.yanlis_secenek_tipleri.length > 0 && (
-                            <div className="pt-2 border-t border-blue-100">
-                                <strong className="text-sm text-blue-700">Çeldirici Analizi:</strong>
-                                <ul className="list-disc list-inside pl-4 text-sm text-blue-600">
-                                    {q.yanlis_secenek_tipleri.map((tip, i) => (
-                                        <li key={i} className={`${isEditing ? 'editable-field' : ''}`} contentEditable={isEditing} suppressContentEditableWarning={true} onBlur={(e) => handleContentUpdate(e, index, ['yanlis_secenek_tipleri', i])}>{tip}</li>
+                  {q.grafik_verisi && (
+                    <div className="my-4 p-4 border rounded-lg bg-slate-50/70 text-sm">
+                        <h4 
+                          className={`font-bold text-center ${isEditing ? 'editable-field' : ''}`}
+                          contentEditable={isEditing}
+                          suppressContentEditableWarning={true}
+                          onBlur={(e) => handleContentUpdate(e, index, ['grafik_verisi', 'baslik'])}
+                        >
+                          {q.grafik_verisi.baslik}
+                        </h4>
+                        
+                        {q.grafik_verisi.tip === 'siklik_tablosu' && (
+                            <table className="w-full mt-2 border-collapse">
+                                <thead>
+                                    <tr>
+                                        <th className="border p-2 bg-slate-100">Veri</th>
+                                        <th className="border p-2 bg-slate-100">Sıklık</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {q.grafik_verisi.veri.map((item, i) => (
+                                        <tr key={i}>
+                                            <td 
+                                              className={`border p-2 ${isEditing ? 'editable-field' : ''}`}
+                                              contentEditable={isEditing}
+                                              suppressContentEditableWarning={true}
+                                              onBlur={(e) => handleContentUpdate(e, index, ['grafik_verisi', 'veri', i, 'etiket'])}
+                                            >{item.etiket}</td>
+                                            <td 
+                                              className={`border p-2 text-center ${isEditing ? 'editable-field' : ''}`}
+                                              contentEditable={isEditing}
+                                              suppressContentEditableWarning={true}
+                                              onBlur={(e) => handleContentUpdate(e, index, ['grafik_verisi', 'veri', i, 'deger'])}
+                                            >{item.deger}</td>
+                                        </tr>
                                     ))}
-                                </ul>
+                                </tbody>
+                            </table>
+                        )}
+                        {q.grafik_verisi.tip === 'sutun_grafiği' && (
+                            <div className="space-y-2 mt-2">
+                                  {q.grafik_verisi.veri.map((item, i) => (
+                                  <div key={i} className="flex items-center gap-2">
+                                      <span 
+                                          className={`w-24 text-right pr-2 shrink-0 ${isEditing ? 'editable-field' : ''}`}
+                                          contentEditable={isEditing}
+                                          suppressContentEditableWarning={true}
+                                          onBlur={(e) => handleContentUpdate(e, index, ['grafik_verisi', 'veri', i, 'etiket'])}
+                                      >{item.etiket}:</span>
+                                      <div className="flex-1 bg-slate-200 rounded-full h-5 flex items-center">
+                                          <div className="bg-blue-500 h-full text-xs font-medium text-white text-right pr-1 flex items-center justify-end rounded-full" style={{ width: `${(item.deger / Math.max(1, ...q.grafik_verisi!.veri.map(d => d.deger))) * 100}%` }}>
+                                            <span 
+                                              className={`${isEditing ? 'editable-field bg-white/30 rounded px-1' : ''}`}
+                                              contentEditable={isEditing}
+                                              suppressContentEditableWarning={true}
+                                              onBlur={(e) => handleContentUpdate(e, index, ['grafik_verisi', 'veri', i, 'deger'])}
+                                            >{item.deger}</span>
+                                          </div>
+                                      </div>
+                                  </div>
+                                  ))}
+                              </div>
+                        )}
+                        {q.grafik_verisi.tip === 'nesne_grafiği' && (
+                            <div className="mt-2 space-y-1">
+                                {q.grafik_verisi.veri.map((item, i) => (
+                                    <div key={i} className="flex items-start">
+                                        <span 
+                                          className={`w-24 text-right pr-2 shrink-0 ${isEditing ? 'editable-field' : ''}`}
+                                          contentEditable={isEditing}
+                                          suppressContentEditableWarning={true}
+                                          onBlur={(e) => handleContentUpdate(e, index, ['grafik_verisi', 'veri', i, 'etiket'])}
+                                        >{item.etiket}:</span>
+                                        <div className="flex-1 flex flex-wrap gap-1">
+                                          {Array.from({ length: item.deger }).map((_, j) => (
+                                            <span key={j}>{item.nesne || '■'}</span>
+                                          ))}
+                                          {isEditing && 
+                                              <span 
+                                                  className="text-xs text-blue-600 font-bold ml-2 editable-field" 
+                                                  contentEditable={isEditing} 
+                                                  suppressContentEditableWarning={true}
+                                                  onBlur={(e) => handleContentUpdate(e, index, ['grafik_verisi', 'veri', i, 'deger'])}
+                                              >({item.deger})</span>
+                                            }
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                         )}
-                        <div className="pt-2 border-t border-blue-100">
-                            <label htmlFor={`teacher-note-${index}`} className="text-sm font-semibold text-blue-800">Ek Notlar / İpuçları:</label>
-                            <textarea
-                                id={`teacher-note-${index}`}
-                                rows={3}
-                                className="w-full mt-1 p-2 text-sm bg-white/60 border border-blue-300/50 rounded-md shadow-sm focus:ring-1 focus:ring-blue-500 transition-all duration-200 note-textarea"
-                                placeholder="Öğrenciler için ipuçları veya ek açıklamalar ekleyin..."
-                                value={customTeacherNotes[index] || ''}
-                                onChange={(e) => handleNoteChange(index, e.target.value)}
-                            />
-                        </div>
+                        
+                        {q.grafik_verisi.not && <p 
+                          className={`text-xs text-center mt-2 text-slate-500 ${isEditing ? 'editable-field' : ''}`}
+                          contentEditable={isEditing}
+                          suppressContentEditableWarning={true}
+                          onBlur={(e) => handleContentUpdate(e, index, ['grafik_verisi', 'not'])}
+                        >{q.grafik_verisi.not}</p>}
                     </div>
-                )}
-                </div>
-            ))}
-            </div>
+                  )}
+                  
+                  {q.soru_tipi === 'coktan_secmeli' && q.secenekler && (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 mt-2 pl-2 options-grid">
+                      {Object.entries(q.secenekler).map(([key, optionText]) => {
+                          const isCorrect = showAnswers && key === q.dogru_cevap;
+                          return (
+                          <div key={key} className={`flex items-start p-2 rounded-md transition-all duration-300 ${isCorrect ? 'bg-green-100 text-green-800 font-bold' : ''}`}>
+                              <span>{key})&nbsp;</span>
+                              <span
+                                className={`flex-1 ${isEditing ? 'editable-field' : ''}`}
+                                contentEditable={isEditing}
+                                suppressContentEditableWarning={true}
+                                onBlur={(e) => handleContentUpdate(e, index, ['secenekler', key])}
+                              >{optionText}</span>
+                          </div>
+                          );
+                      })}
+                      </div>
+                  )}
+
+                  {q.soru_tipi === 'dogru_yanlis' && (
+                      <div className="flex items-center gap-4 mt-2 pl-2">
+                          <div className={`p-2 rounded-md transition-all duration-300 border w-24 text-center ${showAnswers && q.dogru_cevap === 'Doğru' ? 'bg-green-100 text-green-800 font-bold border-green-200' : 'bg-slate-50 border-slate-200'}`}>Doğru</div>
+                          <div className={`p-2 rounded-md transition-all duration-300 border w-24 text-center ${showAnswers && q.dogru_cevap === 'Yanlış' ? 'bg-green-100 text-green-800 font-bold border-green-200' : 'bg-slate-50 border-slate-200'}`}>Yanlış</div>
+                      </div>
+                  )}
+
+                  {q.soru_tipi === 'bosluk_doldurma' && showAnswers && (
+                      <div className="mt-2 pl-2">
+                          <p className="p-2 rounded-md bg-green-100 text-green-800 font-bold inline-block">Cevap: <span
+                            className={`${isEditing ? 'editable-field' : ''}`}
+                            contentEditable={isEditing}
+                            suppressContentEditableWarning={true}
+                            onBlur={(e) => handleContentUpdate(e, index, ['dogru_cevap'])}
+                            >{q.dogru_cevap}</span></p>
+                      </div>
+                  )}
+
+                  {showAnswers && isTeacherView && (
+                      <div className="mt-4 ml-6 p-3 bg-blue-900/10 backdrop-blur-sm border border-blue-500/20 rounded-xl space-y-2">
+                          <h4 className="font-semibold text-sm text-blue-800 flex items-center gap-2"><SparklesIcon className="w-4 h-4"/> Öğretmen Notu</h4>
+                          <p className="text-sm text-blue-700"><strong>Kazanım:</strong> <span className={`${isEditing ? 'editable-field' : ''}`} contentEditable={isEditing} suppressContentEditableWarning={true} onBlur={(e) => handleContentUpdate(e, index, ['kazanim_kodu'])}>{q.kazanim_kodu}</span></p>
+                          <p className="text-sm text-blue-700"><strong>Çözüm:</strong> <span className={`${isEditing ? 'editable-field' : ''}`} contentEditable={isEditing} suppressContentEditableWarning={true} onBlur={(e) => handleContentUpdate(e, index, ['cozum_anahtari'])}>{q.cozum_anahtari}</span></p>
+                          <p className="text-sm text-blue-700"><strong>Seviye:</strong> <span className={`capitalize px-2 py-0.5 bg-blue-200 text-blue-800 rounded-full text-xs ${isEditing ? 'editable-field' : ''}`} contentEditable={isEditing} suppressContentEditableWarning={true} onBlur={(e) => handleContentUpdate(e, index, ['seviye'])}>{q.seviye}</span></p>
+                          <p className="text-sm text-blue-700"><strong>Doğru Cevap:</strong> <span className={`font-bold ${isEditing ? 'editable-field' : ''}`} contentEditable={isEditing} suppressContentEditableWarning={true} onBlur={(e) => handleContentUpdate(e, index, ['dogru_cevap'])}>{q.dogru_cevap}</span></p>
+                          <div className="pt-2 border-t border-blue-100">
+                              <p className="text-sm text-blue-700"><strong>Gerçek Yaşam Bağlantısı:</strong> <span className={`${isEditing ? 'editable-field' : ''}`} contentEditable={isEditing} suppressContentEditableWarning={true} onBlur={(e) => handleContentUpdate(e, index, ['gercek_yasam_baglantisi'])}>{q.gercek_yasam_baglantisi}</span></p>
+                          </div>
+                          {q.soru_tipi === 'coktan_secmeli' && q.yanlis_secenek_tipleri && q.yanlis_secenek_tipleri.length > 0 && (
+                              <div className="pt-2 border-t border-blue-100">
+                                  <strong className="text-sm text-blue-700">Çeldirici Analizi:</strong>
+                                  <ul className="list-disc list-inside pl-4 text-sm text-blue-600">
+                                      {q.yanlis_secenek_tipleri.map((tip, i) => (
+                                          <li key={i} className={`${isEditing ? 'editable-field' : ''}`} contentEditable={isEditing} suppressContentEditableWarning={true} onBlur={(e) => handleContentUpdate(e, index, ['yanlis_secenek_tipleri', i])}>{tip}</li>
+                                      ))}
+                                  </ul>
+                              </div>
+                          )}
+                          <div className="pt-2 border-t border-blue-100">
+                              <label htmlFor={`teacher-note-${index}`} className="text-sm font-semibold text-blue-800">Ek Notlar / İpuçları:</label>
+                              <textarea
+                                  id={`teacher-note-${index}`}
+                                  rows={3}
+                                  className="w-full mt-1 p-2 text-sm bg-white/60 border border-blue-300/50 rounded-md shadow-sm focus:ring-1 focus:ring-blue-500 transition-all duration-200 note-textarea"
+                                  placeholder="Öğrenciler için ipuçları veya ek açıklamalar ekleyin..."
+                                  value={customTeacherNotes[index] || ''}
+                                  onChange={(e) => handleNoteChange(index, e.target.value)}
+                              />
+                          </div>
+                      </div>
+                  )}
+                  </div>
+              ))}
+              </div>
+          </div>
         </div>
       </div>
        <style>{`
@@ -624,6 +637,18 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
             box-shadow: 0 0 0.5cm rgba(0,0,0,0.5);
             background-color: white;
         }
+        .dark .quiz-paper.bordered { border-color: #4b5563; }
+        .dark .quiz-paper .text-slate-800 { color: #1e293b; }
+        .dark .quiz-paper .bg-blue-900\/10 { background-color: rgba(30, 58, 138, 0.1); }
+        .dark .quiz-paper .text-blue-800 { color: #1e40af; }
+        .dark .quiz-paper .text-blue-700 { color: #1d4ed8; }
+        .dark .quiz-paper .bg-blue-200 { background-color: #bfdbfe; }
+        .dark .quiz-paper .border-blue-500\/20 { border-color: rgba(59, 130, 246, 0.2); }
+        .dark .quiz-paper .border-blue-100 { border-color: #dbeafe; }
+        .dark .quiz-paper .text-blue-600 { color: #2563eb; }
+        .dark .quiz-paper .note-textarea { background-color: rgba(255, 255, 255, 0.6); border-color: rgba(147, 197, 253, 0.5); color: #1e293b;}
+
+
         .quiz-paper.notebook {
             background-image: linear-gradient(to bottom, #e2e8f0 1px, transparent 1px);
             background-size: 100% var(--line-height);
@@ -639,7 +664,7 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
             background-size: var(--line-height) var(--line-height);
             line-height: var(--line-height);
         }
-        .quiz-paper.bordered { border: 2px solid black; }
+        .quiz-paper.bordered { border: 2px solid #374151; }
 
         @media print {
             body { 
@@ -711,7 +736,7 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
             }
         }
       `}</style>
-    </div>
+    </>
   );
 };
 

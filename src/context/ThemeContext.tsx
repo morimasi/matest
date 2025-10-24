@@ -13,7 +13,10 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [theme, setThemeState] = useState<Theme>(() => {
     try {
       const savedTheme = window.localStorage.getItem('app-theme') as Theme;
-      return savedTheme || 'light';
+      if (['light', 'dark', 'serene', 'playful'].includes(savedTheme)) {
+        return savedTheme;
+      }
+      return 'light';
     } catch {
       return 'light';
     }
@@ -23,7 +26,11 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const root = window.document.documentElement;
     root.classList.remove('light', 'dark', 'serene', 'playful');
     root.classList.add(theme);
-    localStorage.setItem('app-theme', theme);
+    try {
+        localStorage.setItem('app-theme', theme);
+    } catch (error) {
+        console.error('Failed to save theme to localStorage', error);
+    }
   }, [theme]);
   
   const setTheme = (newTheme: Theme) => {

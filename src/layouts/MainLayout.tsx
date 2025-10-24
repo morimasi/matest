@@ -55,7 +55,7 @@ const ThemeSelector: React.FC = () => {
 
 const MainLayout: React.FC = () => (
     <div className="min-h-screen bg-gradient-to-br from-[--bg-from] to-[--bg-to] font-sans text-[--text-primary] flex flex-col transition-colors duration-500">
-        <header className="sticky top-0 z-50 non-printable backdrop-blur-xl bg-[--bg-component] shadow-lg border-b border-[--border-color]">
+        <header className="sticky top-0 z-40 non-printable backdrop-blur-xl bg-[--bg-component] shadow-lg border-b border-[--border-color]">
              <div className="max-w-5xl mx-auto px-4 sm:px-8">
                  <div className="flex justify-between items-center h-20">
                     <div className="flex items-center gap-3">
