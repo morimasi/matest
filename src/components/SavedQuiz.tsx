@@ -1,6 +1,7 @@
 
 
 
+
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getQuiz, updateQuiz } from '../services/storageService';
@@ -14,6 +15,17 @@ const SavedQuiz: React.FC = () => {
     const [quiz, setQuiz] = useState<SavedQuizType | null | undefined>(undefined);
     const [remixingIndex, setRemixingIndex] = useState<number | null>(null);
     const [remixError, setRemixError] = useState<string | null>(null);
+    const [hasApiKey, setHasApiKey] = useState(false);
+
+    useEffect(() => {
+        const checkApiKey = async () => {
+             if (window.aistudio) {
+                const keySelected = await window.aistudio.hasSelectedApiKey();
+                setHasApiKey(keySelected);
+            }
+        };
+        checkApiKey();
+    }, []);
 
     useEffect(() => {
         if (quizId) {
@@ -21,7 +33,19 @@ const SavedQuiz: React.FC = () => {
         }
     }, [quizId]);
 
+     const handleSelectKey = async () => {
+        if (window.aistudio) {
+            await window.aistudio.openSelectKey();
+            setHasApiKey(true);
+        }
+    };
+
     const handleRemixQuestion = async (questionIndex: number) => {
+        if (!(await window.aistudio.hasSelectedApiKey())) {
+            await handleSelectKey();
+            return;
+        }
+
         if (!quiz) return;
         setRemixingIndex(questionIndex);
         setRemixError(null);
@@ -47,7 +71,13 @@ const SavedQuiz: React.FC = () => {
                  throw new Error("Yapay zeka yeni bir soru üretemedi.");
             }
         } catch (error: any) {
-            setRemixError(error.message || "Soru yenilenirken bir hata oluştu.");
+            const errorMessage = error.message || "Soru yenilenirken bir hata oluştu.";
+            if (errorMessage.includes("API keys are not supported") || errorMessage.includes("CREDENTIALS_MISSING") || errorMessage.includes("Requested entity was not found")) {
+                setRemixError("API anahtarınızla ilgili bir sorun oluştu. Lütfen yeniden seçin.");
+                setHasApiKey(false);
+            } else {
+                setRemixError(errorMessage);
+            }
         } finally {
             setRemixingIndex(null);
         }
@@ -84,6 +114,22 @@ const SavedQuiz: React.FC = () => {
         );
     }
     
+    if (!hasApiKey && (remixingIndex !== null || remixError?.includes("API")) ) {
+         return (
+            <div className="text-center mt-12 p-8 bg-[--bg-component] backdrop-blur-xl rounded-3xl shadow-2xl border border-[--border-color] animate-fade-in-up">
+                <h3 className="text-xl font-semibold text-[--text-primary]">API Anahtarı Gerekli</h3>
+                <p className="text-[--text-secondary] mt-2">Soru yenileme gibi özellikleri kullanmak için lütfen bir API anahtarı seçin.</p>
+                 <p className="text-xs text-[--text-muted] mt-4">API anahtarı kullanımıyla ilgili ücretlendirme bilgileri için <a href="https://ai.google.dev/gemini-api/docs/billing" target="_blank" rel="noopener noreferrer" className="underline text-[--text-accent]">Google AI Studio dokümantasyonunu</a> ziyaret edebilirsiniz.</p>
+                <button 
+                    onClick={handleSelectKey}
+                    className="mt-6 inline-block bg-gradient-to-r from-[--accent-gradient-from] via-[--accent-gradient-via] to-[--accent-gradient-to] text-[--text-inverted] font-semibold py-2 px-5 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+                >
+                    API Anahtarı Seç
+                </button>
+            </div>
+        );
+    }
+
     return (
         <div className="animate-fade-in-up">
             {remixError && (
