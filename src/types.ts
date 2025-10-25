@@ -5,6 +5,8 @@ export interface ChartDataItem {
   deger: number;
   nesne?: string; // Nesne grafikleri için, örn: '🍎'
   birim?: string; // Geometri için, örn: 'cm', '°'
+  x?: number; // Sürükle-bırak için x koordinatı
+  y?: number; // Sürükle-bırak için y koordinatı
 }
 
 export interface ChartData {

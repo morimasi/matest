@@ -31,7 +31,7 @@ Eğer bir kazanım görsel bir veri gerektiriyorsa (Veri İşleme ünitelerindek
    - "tip": 'ucgen', 'dikdortgen', 'kare', 'kup', 'dogru_parcasi', 'isin', 'dogru', 'paralel_dogrular', 'kesisen_dogrular', 'dik_kesisen_doğrular'.
    - "baslik": Şekil/kavram için bir başlık (örn: "ABC Üçgeni", "AB Doğru Parçası", "d1 ve d2 Paralel Doğruları").
    - "veri": Bir dizi (array) olmalıdır. Her eleman şeklin bir özelliğini tanımlar. Etiketler çizim için kullanılır.
-     **ÖNEMLİ TUTARLILIK KURALI: "soru_metni" içinde bahsedilen harf/isimler (örn: AB doğru parçası, d doğrusu) ile "grafik_verisi" içindeki etiketler (örn: "A Noktası", "d doğrusu") BİREBİR AYNI OLMALIDIR.**
+     **ÖNEMLİ TUTARLILIK KURALI: "soru_metni" içinde bahsedilen harf/isimler (örn: AB doğru parçası, d doğrusu) ile "grafik_verisi" içindeki etiketler (örn: "A Köşesi", "d doğrusu") BİREBİR AYNI OLMALIDIR.**
    - "not": (İsteğe bağlı) Şekille ilgili ek bilgi.
 
    Örnek Geometri JSON'ları:
@@ -124,7 +124,9 @@ Lütfen çıktı olarak sadece soruları içeren bir JSON nesnesi döndür. Her 
                   etiket: { type: Type.STRING, description: "Veri noktasının etiketi (örn: 'Elma', 'AB Kenarı' veya 'A Noktası')." },
                   deger: { type: Type.NUMBER, description: "Veri noktasının sayısal değeri (örn: 12 veya 90)." },
                   nesne: { type: Type.STRING, description: "Nesne grafikleri için kullanılacak sembol (örn: '🍎')." },
-                  birim: { type: Type.STRING, description: "Geometrik veriler için birim (örn: 'cm', '°')." }
+                  birim: { type: Type.STRING, description: "Geometrik veriler için birim (örn: 'cm', '°')." },
+                  x: { type: Type.NUMBER, description: "Kullanıcı tarafından düzenlenen etiketin x-koordinatı." },
+                  y: { type: Type.NUMBER, description: "Kullanıcı tarafından düzenlenen etiketin y-koordinatı." }
                 },
                 required: ["etiket"]
               }

@@ -19,24 +19,20 @@ interface QuizViewProps {
 const VIEW_SETTINGS_KEY = 'quizViewSettings';
 const NOTES_PREFIX = 'quizNotes_';
 
-// Helper to extract corner labels from geometry data for consistent rendering
 const getCornerLabels = (data: ChartDataItem[] = [], defaultLabels: string[]): string[] => {
     const labels = new Set<string>();
     data.forEach(item => {
-        // Match "A Köşesi", "B Köşesi", etc.
         const cornerMatch = item.etiket.match(/^(\w+)\s+Köşesi/i);
         if (cornerMatch && cornerMatch[1]) {
             labels.add(cornerMatch[1].toUpperCase());
             return;
         }
-        // Fallback: Match from side labels like "AB Kenarı"
         const sideMatch = item.etiket.match(/(\w)(\w)\s+Kenarı/i);
         if(sideMatch && sideMatch[1] && sideMatch[2]){
             labels.add(sideMatch[1].toUpperCase());
             labels.add(sideMatch[2].toUpperCase());
             return;
         }
-        // Fallback: Match from angle labels like "A Açısı"
         const angleMatch = item.etiket.match(/^(\w+)\s+Açısı/i);
         if(angleMatch && angleMatch[1]){
             labels.add(angleMatch[1].toUpperCase());
@@ -45,10 +41,16 @@ const getCornerLabels = (data: ChartDataItem[] = [], defaultLabels: string[]): s
     });
     
     const foundLabels = Array.from(labels).sort();
-
-    // If we found enough labels, use them. Otherwise, use defaults.
     return foundLabels.length >= defaultLabels.length ? foundLabels : defaultLabels;
 };
+
+// State for drag information
+interface DragInfo {
+  questionIndex: number;
+  itemIndex: number;
+  offsetX: number;
+  offsetY: number;
+}
 
 
 const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQuestion, remixingIndex, onUpdateQuiz, onArchive, isArchived }) => {
@@ -60,6 +62,10 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
   const [copyStatus, setCopyStatus] = useState<'idle' | 'copied'>('idle');
   const [isEditing, setIsEditing] = useState(false);
   const [editableQuestions, setEditableQuestions] = useState<DetailedQuestion[]>(questions);
+  
+  const [dragInfo, setDragInfo] = useState<DragInfo | null>(null);
+  const svgRefs = useRef<(SVGSVGElement | null)[]>([]);
+
 
   useEffect(() => {
     setEditableQuestions(questions);
@@ -125,14 +131,12 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
 
           for (let i = 0; i < path.length - 1; i++) {
               if (current[path[i]] === undefined) {
-                  // Create path if it doesn't exist
                   current[path[i]] = typeof path[i+1] === 'number' ? [] : {};
               }
               current = current[path[i]];
           }
 
           let finalValue: string | number = value;
-          // Special handling for chart data 'deger' to ensure it's a number
           const isNumericField = path.includes('veri') && (path[path.length - 1] === 'deger');
           if(isNumericField) {
               const parsedNumber = parseFloat(value.replace(/[^0-9.,]/g, '').replace(',', '.'));
@@ -144,6 +148,52 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
       });
   };
 
+  const handleDragStart = (e: React.MouseEvent<SVGElement>, questionIndex: number, itemIndex: number, defaultPos: {x: number, y: number}) => {
+    if (!isEditing) return;
+    const svg = svgRefs.current[questionIndex];
+    if (!svg) return;
+
+    const pt = svg.createSVGPoint();
+    pt.x = e.clientX;
+    pt.y = e.clientY;
+    const svgP = pt.matrixTransform(svg.getScreenCTM()!.inverse());
+
+    const currentItem = editableQuestions[questionIndex]?.grafik_verisi?.veri[itemIndex];
+    const currentX = currentItem?.x ?? defaultPos.x;
+    const currentY = currentItem?.y ?? defaultPos.y;
+
+    setDragInfo({
+        questionIndex,
+        itemIndex,
+        offsetX: svgP.x - currentX,
+        offsetY: svgP.y - currentY,
+    });
+  };
+
+  const handleDrag = (e: React.MouseEvent<SVGSVGElement>) => {
+      if (!dragInfo) return;
+      const svg = svgRefs.current[dragInfo.questionIndex];
+      if (!svg) return;
+
+      const pt = svg.createSVGPoint();
+      pt.x = e.clientX;
+      pt.y = e.clientY;
+      const svgP = pt.matrixTransform(svg.getScreenCTM()!.inverse());
+
+      const newX = svgP.x - dragInfo.offsetX;
+      const newY = svgP.y - dragInfo.offsetY;
+
+      setEditableQuestions(prev => {
+          const newQuestions = [...prev];
+          const item = newQuestions[dragInfo.questionIndex].grafik_verisi!.veri[dragInfo.itemIndex];
+          newQuestions[dragInfo.questionIndex].grafik_verisi!.veri[dragInfo.itemIndex] = { ...item, x: newX, y: newY };
+          return newQuestions;
+      });
+  };
+
+  const handleDragEnd = () => {
+      setDragInfo(null);
+  };
   
   if (!questions || questions.length === 0) return null;
 
@@ -558,8 +608,11 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                           </div>
                       )}
                       {q.grafik_verisi && ['ucgen', 'dikdortgen', 'kare', 'kup', 'dogru_parcasi', 'isin', 'dogru', 'paralel_dogrular', 'kesisen_dogrular', 'dik_kesisen_doğrular'].includes(q.grafik_verisi.tip) && (
-                          <div className="my-4 p-4 flex justify-center items-center">
-                              <svg width="250" height="180" viewBox="0 0 250 180" className="overflow-visible drop-shadow-sm text-slate-700">
+                           <div className="my-4 p-4 flex justify-center items-center">
+                              <svg ref={el => svgRefs.current[index] = el} width="250" height="180" viewBox="0 0 250 180" 
+                                className={`overflow-visible drop-shadow-sm text-slate-700 ${isEditing ? 'cursor-grab' : ''}`}
+                                onMouseMove={handleDrag} onMouseUp={handleDragEnd} onMouseLeave={handleDragEnd}
+                              >
                                   <title>{q.grafik_verisi.baslik}</title>
                                    <defs>
                                     <marker id={`arrow-${quizId}-${index}`} viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
@@ -569,155 +622,78 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                                   
                                   {(() => {
                                       const data = q.grafik_verisi!.veri;
-                                      const findData = (regex: RegExp) => data.find(d => regex.test(d.etiket));
-                                      const findIndex = (regex: RegExp) => data.findIndex(d => regex.test(d.etiket));
-
-                                      const editableProps = (path: (string|number)[]) => isEditing ? {
-                                          className: 'editable-field-svg',
-                                          contentEditable: true,
-                                          suppressContentEditableWarning: true,
-                                          onBlur: (e: React.FocusEvent<SVGTSpanElement>) => handleContentUpdate(e, index, path)
-                                      } : {};
                                       
                                       switch (q.grafik_verisi!.tip) {
                                           case 'ucgen': {
                                               const cornerLabels = getCornerLabels(data, ['A', 'B', 'C']);
                                               const [c1, c2, c3] = cornerLabels;
-
                                               const pts = {[c1]: {x: 40, y: 30}, [c2]: {x: 40, y: 150}, [c3]: {x: 210, y: 150}};
                                               
-                                              const side12 = findData(new RegExp(`${c1}${c2}`, 'i'));
-                                              const side23 = findData(new RegExp(`${c2}${c3}`, 'i'));
-                                              const side13 = findData(new RegExp(`${c1}${c3}|Hipotenüs`, 'i'));
-                                              const angle1 = findData(new RegExp(`${c1} Açısı`, 'i'));
-                                              const angle2 = findData(new RegExp(`${c2} Açısı`, 'i'));
-                                              const angle3 = findData(new RegExp(`${c3} Açısı`, 'i'));
-
                                               return (
                                                   <g>
                                                       <polygon points={`${pts[c1].x},${pts[c1].y} ${pts[c2].x},${pts[c2].y} ${pts[c3].x},${pts[c3].y}`} className="fill-blue-100/50 stroke-blue-500" strokeWidth="2" />
-                                                      <text {...pts[c1]} dx="-12" dy="-5" textAnchor="middle" className="font-semibold text-lg">{c1}</text>
-                                                      <text {...pts[c2]} dx="-12" dy="15" textAnchor="middle" className="font-semibold text-lg">{c2}</text>
-                                                      <text {...pts[c3]} dx="12" dy="15" textAnchor="middle" className="font-semibold text-lg">{c3}</text>
-                                                      
-                                                      {angle1 && (angle1.deger !== 90 && <text x={pts[c1].x + 15} y={pts[c1].y + 20} className="text-[10pt]"><tspan {...editableProps(['grafik_verisi', 'veri', findIndex(new RegExp(`${c1} Açısı`, 'i')), 'deger'])}>{angle1.deger}</tspan><tspan dy="-3">°</tspan></text>)}
-                                                      {angle2 && (angle2.deger === 90 ? <path d={`M ${pts[c2].x} ${pts[c2].y-15} L ${pts[c2].x+15} ${pts[c2].y-15} L ${pts[c2].x+15} ${pts[c2].y}`} className="fill-none stroke-current" strokeWidth="1.5" /> : <text x={pts[c2].x + 10} y={pts[c2].y - 10} className="text-[10pt]"><tspan {...editableProps(['grafik_verisi', 'veri', findIndex(new RegExp(`${c2} Açısı`, 'i')), 'deger'])}>{angle2.deger}</tspan><tspan dy="-3">°</tspan></text>)}
-                                                      {angle3 && (angle3.deger !== 90 && <text x={pts[c3].x - 20} y={pts[c3].y - 10} className="text-[10pt]"><tspan {...editableProps(['grafik_verisi', 'veri', findIndex(new RegExp(`${c3} Açısı`, 'i')), 'deger'])}>{angle3.deger}</tspan><tspan dy="-3">°</tspan></text>)}
-                                                      
-                                                      {side12 && <text x={pts[c1].x-10} y={(pts[c1].y+pts[c2].y)/2} className="text-[10pt]" textAnchor="end" dominantBaseline="middle"><tspan {...editableProps(['grafik_verisi', 'veri', findIndex(new RegExp(`${c1}${c2}`, 'i')), 'deger'])}>{side12.deger}</tspan><tspan>{side12.birim}</tspan></text>}
-                                                      {side23 && <text x={(pts[c2].x+pts[c3].x)/2} y={pts[c2].y+15} className="text-[10pt]" textAnchor="middle" dominantBaseline="hanging"><tspan {...editableProps(['grafik_verisi', 'veri', findIndex(new RegExp(`${c2}${c3}`, 'i')), 'deger'])}>{side23.deger}</tspan><tspan>{side23.birim}</tspan></text>}
-                                                      {side13 && <text x={(pts[c1].x+pts[c3].x)/2} y={(pts[c1].y+pts[c3].y)/2} dy="-8" className="text-[10pt]" textAnchor="middle" dominantBaseline="auto" transform={`rotate(-35, ${(pts[c1].x+pts[c3].x)/2}, ${(pts[c1].y+pts[c3].y)/2})`}><tspan {...editableProps(['grafik_verisi', 'veri', findIndex(new RegExp(`${c1}${c3}|Hipotenüs`, 'i')), 'deger'])}>{side13.deger}</tspan><tspan>{side13.birim}</tspan></text>}
+                                                      {data.map((item, i) => {
+                                                          let defaultPos = {x:0, y:0};
+                                                          let content: (string | number | undefined)[] = [];
+                                                          const textProps: any = { textAnchor: "middle", dominantBaseline: "middle", className: "text-[10pt]" };
+
+                                                          if (item.etiket.includes(`${c1} Köşesi`)) { defaultPos = {x: pts[c1].x-12, y: pts[c1].y-5}; content=[c1]; textProps.className="font-semibold text-lg"; }
+                                                          else if (item.etiket.includes(`${c2} Köşesi`)) { defaultPos = {x: pts[c2].x-12, y: pts[c2].y+15}; content=[c2]; textProps.className="font-semibold text-lg"; }
+                                                          else if (item.etiket.includes(`${c3} Köşesi`)) { defaultPos = {x: pts[c3].x+12, y: pts[c3].y+15}; content=[c3]; textProps.className="font-semibold text-lg"; }
+                                                          else if (item.etiket.includes(`${c1} Açısı`)) { defaultPos = {x: pts[c1].x+15, y: pts[c1].y+20}; content=[item.deger, '°']; }
+                                                          else if (item.etiket.includes(`${c2} Açısı`)) { defaultPos = {x: pts[c2].x+20, y: pts[c2].y-15}; content=[item.deger, '°']; if(item.deger === 90) return <path key={i} d={`M ${pts[c2].x} ${pts[c2].y-15} L ${pts[c2].x+15} ${pts[c2].y-15} L ${pts[c2].x+15} ${pts[c2].y}`} className="fill-none stroke-current" strokeWidth="1.5" /> }
+                                                          else if (item.etiket.includes(`${c3} Açısı`)) { defaultPos = {x: pts[c3].x-20, y: pts[c3].y-10}; content=[item.deger, '°']; }
+                                                          else if (item.etiket.includes(`${c1}${c2}`)) { defaultPos = {x: pts[c1].x-10, y: (pts[c1].y+pts[c2].y)/2}; content=[item.deger, item.birim]; textProps.textAnchor="end"; }
+                                                          else if (item.etiket.includes(`${c2}${c3}`)) { defaultPos = {x: (pts[c2].x+pts[c3].x)/2, y: pts[c2].y+15}; content=[item.deger, item.birim]; textProps.dominantBaseline="hanging"; }
+                                                          else if (item.etiket.match(new RegExp(`${c1}${c3}|Hipotenüs`, 'i'))) { 
+                                                            defaultPos = {x: (pts[c1].x+pts[c3].x)/2, y: (pts[c1].y+pts[c3].y)/2 - 8}; 
+                                                            content=[item.deger, item.birim]; 
+                                                            textProps.transform=`rotate(-35, ${(pts[c1].x+pts[c3].x)/2}, ${(pts[c1].y+pts[c3].y)/2})`; 
+                                                          }
+                                                          else return null;
+
+                                                          return <text key={i} x={item.x ?? defaultPos.x} y={item.y ?? defaultPos.y} {...textProps} onMouseDown={e => handleDragStart(e, index, i, defaultPos)}>
+                                                              <tspan contentEditable={isEditing} suppressContentEditableWarning={true} onBlur={(e) => handleContentUpdate(e, index, ['grafik_verisi', 'veri', i, 'deger'])} className={isEditing ? 'editable-field-svg' : ''}>{content[0]}</tspan>
+                                                              {content[1] && <tspan dy={content[1] === '°' ? -3 : 0}>{content[1]}</tspan>}
+                                                          </text>
+                                                      })}
                                                   </g>
                                               );
                                           }
-                                          case 'dikdortgen':
+                                         case 'dikdortgen':
                                           case 'kare': {
                                               const cornerLabels = getCornerLabels(data, ['A', 'B', 'C', 'D']);
                                               const [c1, c2, c3, c4] = cornerLabels;
-
                                               const pts = { [c1]: {x: 40, y: 30}, [c2]: {x: 210, y: 30}, [c3]: {x: 210, y: 150}, [c4]: {x: 40, y: 150} };
-                                              
-                                              const sideH = findData(new RegExp(`${c1}${c2}|${c4}${c3}|Uzun|Genişlik|Kenar`, 'i'));
-                                              const sideV = findData(new RegExp(`${c2}${c3}|${c1}${c4}|Kısa|Yükseklik`, 'i'));
                                               
                                               return (
                                                   <g>
                                                       <polygon points={`${pts[c1].x},${pts[c1].y} ${pts[c2].x},${pts[c2].y} ${pts[c3].x},${pts[c3].y} ${pts[c4].x},${pts[c4].y}`} className="fill-blue-100/50 stroke-blue-500" strokeWidth="2" />
-                                                      <text {...pts[c4]} dx="-12" dy="15" textAnchor="middle" className="font-semibold text-lg">{c4}</text>
-                                                      <text {...pts[c1]} dx="-12" dy="-5" textAnchor="middle" className="font-semibold text-lg">{c1}</text>
-                                                      <text {...pts[c2]} dx="12" dy="-5" textAnchor="middle" className="font-semibold text-lg">{c2}</text>
-                                                      <text {...pts[c3]} dx="12" dy="15" textAnchor="middle" className="font-semibold text-lg">{c3}</text>
-
                                                       <path d={`M ${pts[c4].x} ${pts[c4].y-15} L ${pts[c4].x+15} ${pts[c4].y-15} L ${pts[c4].x+15} ${pts[c4].y}`} className="fill-none stroke-current" strokeWidth="1.5" />
-                                                      
-                                                      {sideH && <text x={(pts[c1].x+pts[c2].x)/2} y={pts[c1].y - 10} className="text-[10pt]" textAnchor="middle" dominantBaseline="auto"><tspan {...editableProps(['grafik_verisi', 'veri', findIndex(new RegExp(`${c1}${c2}|${c4}${c3}|Uzun|Genişlik|Kenar`, 'i')), 'deger'])}>{sideH.deger}</tspan><tspan>{sideH.birim}</tspan></text>}
-                                                      {sideV && <text x={pts[c2].x + 10} y={(pts[c2].y+pts[c3].y)/2} className="text-[10pt]" textAnchor="start" dominantBaseline="middle"><tspan {...editableProps(['grafik_verisi', 'veri', findIndex(new RegExp(`${c2}${c3}|${c1}${c4}|Kısa|Yükseklik`, 'i')), 'deger'])}>{sideV.deger}</tspan><tspan>{sideV.birim}</tspan></text>}
-                                                      {q.grafik_verisi!.tip === 'kare' && sideH && !sideV && <text x={pts[c2].x + 10} y={(pts[c2].y+pts[c3].y)/2} className="text-[10pt]" textAnchor="start" dominantBaseline="middle"><tspan {...editableProps(['grafik_verisi', 'veri', findIndex(new RegExp(`${c1}${c2}|${c4}${c3}|Uzun|Genişlik|Kenar`, 'i')), 'deger'])}>{sideH.deger}</tspan><tspan>{sideH.birim}</tspan></text>}
+                                                      {data.map((item, i) => {
+                                                            let defaultPos = {x:0, y:0};
+                                                            let content: (string | number | undefined)[] = [];
+                                                            const textProps: any = { textAnchor: "middle", dominantBaseline: "middle", className: "text-[10pt]" };
+
+                                                            if (item.etiket.includes(`${c1} Köşesi`)) { defaultPos = {x: pts[c1].x-12, y: pts[c1].y-5}; content=[c1]; textProps.className="font-semibold text-lg"; }
+                                                            else if (item.etiket.includes(`${c2} Köşesi`)) { defaultPos = {x: pts[c2].x+12, y: pts[c2].y-5}; content=[c2]; textProps.className="font-semibold text-lg"; }
+                                                            else if (item.etiket.includes(`${c3} Köşesi`)) { defaultPos = {x: pts[c3].x+12, y: pts[c3].y+15}; content=[c3]; textProps.className="font-semibold text-lg"; }
+                                                            else if (item.etiket.includes(`${c4} Köşesi`)) { defaultPos = {x: pts[c4].x-12, y: pts[c4].y+15}; content=[c4]; textProps.className="font-semibold text-lg"; }
+                                                            else if (item.etiket.match(new RegExp(`${c1}${c2}|${c4}${c3}|Uzun|Genişlik|Kenar`, 'i'))) { defaultPos = {x: (pts[c1].x+pts[c2].x)/2, y: pts[c1].y - 10}; content=[item.deger, item.birim]; }
+                                                            else if (item.etiket.match(new RegExp(`${c2}${c3}|${c1}${c4}|Kısa|Yükseklik`, 'i'))) { defaultPos = {x: pts[c2].x + 10, y: (pts[c2].y+pts[c3].y)/2}; content=[item.deger, item.birim]; textProps.textAnchor="start"; }
+                                                            else return null;
+
+                                                            return <text key={i} x={item.x ?? defaultPos.x} y={item.y ?? defaultPos.y} {...textProps} onMouseDown={e => handleDragStart(e, index, i, defaultPos)}>
+                                                                <tspan contentEditable={isEditing} suppressContentEditableWarning={true} onBlur={(e) => handleContentUpdate(e, index, ['grafik_verisi', 'veri', i, 'deger'])} className={isEditing ? 'editable-field-svg' : ''}>{content[0]}</tspan>
+                                                                {content[1] && <tspan>{content[1]}</tspan>}
+                                                            </text>
+                                                      })}
                                                   </g>
                                               )
-                                          }
-                                          case 'kup': {
-                                              const side = findData(/Kenar/i);
-                                              const o = {x: 125, y: 105}; // Origin
-                                              const size = 60; const angle = 0.5;
-                                              const pts = [
-                                                  {x: o.x - size, y: o.y + size * angle}, {x: o.x + size, y: o.y + size * angle},
-                                                  {x: o.x + size, y: o.y - size * angle}, {x: o.x - size, y: o.y - size * angle},
-                                                  {x: o.x - size, y: o.y + size * angle - size*2}, {x: o.x + size, y: o.y + size * angle - size*2},
-                                                  {x: o.x + size, y: o.y - size * angle - size*2}, {x: o.x - size, y: o.y - size * angle - size*2},
-                                              ];
-                                              return (
-                                                  <g className="stroke-blue-600 fill-blue-100/30" strokeWidth="1.5">
-                                                      <path d={`M ${pts[3].x} ${pts[3].y} L ${pts[0].x} ${pts[0].y} L ${pts[4].x} ${pts[4].y} L ${pts[7].x} ${pts[7].y} Z`} />
-                                                      <path d={`M ${pts[0].x} ${pts[0].y} L ${pts[1].x} ${pts[1].y} L ${pts[5].x} ${pts[5].y} L ${pts[4].x} ${pts[4].y} Z`} />
-                                                      <path d={`M ${pts[7].x} ${pts[7].y} L ${pts[4].x} ${pts[4].y} L ${pts[5].x} ${pts[5].y} L ${pts[6].x} ${pts[6].y} Z`} />
-                                                      
-                                                      {side && <text x={o.x} y={o.y + size * angle + 10} className="text-[10pt] fill-current stroke-none" textAnchor="middle"><tspan {...editableProps(['grafik_verisi', 'veri', findIndex(/Kenar/i), 'deger'])}>{side.deger}</tspan><tspan>{side.birim}</tspan></text>}
-                                                  </g>
-                                              );
-                                          }
-                                          case 'dogru_parcasi': {
-                                              const p1Label = data[0]?.etiket.match(/^(\w+)/)?.[1] || 'A';
-                                              const p2Label = data[1]?.etiket.match(/^(\w+)/)?.[1] || 'B';
-                                              return (<g>
-                                                  <line x1="50" y1="90" x2="200" y2="90" className="stroke-blue-500" strokeWidth="2" />
-                                                  <circle cx="50" cy="90" r="4" className="fill-blue-500" />
-                                                  <circle cx="200" cy="90" r="4" className="fill-blue-500" />
-                                                  <text x="40" y="90" textAnchor="end" dominantBaseline="middle" className="font-semibold text-lg"><tspan {...editableProps(['grafik_verisi', 'veri', 0, 'etiket'])}>{p1Label}</tspan></text>
-                                                  <text x="210" y="90" textAnchor="start" dominantBaseline="middle" className="font-semibold text-lg"><tspan {...editableProps(['grafik_verisi', 'veri', 1, 'etiket'])}>{p2Label}</tspan></text>
-                                              </g>);
-                                          }
-                                          case 'isin': {
-                                              const startLabel = data.find(d => d.etiket.includes("Başlangıç"))?.etiket.match(/^(\w+)/)?.[1] || 'A';
-                                              return (<g>
-                                                  <line x1="50" y1="90" x2="200" y2="90" className="stroke-blue-500" strokeWidth="2" markerEnd={`url(#arrow-${quizId}-${index})`} />
-                                                  <circle cx="50" cy="90" r="4" className="fill-blue-500" />
-                                                  <text x="40" y="90" textAnchor="end" dominantBaseline="middle" className="font-semibold text-lg"><tspan {...editableProps(['grafik_verisi', 'veri', 0, 'etiket'])}>{startLabel}</tspan></text>
-                                              </g>);
-                                          }
-                                          case 'dogru': {
-                                              const name = data[0]?.etiket.match(/(\w+)/)?.[1] || 'd';
-                                              return (<g>
-                                                  <line x1="40" y1="90" x2="210" y2="90" className="stroke-blue-500" strokeWidth="2" markerStart={`url(#arrow-${quizId}-${index})`} markerEnd={`url(#arrow-${quizId}-${index})`} />
-                                                  <text x="220" y="90" textAnchor="start" dominantBaseline="middle" className="font-semibold text-lg italic"><tspan {...editableProps(['grafik_verisi', 'veri', 0, 'etiket'])}>{name}</tspan></text>
-                                              </g>);
-                                          }
-                                          case 'paralel_dogrular': {
-                                              const name1 = data[0]?.etiket.match(/(\w+\d*)/)?.[1] || 'd1';
-                                              const name2 = data[1]?.etiket.match(/(\w+\d*)/)?.[1] || 'd2';
-                                              return (<g>
-                                                  <line x1="40" y1="70" x2="210" y2="70" className="stroke-blue-500" strokeWidth="2" markerStart={`url(#arrow-${quizId}-${index})`} markerEnd={`url(#arrow-${quizId}-${index})`} />
-                                                  <text x="220" y="70" textAnchor="start" dominantBaseline="middle" className="font-semibold text-lg italic"><tspan {...editableProps(['grafik_verisi', 'veri', 0, 'etiket'])}>{name1}</tspan></text>
-                                                  <line x1="40" y1="110" x2="210" y2="110" className="stroke-blue-500" strokeWidth="2" markerStart={`url(#arrow-${quizId}-${index})`} markerEnd={`url(#arrow-${quizId}-${index})`} />
-                                                  <text x="220" y="110" textAnchor="start" dominantBaseline="middle" className="font-semibold text-lg italic"><tspan {...editableProps(['grafik_verisi', 'veri', 1, 'etiket'])}>{name2}</tspan></text>
-                                              </g>);
-                                          }
-                                          case 'kesisen_dogrular':
-                                          case 'dik_kesisen_doğrular': {
-                                               const line1DataIndex = data.findIndex(d => d.etiket.includes('doğrusu'));
-                                               const name1 = data[line1DataIndex]?.etiket.match(/(\w+\d*)/)?.[1] || 'd1';
-                                               const line2DataIndex = data.findIndex((d, i) => i > line1DataIndex && d.etiket.includes('doğrusu'));
-                                               const name2 = data[line2DataIndex]?.etiket.match(/(\w+\d*)/)?.[1] || 'd2';
-                                               const isDik = q.grafik_verisi!.tip === 'dik_kesisen_doğrular';
-                                               return (<g>
-                                                  {isDik ? <>
-                                                      <line x1="125" y1="30" x2="125" y2="150" className="stroke-blue-500" strokeWidth="2" markerStart={`url(#arrow-${quizId}-${index})`} markerEnd={`url(#arrow-${quizId}-${index})`} />
-                                                      <text x="130" y="35" className="font-semibold text-lg italic"><tspan {...editableProps(['grafik_verisi', 'veri', line1DataIndex, 'etiket'])}>{name1}</tspan></text>
-                                                      <line x1="50" y1="90" x2="200" y2="90" className="stroke-blue-500" strokeWidth="2" markerStart={`url(#arrow-${quizId}-${index})`} markerEnd={`url(#arrow-${quizId}-${index})`} />
-                                                      <text x="195" y="80" className="font-semibold text-lg italic"><tspan {...editableProps(['grafik_verisi', 'veri', line2DataIndex, 'etiket'])}>{name2}</tspan></text>
-                                                      <path d="M 125 80 L 135 80 L 135 90" className="fill-none stroke-current" strokeWidth="1.5" />
-                                                  </> : <>
-                                                      <line x1="50" y1="50" x2="200" y2="130" className="stroke-blue-500" strokeWidth="2" markerStart={`url(#arrow-${quizId}-${index})`} markerEnd={`url(#arrow-${quizId}-${index})`} />
-                                                      <text x="195" y="120" className="font-semibold text-lg italic"><tspan {...editableProps(['grafik_verisi', 'veri', line1DataIndex, 'etiket'])}>{name1}</tspan></text>
-                                                      <line x1="50" y1="130" x2="200" y2="50" className="stroke-blue-500" strokeWidth="2" markerStart={`url(#arrow-${quizId}-${index})`} markerEnd={`url(#arrow-${quizId}-${index})`} />
-                                                      <text x="195" y="60" className="font-semibold text-lg italic"><tspan {...editableProps(['grafik_verisi', 'veri', line2DataIndex, 'etiket'])}>{name2}</tspan></text>
-                                                  </>}
-                                               </g>);
                                           }
                                           default: return null;
                                       }
                                   })()}
-
                               </svg>
                           </div>
                       )}
