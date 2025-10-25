@@ -1,8 +1,4 @@
 
-
-
-
-
 import React, { useRef, useState, useEffect } from 'react';
 import { DetailedQuestion, ChartDataItem } from '../types';
 import { DownloadIcon, PrintIcon, ShareIcon, SparklesIcon, SettingsIcon, CopyIcon, CheckIcon, RefreshCwIcon, EditIcon } from './icons';
@@ -164,7 +160,7 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
   const handleShapeDragStart = (e: React.MouseEvent<SVGGElement>, questionIndex: number) => {
     if (!isEditing) return;
     
-    if ((e.target as SVGElement).closest('text, path')) return;
+    if ((e.target as SVGElement).closest('text, path, circle, line, polygon')) return;
 
     const svg = svgRefs.current[questionIndex];
     if (!svg) return;
@@ -726,15 +722,40 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                               }
 
                               match = item.etiket.match(/^(\w)(\w)\s+Kenarı/i);
-                              if (match && vertexCoords[match[1].toUpperCase()] && vertexCoords[match[2].toUpperCase()]) {
-                                  const p1 = vertexCoords[match[1].toUpperCase()];
-                                  const p2 = vertexCoords[match[2].toUpperCase()];
-                                  const midX = (p1.x + p2.x) / 2;
-                                  const midY = (p1.y + p2.y) / 2;
-                                  const angle = Math.atan2(p2.y - p1.y, p2.x - p1.x);
-                                  defaultPos = { x: midX + 10 * Math.sin(angle), y: midY - 10 * Math.cos(angle) };
-                                  content = [item.deger, item.birim];
-                              }
+                                if (match && vertexCoords[match[1].toUpperCase()] && vertexCoords[match[2].toUpperCase()]) {
+                                    const p1 = vertexCoords[match[1].toUpperCase()];
+                                    const p2 = vertexCoords[match[2].toUpperCase()];
+                                    const midX = (p1.x + p2.x) / 2;
+                                    const midY = (p1.y + p2.y) / 2;
+
+                                    const dx = p2.x - p1.x;
+                                    const dy = p2.y - p1.y;
+
+                                    let normalX = -dy;
+                                    let normalY = dx;
+                                    
+                                    const vecToCentroidX = centroid.x - midX;
+                                    const vecToCentroidY = centroid.y - midY;
+
+                                    const dotProduct = (normalX * vecToCentroidX) + (normalY * vecToCentroidY);
+                                    if (dotProduct > 0) {
+                                        normalX *= -1;
+                                        normalY *= -1;
+                                    }
+
+                                    const mag = Math.sqrt(normalX * normalX + normalY * normalY);
+                                    if (mag > 0.001) {
+                                        const normalizedNormalX = normalX / mag;
+                                        const normalizedNormalY = normalY / mag;
+                                        const offset = 14;
+                                        defaultPos = { x: midX + offset * normalizedNormalX, y: midY + offset * normalizedNormalY };
+                                    } else {
+                                        const angle = Math.atan2(p2.y - p1.y, p2.x - p1.x);
+                                        defaultPos = { x: midX + 10 * Math.sin(angle), y: midY - 10 * Math.cos(angle) };
+                                    }
+                                    
+                                    content = [item.deger, item.birim];
+                                }
 
                               match = item.etiket.match(/^(\w)\s+Açısı/i);
                                if (match && vertexCoords[match[1].toUpperCase()]) {
