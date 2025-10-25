@@ -249,29 +249,29 @@ Teşekkürler.
                     />
                     
                     {generatedQuiz && (
-                         <div className="mt-8 bg-white/50 backdrop-blur-xl p-6 sm:p-8 rounded-3xl shadow-2xl border border-white/50 non-printable">
-                            <h3 className="text-xl font-semibold text-slate-700 text-center">Üretilen Soru Hakkında Geri Bildirim</h3>
+                         <div className="mt-8 bg-[--bg-component] backdrop-blur-xl p-6 sm:p-8 rounded-3xl shadow-2xl border border-[--border-color] non-printable">
+                            <h3 className="text-xl font-semibold text-[--text-secondary] text-center">Üretilen Soru Hakkında Geri Bildirim</h3>
                             {feedbackSent ? (
                                 <div className="text-center mt-4 p-4 bg-green-500/20 text-green-800 rounded-xl">
                                     <p className="font-semibold">Teşekkürler! Geri bildiriminiz en kısa sürede editörlerimiz tarafından incelemeye alınacaktır.</p>
                                 </div>
                             ) : (
                                 <>
-                                <p className="text-slate-500 mt-2 text-center text-sm">Üretilen soruların kalitesini artırmamıza yardımcı olun.</p>
+                                <p className="text-[--text-muted] mt-2 text-center text-sm">Üretilen soruların kalitesini artırmamıza yardımcı olun.</p>
                                 <div className="mt-4 flex flex-wrap justify-center gap-3">
-                                    <button onClick={() => handleSendFeedback('Soru Hatalı')} className="px-4 py-2 text-sm bg-white/60 border border-slate-300/50 rounded-full hover:bg-white/80 transition-all">Soru Hatalı</button>
-                                    <button onClick={() => handleSendFeedback('Zorluk Seviyesi Uygun Değil')} className="px-4 py-2 text-sm bg-white/60 border border-slate-300/50 rounded-full hover:bg-white/80 transition-all">Zorluk Seviyesi Uygun Değil</button>
-                                    <button onClick={() => handleSendFeedback('Bağlantı Zayıf')} className="px-4 py-2 text-sm bg-white/60 border border-slate-300/50 rounded-full hover:bg-white/80 transition-all">Bağlantı Zayıf</button>
+                                    <button onClick={() => handleSendFeedback('Soru Hatalı')} className="px-4 py-2 text-sm bg-[--bg-component] border border-[--border-muted] rounded-full hover:bg-[--bg-component-hover] transition-all">Soru Hatalı</button>
+                                    <button onClick={() => handleSendFeedback('Zorluk Seviyesi Uygun Değil')} className="px-4 py-2 text-sm bg-[--bg-component] border border-[--border-muted] rounded-full hover:bg-[--bg-component-hover] transition-all">Zorluk Seviyesi Uygun Değil</button>
+                                    <button onClick={() => handleSendFeedback('Bağlantı Zayıf')} className="px-4 py-2 text-sm bg-[--bg-component] border border-[--border-muted] rounded-full hover:bg-[--bg-component-hover] transition-all">Bağlantı Zayıf</button>
                                 </div>
                                 <div className="mt-4">
                                     <textarea 
                                         rows={2} 
                                         placeholder="Diğer yorumlarınız..." 
-                                        className="w-full p-2.5 text-sm bg-white/60 border border-slate-300/50 rounded-md shadow-sm focus:ring-1 focus:ring-purple-500"
+                                        className="w-full p-2.5 text-sm bg-[--bg-component] border border-[--border-muted] rounded-md shadow-sm focus:ring-1 focus:ring-[--text-accent]"
                                         value={feedbackText}
                                         onChange={(e) => setFeedbackText(e.target.value)}
                                     ></textarea>
-                                    <button onClick={() => handleSendFeedback()} className="w-full mt-2 bg-purple-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-purple-600 transition-all">
+                                    <button onClick={() => handleSendFeedback()} className="w-full mt-2 bg-[--accent-gradient-via] text-[--text-inverted] font-semibold py-2 px-4 rounded-lg hover:bg-[--accent-gradient-via]/90 transition-all">
                                         Gönder
                                     </button>
                                 </div>
@@ -281,9 +281,9 @@ Teşekkürler.
                     )}
                  </div>
             ) : !isLoading && !error && (
-                 <div className="text-center mt-12 p-8 bg-white/50 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/50 animate-fade-in-up" style={{ animationDelay: '300ms' }}>
-                    <h3 className="text-xl font-semibold text-slate-700">Sınavınızı Oluşturmaya Başlayın</h3>
-                    <p className="text-slate-500 mt-2">Yukarıdaki menüden sınıf, ünite ve kazanım seçerek yapay zeka destekli sınavınızı oluşturun.</p>
+                 <div className="text-center mt-12 p-8 bg-[--bg-component] backdrop-blur-xl rounded-3xl shadow-2xl border border-[--border-color] animate-fade-in-up" style={{ animationDelay: '300ms' }}>
+                    <h3 className="text-xl font-semibold text-[--text-primary]">Sınavınızı Oluşturmaya Başlayın</h3>
+                    <p className="text-[--text-secondary] mt-2">Yukarıdaki menüden sınıf, ünite ve kazanım seçerek yapay zeka destekli sınavınızı oluşturun.</p>
                 </div>
             )}
         </>

@@ -105,11 +105,11 @@ const HistoryList: React.FC = () => {
 
     if (history.length === 0) {
         return (
-            <div className="text-center mt-12 p-8 bg-white/50 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/50 animate-fade-in-up">
-                <HistoryIcon className="w-12 h-12 mx-auto text-slate-400 mb-4" />
-                <h3 className="text-xl font-semibold text-slate-700">Geçmiş Sınav Bulunamadı</h3>
-                <p className="text-slate-500 mt-2">Henüz bir sınav oluşturmadınız. Yeni bir sınav oluşturduğunuzda burada listelenecektir.</p>
-                <Link to="/" className="mt-6 inline-block bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white font-semibold py-2 px-5 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+            <div className="text-center mt-12 p-8 bg-[--bg-component] backdrop-blur-xl rounded-3xl shadow-2xl border border-[--border-color] animate-fade-in-up">
+                <HistoryIcon className="w-12 h-12 mx-auto text-[--text-muted] mb-4" />
+                <h3 className="text-xl font-semibold text-[--text-primary]">Geçmiş Sınav Bulunamadı</h3>
+                <p className="text-[--text-secondary] mt-2">Henüz bir sınav oluşturmadınız. Yeni bir sınav oluşturduğunuzda burada listelenecektir.</p>
+                <Link to="/" className="mt-6 inline-block bg-gradient-to-r from-[--accent-gradient-from] via-[--accent-gradient-via] to-[--accent-gradient-to] text-[--text-inverted] font-semibold py-2 px-5 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105">
                     Yeni Sınav Oluştur
                 </Link>
             </div>
@@ -117,12 +117,12 @@ const HistoryList: React.FC = () => {
     }
 
     return (
-        <div className="bg-white/50 backdrop-blur-xl p-6 sm:p-8 rounded-3xl shadow-2xl border border-white/50 animate-fade-in-up">
-            <h2 className="text-2xl font-bold text-slate-800 mb-6">Geçmiş Sınavlar</h2>
+        <div className="bg-[--bg-component] backdrop-blur-xl p-6 sm:p-8 rounded-3xl shadow-2xl border border-[--border-color] animate-fade-in-up">
+            <h2 className="text-2xl font-bold text-[--text-primary] mb-6">Geçmiş Sınavlar</h2>
             <div className="space-y-8">
                 {Object.entries(groupedQuizzes).map(([groupName, quizzes]) => (
                     <div key={groupName}>
-                        <h3 className="text-lg font-semibold text-slate-600 mb-3 border-b border-slate-300/70 pb-2">{groupName}</h3>
+                        <h3 className="text-lg font-semibold text-[--text-secondary] mb-3 border-b border-[--border-muted] pb-2">{groupName}</h3>
                         <div className="space-y-4">
                            {(quizzes as SavedQuiz[]).map((quiz) => {
                                 const firstQuestion = quiz.questions[0];
@@ -130,9 +130,9 @@ const HistoryList: React.FC = () => {
                                 const isEditing = editingQuizId === quiz.id;
 
                                 return (
-                                    <div key={quiz.id} className="bg-white/60 p-4 rounded-xl shadow-sm transition-all hover:shadow-lg group flex items-center gap-4">
-                                        <div className="flex-shrink-0 p-3 bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg hidden sm:flex items-center justify-center">
-                                            <DocumentTextIcon className="w-6 h-6 text-blue-600" />
+                                    <div key={quiz.id} className="bg-[--bg-component] p-4 rounded-xl shadow-sm transition-all hover:shadow-lg group flex items-center gap-4">
+                                        <div className="flex-shrink-0 p-3 bg-gradient-to-br from-[--accent-gradient-from]/20 to-[--accent-gradient-via]/20 rounded-lg hidden sm:flex items-center justify-center">
+                                            <DocumentTextIcon className="w-6 h-6 text-[--text-accent]" />
                                         </div>
 
                                         <div className="flex-grow w-full overflow-hidden">
@@ -146,34 +146,34 @@ const HistoryList: React.FC = () => {
                                                             if (e.key === 'Enter') handleRename(quiz.id);
                                                             if (e.key === 'Escape') setEditingQuizId(null);
                                                         }}
-                                                        className="w-full font-semibold text-lg text-blue-800 bg-white/80 border border-blue-300 rounded-md px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                                        className="w-full font-semibold text-lg text-[--text-accent] bg-[--bg-component-solid]/80 border border-[--text-accent]/50 rounded-md px-2 py-1 focus:ring-2 focus:ring-[--text-accent] focus:outline-none"
                                                         autoFocus
                                                     />
                                                     <button onClick={() => handleRename(quiz.id)} title="Kaydet" className="p-2 rounded-full text-green-600 hover:bg-green-100">
                                                         <CheckIcon className="w-5 h-5" />
                                                     </button>
-                                                    <button onClick={() => setEditingQuizId(null)} title="İptal" className="p-2 rounded-full text-slate-500 hover:bg-slate-100">
+                                                    <button onClick={() => setEditingQuizId(null)} title="İptal" className="p-2 rounded-full text-[--text-secondary] hover:bg-[--bg-interactive-muted]">
                                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                                                     </button>
                                                 </div>
                                             ) : (
                                                 <Link to={`/history/${quiz.id}`} className="block group/link">
-                                                    <p className="font-semibold text-lg text-blue-800 group-hover/link:underline truncate" title={quizTitle}>{quizTitle}</p>
+                                                    <p className="font-semibold text-lg text-[--text-accent] group-hover/link:underline truncate" title={quizTitle}>{quizTitle}</p>
                                                 </Link>
                                             )}
                                             
                                             <div className="flex items-center flex-wrap gap-2 mt-2">
-                                                <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full font-medium">
+                                                <span className="text-xs bg-[--accent-gradient-via]/20 text-[--accent-gradient-via] px-2 py-1 rounded-full font-medium">
                                                     {quiz.gradeName}
                                                 </span>
-                                                <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full font-medium truncate" title={firstQuestion.unite_adi}>
+                                                <span className="text-xs bg-[--accent-gradient-from]/20 text-[--accent-gradient-from] px-2 py-1 rounded-full font-medium truncate" title={firstQuestion.unite_adi}>
                                                     {firstQuestion.unite_adi}
                                                 </span>
-                                                <span className="text-xs bg-slate-200 text-slate-700 px-2 py-1 rounded-full font-medium">
+                                                <span className="text-xs bg-[--bg-interactive-muted] text-[--text-secondary] px-2 py-1 rounded-full font-medium">
                                                     {quiz.questions.length} Soru
                                                 </span>
                                             </div>
-                                            <p className="text-xs text-slate-500 mt-2">
+                                            <p className="text-xs text-[--text-muted] mt-2">
                                                 Oluşturulma: {new Date(quiz.createdAt).toLocaleString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                                             </p>
                                         </div>
@@ -183,7 +183,7 @@ const HistoryList: React.FC = () => {
                                                 <button
                                                     onClick={() => handleStartEditing(quiz)}
                                                     title="Sınavı Yeniden Adlandır"
-                                                    className="p-2 rounded-full text-slate-500 hover:bg-blue-500/10 hover:text-blue-600"
+                                                    className="p-2 rounded-full text-[--text-secondary] hover:bg-[--text-accent]/10 hover:text-[--text-accent]"
                                                 >
                                                     <EditIcon className="w-5 h-5" />
                                                 </button>
@@ -192,14 +192,14 @@ const HistoryList: React.FC = () => {
                                                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleArchive(quiz); }}
                                                 disabled={archivedStatus[quiz.id]}
                                                 title={archivedStatus[quiz.id] ? "Arşivlendi" : "Sınavı Arşive Ekle"}
-                                                className="p-2 rounded-full text-slate-500 hover:bg-purple-500/10 hover:text-purple-600 disabled:text-green-600 disabled:cursor-not-allowed"
+                                                className="p-2 rounded-full text-[--text-secondary] hover:bg-[--accent-gradient-via]/10 hover:text-[--accent-gradient-via] disabled:text-green-600 disabled:cursor-not-allowed"
                                             >
                                                 {archivedStatus[quiz.id] ? <CheckIcon className="w-5 h-5" /> : <ArchiveAddIcon className="w-5 h-5" />}
                                             </button>
                                             <button
                                                 onClick={() => handleDelete(quiz.id, quizTitle)}
                                                 title="Sınavı Sil"
-                                                className="p-2 rounded-full text-slate-500 hover:bg-red-500/10 hover:text-red-600"
+                                                className="p-2 rounded-full text-[--text-secondary] hover:bg-red-500/10 hover:text-red-600"
                                             >
                                                 <TrashIcon className="w-5 h-5" />
                                             </button>

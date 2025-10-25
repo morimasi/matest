@@ -2,7 +2,7 @@
 
 import React, { useRef, useState, useEffect } from 'react';
 import { DetailedQuestion, ChartDataItem } from '../types';
-import { DownloadIcon, PrintIcon, ShareIcon, SparklesIcon, SettingsIcon, CopyIcon, CheckIcon, RefreshCwIcon, EditIcon } from './icons';
+import { DownloadIcon, PrintIcon, ShareIcon, SparklesIcon, SettingsIcon, CopyIcon, CheckIcon, RefreshCwIcon, EditIcon, ArchiveAddIcon } from './icons';
 
 
 interface QuizViewProps {
@@ -400,6 +400,15 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
           <button onClick={handleCopyLink} title="Bağlantıyı Kopyala" className="p-2 rounded-full hover:bg-black/10 transition-all duration-300">
              {copyStatus === 'copied' ? <CheckIcon className="w-6 h-6 text-green-600" /> : <CopyIcon className="w-6 h-6 text-slate-600" />}
           </button>
+          {onArchive && (
+            <button onClick={onArchive} disabled={isArchived} title={isArchived ? "Arşivlendi" : "Arşive Ekle"} className="p-2 rounded-full hover:bg-black/10 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
+              {isArchived ? (
+                <CheckIcon className="w-6 h-6 text-green-600" />
+              ) : (
+                <ArchiveAddIcon className="w-6 h-6 text-slate-600" />
+              )}
+            </button>
+          )}
            {onUpdateQuiz && (
               <button onClick={handleToggleEdit} title={isEditing ? "Değişiklikleri Kaydet" : "Sınavı Düzenle"} className="p-2 rounded-full hover:bg-black/10 transition-all duration-300">
                 {isEditing ? <CheckIcon className="w-6 h-6 text-green-600" /> : <EditIcon className="w-6 h-6 text-slate-600" />}
