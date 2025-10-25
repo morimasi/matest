@@ -1,6 +1,7 @@
 
 
 
+
 import React, { useRef, useState, useEffect } from 'react';
 import { DetailedQuestion, ChartDataItem } from '../types';
 import { DownloadIcon, PrintIcon, ShareIcon, SparklesIcon, SettingsIcon, CopyIcon, CheckIcon, RefreshCwIcon, EditIcon } from './icons';
@@ -647,12 +648,10 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                       )}
                       {['ucgen', 'dikdortgen', 'kare', 'besgen', 'altıgen', 'dogru_parcasi', 'isin', 'dogru', 'paralel_dogrular', 'kesisen_dogrular', 'dik_kesisen_doğrular'].includes(q.grafik_verisi.tip) && (() => {
                           const { tip, veri } = q.grafik_verisi;
-                          // FIX: Changed JSX.Element to React.ReactElement to resolve "Cannot find namespace 'JSX'" error.
                           const shapeElements: React.ReactElement[] = [];
                           const textElements: React.ReactElement[] = [];
                           const vertexCoords: { [key: string]: { x: number; y: number } } = {};
 
-                          // 1. Identify vertices and assign default coordinates
                           const vertexLabels = new Set<string>();
                            veri.forEach(item => {
                                 let match = item.etiket.match(/^(\w)\s+(Köşesi|Noktası|Başlangıç Noktası)/i);
@@ -680,20 +679,20 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                                 shapeElements.push(<polygon key="shape" points={`${vertexCoords[labels[0]].x},${vertexCoords[labels[0]].y} ${vertexCoords[labels[1]].x},${vertexCoords[labels[1]].y} ${vertexCoords[labels[2]].x},${vertexCoords[labels[2]].y} ${vertexCoords[labels[3]].x},${vertexCoords[labels[3]].y}`} className="fill-blue-100/50 stroke-blue-500" strokeWidth="2" />);
                             } else if (tip === 'besgen') {
                                 const labels = sortedVertexLabels.length >= 5 ? sortedVertexLabels : ['A', 'B', 'C', 'D', 'E'];
-                                vertexCoords[labels[0]] = { x: 125, y: 20 }; // Top
-                                vertexCoords[labels[1]] = { x: 215, y: 80 }; // Top-right
-                                vertexCoords[labels[2]] = { x: 175, y: 160 }; // Bottom-right
-                                vertexCoords[labels[3]] = { x: 75, y: 160 }; // Bottom-left
-                                vertexCoords[labels[4]] = { x: 35, y: 80 }; // Top-left
+                                vertexCoords[labels[0]] = { x: 125, y: 20 };
+                                vertexCoords[labels[1]] = { x: 215, y: 80 };
+                                vertexCoords[labels[2]] = { x: 175, y: 160 };
+                                vertexCoords[labels[3]] = { x: 75, y: 160 };
+                                vertexCoords[labels[4]] = { x: 35, y: 80 };
                                 shapeElements.push(<polygon key="shape" points={labels.map(l => `${vertexCoords[l].x},${vertexCoords[l].y}`).join(' ')} className="fill-blue-100/50 stroke-blue-500" strokeWidth="2" />);
                             } else if (tip === 'altıgen') {
                                 const labels = sortedVertexLabels.length >= 6 ? sortedVertexLabels : ['A', 'B', 'C', 'D', 'E', 'F'];
-                                vertexCoords[labels[0]] = { x: 85, y: 30 }; // Top-left
-                                vertexCoords[labels[1]] = { x: 165, y: 30 }; // Top-right
-                                vertexCoords[labels[2]] = { x: 205, y: 90 }; // Right
-                                vertexCoords[labels[3]] = { x: 165, y: 150 }; // Bottom-right
-                                vertexCoords[labels[4]] = { x: 85, y: 150 }; // Bottom-left
-                                vertexCoords[labels[5]] = { x: 45, y: 90 }; // Left
+                                vertexCoords[labels[0]] = { x: 85, y: 30 };
+                                vertexCoords[labels[1]] = { x: 165, y: 30 };
+                                vertexCoords[labels[2]] = { x: 205, y: 90 };
+                                vertexCoords[labels[3]] = { x: 165, y: 150 };
+                                vertexCoords[labels[4]] = { x: 85, y: 150 };
+                                vertexCoords[labels[5]] = { x: 45, y: 90 };
                                 shapeElements.push(<polygon key="shape" points={labels.map(l => `${vertexCoords[l].x},${vertexCoords[l].y}`).join(' ')} className="fill-blue-100/50 stroke-blue-500" strokeWidth="2" />);
                             } else if (['dogru_parcasi', 'isin', 'dogru'].includes(tip)) {
                                 const labels = sortedVertexLabels.length >= 2 ? sortedVertexLabels : ['A', 'B'];
@@ -701,7 +700,6 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                                 vertexCoords[labels[1]] = { x: 210, y: 90 };
                             }
 
-                          // 2. Process and position labels
                           const centroid = {
                               x: Object.values(vertexCoords).reduce((sum, v) => sum + v.x, 0) / (Object.keys(vertexCoords).length || 1),
                               y: Object.values(vertexCoords).reduce((sum, v) => sum + v.y, 0) / (Object.keys(vertexCoords).length || 1)
@@ -712,7 +710,6 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                               let content: (string | number | undefined)[] | null = null;
                               const textProps: any = { textAnchor: "middle", dominantBaseline: "middle", className: `text-[10pt] fill-current ${isEditing ? 'cursor-grab' : ''}` };
 
-                              // Vertex labels
                               let match = item.etiket.match(/^(\w)\s+(Köşesi|Noktası|Başlangıç Noktası)/i);
                               if (match && vertexCoords[match[1].toUpperCase()]) {
                                   const vName = match[1].toUpperCase();
@@ -727,7 +724,6 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                                   textProps.className = `font-semibold text-lg fill-current ${isEditing ? 'cursor-grab' : ''}`;
                               }
 
-                              // Side labels
                               match = item.etiket.match(/^(\w)(\w)\s+Kenarı/i);
                               if (match && vertexCoords[match[1].toUpperCase()] && vertexCoords[match[2].toUpperCase()]) {
                                   const p1 = vertexCoords[match[1].toUpperCase()];
@@ -739,28 +735,54 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                                   content = [item.deger, item.birim];
                               }
 
-                              // Angle labels
                               match = item.etiket.match(/^(\w)\s+Açısı/i);
                               if (match && vertexCoords[match[1].toUpperCase()]) {
                                   const vName = match[1].toUpperCase();
                                   const vPos = vertexCoords[vName];
-                                  if (item.deger === 90) {
-                                      const neighbors = Object.keys(vertexCoords).filter(key => key !== vName)
-                                          .map(key => vertexCoords[key])
-                                          .sort((a,b) => (Math.abs(a.x - vPos.x) + Math.abs(a.y - vPos.y)) - (Math.abs(b.x - vPos.x) + Math.abs(b.y - vPos.y)))
-                                          .slice(0, 2);
-                                      if (neighbors.length === 2) {
-                                          const v1 = {x: neighbors[0].x - vPos.x, y: neighbors[0].y - vPos.y};
-                                          const v2 = {x: neighbors[1].x - vPos.x, y: neighbors[1].y - vPos.y};
-                                          const l1 = Math.sqrt(v1.x*v1.x + v1.y*v1.y);
-                                          const l2 = Math.sqrt(v2.x*v2.x + v2.y*v2.y);
-                                          const d = 15;
-                                          const p1 = {x: vPos.x + v1.x/l1*d, y: vPos.y + v1.y/l1*d};
-                                          const p2 = {x: vPos.x + v2.x/l2*d, y: vPos.y + v2.y/l2*d};
-                                          const p3 = {x: p1.x + v2.x/l2*d, y: p1.y + v2.y/l2*d};
-                                          shapeElements.push(<path key={`angle-${itemIndex}`} d={`M ${p1.x} ${p1.y} L ${p3.x} ${p3.y} L ${p2.x} ${p2.y}`} className="fill-none stroke-current" strokeWidth="1.5" />);
+                                  const neighbors = Object.keys(vertexCoords)
+                                      .filter(key => key !== vName)
+                                      .map(key => vertexCoords[key])
+                                      .sort((a, b) =>
+                                          (Math.pow(a.x - vPos.x, 2) + Math.pow(a.y - vPos.y, 2)) -
+                                          (Math.pow(b.x - vPos.x, 2) + Math.pow(b.y - vPos.y, 2))
+                                      )
+                                      .slice(0, 2);
+                              
+                                  if (neighbors.length === 2) {
+                                      const adjacent1 = neighbors[0];
+                                      const adjacent2 = neighbors[1];
+                                      const v1 = { x: adjacent1.x - vPos.x, y: adjacent1.y - vPos.y };
+                                      const v2 = { x: adjacent2.x - vPos.x, y: adjacent2.y - vPos.y };
+                                      const l1 = Math.sqrt(v1.x * v1.x + v1.y * v1.y);
+                                      const l2 = Math.sqrt(v2.x * v2.x + v2.y * v2.y);
+                              
+                                      if (l1 > 0.001 && l2 > 0.001) {
+                                          const v1_norm = { x: v1.x / l1, y: v1.y / l1 };
+                                          const v2_norm = { x: v2.x / l2, y: v2.y / l2 };
+                              
+                                          if (item.deger === 90) {
+                                              const d = 15;
+                                              const p1 = { x: vPos.x + v1_norm.x * d, y: vPos.y + v1_norm.y * d };
+                                              const p2 = { x: vPos.x + v2_norm.x * d, y: vPos.y + v2_norm.y * d };
+                                              const p3 = { x: p1.x + v2_norm.x * d, y: p1.y + v2_norm.y * d };
+                                              shapeElements.push(<path key={`angle-${itemIndex}`} d={`M ${p1.x} ${p1.y} L ${p3.x} ${p3.y} L ${p2.x} ${p2.y}`} className="fill-none stroke-current" strokeWidth="1.5" />);
+                                          } else if (item.deger) {
+                                              const bisector = { x: v1_norm.x + v2_norm.x, y: v1_norm.y + v2_norm.y };
+                                              const lBisector = Math.sqrt(bisector.x * bisector.x + bisector.y * bisector.y);
+                              
+                                              if (lBisector > 0.001) {
+                                                  const d = 25;
+                                                  defaultPos = {
+                                                      x: vPos.x + (bisector.x / lBisector) * d,
+                                                      y: vPos.y + (bisector.y / lBisector) * d
+                                                  };
+                                              } else {
+                                                  defaultPos = { x: vPos.x + (centroid.x - vPos.x) * 0.3, y: vPos.y + (centroid.y - vPos.y) * 0.3 };
+                                              }
+                                              content = [item.deger, '°'];
+                                          }
                                       }
-                                  } else {
+                                  } else if (item.deger) {
                                       defaultPos = { x: vPos.x + (centroid.x - vPos.x) * 0.3, y: vPos.y + (centroid.y - vPos.y) * 0.3 };
                                       content = [item.deger, '°'];
                                   }
@@ -773,7 +795,7 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                                       content = [pointName];
                                       textProps.className = `font-semibold text-lg fill-current ${isEditing ? 'cursor-grab' : ''}`;
                                       if (tip === 'kesisen_dogrular') {
-                                          defaultPos = { x: 130, y: 95 }; // Position near the intersection
+                                          defaultPos = { x: 130, y: 95 };
                                       }
                                   }
                               }
@@ -807,7 +829,6 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                               }
                           });
 
-                          // For simple line types without vertices
                           if (['dogru_parcasi', 'isin', 'dogru', 'paralel_dogrular', 'kesisen_dogrular', 'dik_kesisen_doğrular'].includes(tip)) {
                               shapeElements.push(
                                 ...(() => {
