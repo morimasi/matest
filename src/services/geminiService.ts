@@ -61,6 +61,10 @@ Eğer bir kazanım görsel bir veri gerektiriyorsa (Veri İşleme ünitelerindek
      "tip": "kesisen_dogrular", "baslik": "Kesişen Doğrular",
      "veri": [ { "etiket": "m doğrusu" }, { "etiket": "n doğrusu" }, { "etiket": "P Kesişim Noktası" } ]
    }
+   {
+     "tip": "dik_kesisen_doğrular", "baslik": "Dik Kesişen Doğrular",
+     "veri": [ { "etiket": "d doğrusu" }, { "etiket": "k doğrusu" } ]
+   }
 `
     : '';
 

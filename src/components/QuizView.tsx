@@ -757,6 +757,131 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                                                   </>
                                               )
                                           }
+                                         case 'dogru_parcasi': {
+                                              const p1 = { x: 40, y: 90 };
+                                              const p2 = { x: 210, y: 90 };
+                                              const dataP1 = data.find(d => d.etiket.match(/A|ilk/i));
+                                              const dataP2 = data.find(d => d.etiket.match(/B|ikinci/i));
+                                              const indexP1 = dataP1 ? data.indexOf(dataP1) : -1;
+                                              const indexP2 = dataP2 ? data.indexOf(dataP2) : -1;
+                                              const label1 = dataP1?.etiket.match(/^(\w+)/i)?.[1] || 'A';
+                                              const label2 = dataP2?.etiket.match(/^(\w+)/i)?.[1] || 'B';
+                                              const defaultPos1 = { x: p1.x, y: p1.y - 15 };
+                                              const defaultPos2 = { x: p2.x, y: p2.y - 15 };
+
+                                              return (
+                                                  <>
+                                                      <line x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y} className="stroke-blue-500" strokeWidth="2" />
+                                                      <circle cx={p1.x} cy={p1.y} r="3" className="fill-blue-500" />
+                                                      <circle cx={p2.x} cy={p2.y} r="3" className="fill-blue-500" />
+                                                      
+                                                      {dataP1 && indexP1 !== -1 && (
+                                                          <text x={dataP1.x ?? defaultPos1.x} y={dataP1.y ?? defaultPos1.y} textAnchor="middle" className={`font-semibold text-lg ${isEditing ? 'cursor-grab' : ''}`} onMouseDown={e => handleLabelDragStart(e, index, indexP1, defaultPos1)}>
+                                                              {label1}
+                                                          </text>
+                                                      )}
+                                                      {dataP2 && indexP2 !== -1 && (
+                                                          <text x={dataP2.x ?? defaultPos2.x} y={dataP2.y ?? defaultPos2.y} textAnchor="middle" className={`font-semibold text-lg ${isEditing ? 'cursor-grab' : ''}`} onMouseDown={e => handleLabelDragStart(e, index, indexP2, defaultPos2)}>
+                                                              {label2}
+                                                          </text>
+                                                      )}
+                                                  </>
+                                              );
+                                          }
+                                          case 'isin': {
+                                              const p1 = { x: 40, y: 90 };
+                                              const p2 = { x: 210, y: 90 };
+                                              return (
+                                                  <>
+                                                      <line x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y} className="stroke-blue-500" strokeWidth="2" markerEnd={`url(#arrow-${quizId}-${index})`} />
+                                                      <circle cx={p1.x} cy={p1.y} r="3" className="fill-blue-500" />
+                                                      {data.map((item, i) => {
+                                                          let defaultPos = { x: 0, y: 0 };
+                                                          const label = item.etiket.match(/^(\w+)/i)?.[1] || '';
+                                                          const textProps: any = { textAnchor: "middle", className: `font-semibold text-lg ${isEditing ? 'cursor-grab' : ''}` };
+                                                          if (i === 0) { defaultPos = { x: p1.x, y: p1.y - 15 }; } 
+                                                          else if (i === 1) { defaultPos = { x: p2.x - 20, y: p2.y - 15 }; }
+                                                          else return null;
+                                                          return <text key={i} x={item.x ?? defaultPos.x} y={item.y ?? defaultPos.y} {...textProps} onMouseDown={e => handleLabelDragStart(e, index, i, defaultPos)}>{label}</text>
+                                                      })}
+                                                  </>
+                                              );
+                                          }
+                                          case 'dogru': {
+                                              const p1 = { x: 40, y: 90 };
+                                              const p2 = { x: 210, y: 90 };
+                                              const labelData = data.find(item => item.etiket.includes('doğrusu'));
+                                              const label = labelData?.etiket.match(/^(\w+)/i)?.[1] || 'd';
+                                              const labelIndex = labelData ? data.indexOf(labelData) : -1;
+                                              const defaultPos = { x: p2.x + 15, y: p2.y };
+                                              return (
+                                                  <>
+                                                      <line x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y} className="stroke-blue-500" strokeWidth="2" markerStart={`url(#arrow-${quizId}-${index})`} markerEnd={`url(#arrow-${quizId}-${index})`} />
+                                                      {labelIndex !== -1 && (
+                                                          <text x={labelData?.x ?? defaultPos.x} y={labelData?.y ?? defaultPos.y} className={`font-semibold text-lg italic ${isEditing ? 'cursor-grab' : ''}`} textAnchor="middle" onMouseDown={e => handleLabelDragStart(e, index, labelIndex, defaultPos)}>{label}</text>
+                                                      )}
+                                                  </>
+                                              );
+                                          }
+                                          case 'paralel_dogrular': {
+                                              const p1 = { x: 40, y: 70 }, p2 = { x: 210, y: 70 };
+                                              const p3 = { x: 40, y: 110 }, p4 = { x: 210, y: 110 };
+                                              return (
+                                                  <>
+                                                      <line x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y} className="stroke-blue-500" strokeWidth="2" markerStart={`url(#arrow-${quizId}-${index})`} markerEnd={`url(#arrow-${quizId}-${index})`} />
+                                                      <line x1={p3.x} y1={p3.y} x2={p4.x} y2={p4.y} className="stroke-blue-500" strokeWidth="2" markerStart={`url(#arrow-${quizId}-${index})`} markerEnd={`url(#arrow-${quizId}-${index})`} />
+                                                      {data.map((item, i) => {
+                                                          let defaultPos = { x: 0, y: 0 };
+                                                          const label = item.etiket.match(/^(\w+)/i)?.[1] || '';
+                                                          const textProps = { textAnchor: "start", className: `font-semibold text-lg italic ${isEditing ? 'cursor-grab' : ''}` };
+                                                          if (i === 0) { defaultPos = { x: p2.x + 10, y: p2.y }; }
+                                                          else if (i === 1) { defaultPos = { x: p4.x + 10, y: p4.y }; }
+                                                          else return null;
+                                                          return <text key={i} x={item.x ?? defaultPos.x} y={item.y ?? defaultPos.y} {...textProps} onMouseDown={e => handleLabelDragStart(e, index, i, defaultPos)}>{label}</text>
+                                                      })}
+                                                  </>
+                                              );
+                                          }
+                                          case 'kesisen_dogrular': {
+                                              const p1 = { x: 40, y: 40 }, p2 = { x: 210, y: 140 };
+                                              const p3 = { x: 40, y: 140 }, p4 = { x: 210, y: 40 };
+                                              return (
+                                                  <>
+                                                      <line x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y} className="stroke-blue-500" strokeWidth="2" markerStart={`url(#arrow-${quizId}-${index})`} markerEnd={`url(#arrow-${quizId}-${index})`} />
+                                                      <line x1={p3.x} y1={p3.y} x2={p4.x} y2={p4.y} className="stroke-blue-500" strokeWidth="2" markerStart={`url(#arrow-${quizId}-${index})`} markerEnd={`url(#arrow-${quizId}-${index})`} />
+                                                      {data.map((item, i) => {
+                                                          let defaultPos = { x: 0, y: 0 };
+                                                          const label = item.etiket.match(/^(\w+)/i)?.[1] || '';
+                                                          const textProps = { className: `font-semibold text-lg ${isEditing ? 'cursor-grab' : ''}` };
+                                                          if (item.etiket.includes('Kesişim Noktası')) { defaultPos = { x: 130, y: 80 }; }
+                                                          else if (i === 0) { defaultPos = { x: p2.x - 20, y: p2.y + 15 }; }
+                                                          else if (i === 1) { defaultPos = { x: p4.x - 20, y: p4.y - 15 }; }
+                                                          else return null;
+                                                          return <text key={i} x={item.x ?? defaultPos.x} y={item.y ?? defaultPos.y} {...textProps} onMouseDown={e => handleLabelDragStart(e, index, i, defaultPos)}>{label}</text>
+                                                      })}
+                                                  </>
+                                              );
+                                          }
+                                          case 'dik_kesisen_doğrular': {
+                                              const p1 = { x: 40, y: 90 }, p2 = { x: 210, y: 90 };
+                                              const p3 = { x: 125, y: 20 }, p4 = { x: 125, y: 160 };
+                                              return (
+                                                  <>
+                                                      <line x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y} className="stroke-blue-500" strokeWidth="2" markerStart={`url(#arrow-${quizId}-${index})`} markerEnd={`url(#arrow-${quizId}-${index})`} />
+                                                      <line x1={p3.x} y1={p3.y} x2={p4.x} y2={p4.y} className="stroke-blue-500" strokeWidth="2" markerStart={`url(#arrow-${quizId}-${index})`} markerEnd={`url(#arrow-${quizId}-${index})`} />
+                                                      <path d="M 125 90 L 135 90 L 135 80" className="fill-none stroke-current" strokeWidth="1.5" />
+                                                      {data.map((item, i) => {
+                                                          let defaultPos = { x: 0, y: 0 };
+                                                          const label = item.etiket.match(/^(\w+)/i)?.[1] || '';
+                                                          const textProps: any = { textAnchor: "start", className: `font-semibold text-lg italic ${isEditing ? 'cursor-grab' : ''}` };
+                                                          if (i === 0) { defaultPos = { x: p2.x + 10, y: p2.y }; }
+                                                          else if (i === 1) { defaultPos = { x: p3.x + 10, y: p3.y + 10 }; }
+                                                          else return null;
+                                                          return <text key={i} x={item.x ?? defaultPos.x} y={item.y ?? defaultPos.y} {...textProps} onMouseDown={e => handleLabelDragStart(e, index, i, defaultPos)}>{label}</text>
+                                                      })}
+                                                  </>
+                                              );
+                                          }
                                           default: return null;
                                       }
                                   })()}
