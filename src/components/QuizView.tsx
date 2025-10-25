@@ -268,7 +268,7 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
         setTimeout(() => setCopyStatus('idle'), 2000);
     }).catch(err => {
         console.error('Failed to copy: ', err);
-        alert("Bağlantıyı kopyalanamadı.");
+        alert("Bağlantı kopyalanamadı.");
     });
   };
 
@@ -557,10 +557,15 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                               ))}
                           </div>
                       )}
-                      {q.grafik_verisi && ['ucgen', 'dikdortgen', 'kare', 'kup'].includes(q.grafik_verisi.tip) && (
+                      {q.grafik_verisi && ['ucgen', 'dikdortgen', 'kare', 'kup', 'dogru_parcasi', 'isin', 'dogru', 'paralel_dogrular', 'kesisen_dogrular', 'dik_kesisen_doğrular'].includes(q.grafik_verisi.tip) && (
                           <div className="my-4 p-4 flex justify-center items-center">
                               <svg width="250" height="180" viewBox="0 0 250 180" className="overflow-visible drop-shadow-sm text-slate-700">
                                   <title>{q.grafik_verisi.baslik}</title>
+                                   <defs>
+                                    <marker id={`arrow-${quizId}-${index}`} viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                        <path d="M 0 0 L 10 5 L 0 10 z" className="fill-current" />
+                                    </marker>
+                                </defs>
                                   
                                   {(() => {
                                       const data = q.grafik_verisi!.veri;
@@ -650,6 +655,64 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                                                       {side && <text x={o.x} y={o.y + size * angle + 10} className="text-[10pt] fill-current stroke-none" textAnchor="middle"><tspan {...editableProps(['grafik_verisi', 'veri', findIndex(/Kenar/i), 'deger'])}>{side.deger}</tspan><tspan>{side.birim}</tspan></text>}
                                                   </g>
                                               );
+                                          }
+                                          case 'dogru_parcasi': {
+                                              const p1Label = data[0]?.etiket.match(/^(\w+)/)?.[1] || 'A';
+                                              const p2Label = data[1]?.etiket.match(/^(\w+)/)?.[1] || 'B';
+                                              return (<g>
+                                                  <line x1="50" y1="90" x2="200" y2="90" className="stroke-blue-500" strokeWidth="2" />
+                                                  <circle cx="50" cy="90" r="4" className="fill-blue-500" />
+                                                  <circle cx="200" cy="90" r="4" className="fill-blue-500" />
+                                                  <text x="40" y="90" textAnchor="end" dominantBaseline="middle" className="font-semibold text-lg"><tspan {...editableProps(['grafik_verisi', 'veri', 0, 'etiket'])}>{p1Label}</tspan></text>
+                                                  <text x="210" y="90" textAnchor="start" dominantBaseline="middle" className="font-semibold text-lg"><tspan {...editableProps(['grafik_verisi', 'veri', 1, 'etiket'])}>{p2Label}</tspan></text>
+                                              </g>);
+                                          }
+                                          case 'isin': {
+                                              const startLabel = data.find(d => d.etiket.includes("Başlangıç"))?.etiket.match(/^(\w+)/)?.[1] || 'A';
+                                              return (<g>
+                                                  <line x1="50" y1="90" x2="200" y2="90" className="stroke-blue-500" strokeWidth="2" markerEnd={`url(#arrow-${quizId}-${index})`} />
+                                                  <circle cx="50" cy="90" r="4" className="fill-blue-500" />
+                                                  <text x="40" y="90" textAnchor="end" dominantBaseline="middle" className="font-semibold text-lg"><tspan {...editableProps(['grafik_verisi', 'veri', 0, 'etiket'])}>{startLabel}</tspan></text>
+                                              </g>);
+                                          }
+                                          case 'dogru': {
+                                              const name = data[0]?.etiket.match(/(\w+)/)?.[1] || 'd';
+                                              return (<g>
+                                                  <line x1="40" y1="90" x2="210" y2="90" className="stroke-blue-500" strokeWidth="2" markerStart={`url(#arrow-${quizId}-${index})`} markerEnd={`url(#arrow-${quizId}-${index})`} />
+                                                  <text x="220" y="90" textAnchor="start" dominantBaseline="middle" className="font-semibold text-lg italic"><tspan {...editableProps(['grafik_verisi', 'veri', 0, 'etiket'])}>{name}</tspan></text>
+                                              </g>);
+                                          }
+                                          case 'paralel_dogrular': {
+                                              const name1 = data[0]?.etiket.match(/(\w+\d*)/)?.[1] || 'd1';
+                                              const name2 = data[1]?.etiket.match(/(\w+\d*)/)?.[1] || 'd2';
+                                              return (<g>
+                                                  <line x1="40" y1="70" x2="210" y2="70" className="stroke-blue-500" strokeWidth="2" markerStart={`url(#arrow-${quizId}-${index})`} markerEnd={`url(#arrow-${quizId}-${index})`} />
+                                                  <text x="220" y="70" textAnchor="start" dominantBaseline="middle" className="font-semibold text-lg italic"><tspan {...editableProps(['grafik_verisi', 'veri', 0, 'etiket'])}>{name1}</tspan></text>
+                                                  <line x1="40" y1="110" x2="210" y2="110" className="stroke-blue-500" strokeWidth="2" markerStart={`url(#arrow-${quizId}-${index})`} markerEnd={`url(#arrow-${quizId}-${index})`} />
+                                                  <text x="220" y="110" textAnchor="start" dominantBaseline="middle" className="font-semibold text-lg italic"><tspan {...editableProps(['grafik_verisi', 'veri', 1, 'etiket'])}>{name2}</tspan></text>
+                                              </g>);
+                                          }
+                                          case 'kesisen_dogrular':
+                                          case 'dik_kesisen_doğrular': {
+                                               const line1DataIndex = data.findIndex(d => d.etiket.includes('doğrusu'));
+                                               const name1 = data[line1DataIndex]?.etiket.match(/(\w+\d*)/)?.[1] || 'd1';
+                                               const line2DataIndex = data.findIndex((d, i) => i > line1DataIndex && d.etiket.includes('doğrusu'));
+                                               const name2 = data[line2DataIndex]?.etiket.match(/(\w+\d*)/)?.[1] || 'd2';
+                                               const isDik = q.grafik_verisi!.tip === 'dik_kesisen_doğrular';
+                                               return (<g>
+                                                  {isDik ? <>
+                                                      <line x1="125" y1="30" x2="125" y2="150" className="stroke-blue-500" strokeWidth="2" markerStart={`url(#arrow-${quizId}-${index})`} markerEnd={`url(#arrow-${quizId}-${index})`} />
+                                                      <text x="130" y="35" className="font-semibold text-lg italic"><tspan {...editableProps(['grafik_verisi', 'veri', line1DataIndex, 'etiket'])}>{name1}</tspan></text>
+                                                      <line x1="50" y1="90" x2="200" y2="90" className="stroke-blue-500" strokeWidth="2" markerStart={`url(#arrow-${quizId}-${index})`} markerEnd={`url(#arrow-${quizId}-${index})`} />
+                                                      <text x="195" y="80" className="font-semibold text-lg italic"><tspan {...editableProps(['grafik_verisi', 'veri', line2DataIndex, 'etiket'])}>{name2}</tspan></text>
+                                                      <path d="M 125 80 L 135 80 L 135 90" className="fill-none stroke-current" strokeWidth="1.5" />
+                                                  </> : <>
+                                                      <line x1="50" y1="50" x2="200" y2="130" className="stroke-blue-500" strokeWidth="2" markerStart={`url(#arrow-${quizId}-${index})`} markerEnd={`url(#arrow-${quizId}-${index})`} />
+                                                      <text x="195" y="120" className="font-semibold text-lg italic"><tspan {...editableProps(['grafik_verisi', 'veri', line1DataIndex, 'etiket'])}>{name1}</tspan></text>
+                                                      <line x1="50" y1="130" x2="200" y2="50" className="stroke-blue-500" strokeWidth="2" markerStart={`url(#arrow-${quizId}-${index})`} markerEnd={`url(#arrow-${quizId}-${index})`} />
+                                                      <text x="195" y="60" className="font-semibold text-lg italic"><tspan {...editableProps(['grafik_verisi', 'veri', line2DataIndex, 'etiket'])}>{name2}</tspan></text>
+                                                  </>}
+                                               </g>);
                                           }
                                           default: return null;
                                       }

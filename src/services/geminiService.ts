@@ -27,30 +27,39 @@ Eğer bir kazanım görsel bir veri gerektiriyorsa (Veri İşleme ünitelerindek
      "veri": [ { "etiket": "Elma", "deger": 12 }, { "etiket": "Çilek", "deger": 18 } ]
    }
 
-2. GEOMETRİ ŞEKİLLERİ:
-   - "tip": 'ucgen', 'dikdortgen', 'kare', 'kup'.
-   - "baslik": Şekil için bir başlık (örn: "ABC Üçgeni", "KLMN Karesi").
-   - "veri": Bir dizi (array) olmalıdır. Her eleman şeklin bir özelliğini tanımlar.
-     **ÖNEMLİ TUTARLILIK KURALI: "soru_metni" içinde bahsedilen köşe adları (örn: ABC üçgeni) ile "grafik_verisi" içindeki etiketler (örn: "A Köşesi", "B Açısı", "AB Kenarı") BİREBİR AYNI OLMALIDIR. Farklı isimlendirme KESİNLİKLE KULLANMA. Çizilecek şeklin her köşesi için "A Köşesi" gibi bir etiket eklemelisin.**
-   - "not": (İsteğe bağlı) Şekille ilgili ek bilgi (örn: "B açısı dik açıdır.").
+2. GEOMETRİ ŞEKİLLERİ VE KAVRAMLARI:
+   - "tip": 'ucgen', 'dikdortgen', 'kare', 'kup', 'dogru_parcasi', 'isin', 'dogru', 'paralel_dogrular', 'kesisen_dogrular', 'dik_kesisen_doğrular'.
+   - "baslik": Şekil/kavram için bir başlık (örn: "ABC Üçgeni", "AB Doğru Parçası", "d1 ve d2 Paralel Doğruları").
+   - "veri": Bir dizi (array) olmalıdır. Her eleman şeklin bir özelliğini tanımlar. Etiketler çizim için kullanılır.
+     **ÖNEMLİ TUTARLILIK KURALI: "soru_metni" içinde bahsedilen harf/isimler (örn: AB doğru parçası, d doğrusu) ile "grafik_verisi" içindeki etiketler (örn: "A Noktası", "d doğrusu") BİREBİR AYNI OLMALIDIR.**
+   - "not": (İsteğe bağlı) Şekille ilgili ek bilgi.
 
-   Örnek Geometri Şekli JSON'ları:
+   Örnek Geometri JSON'ları:
    {
      "tip": "ucgen", "baslik": "ABC Dik Üçgeni",
      "veri": [
        { "etiket": "A Köşesi" }, { "etiket": "B Köşesi" }, { "etiket": "C Köşesi" },
        { "etiket": "AB Kenarı", "deger": 8, "birim": "cm" },
        { "etiket": "BC Kenarı", "deger": 6, "birim": "cm" },
-       { "etiket": "AC Kenarı (Hipotenüs)", "deger": 10, "birim": "cm" },
-       { "etiket": "A Açısı", "deger": 37, "birim": "°" },
-       { "etiket": "B Açısı", "deger": 90, "birim": "°" },
-       { "etiket": "C Açısı", "deger": 53, "birim": "°" }
+       { "etiket": "Açısı", "deger": 90, "birim": "°" }
      ],
      "not": "B açısı dik açıdır."
    }
    {
-     "tip": "kup", "baslik": "Küp",
-     "veri": [ { "etiket": "Bir Kenar", "deger": 5, "birim": "cm" } ]
+     "tip": "dogru_parcasi", "baslik": "AB Doğru Parçası",
+     "veri": [ { "etiket": "A Noktası" }, { "etiket": "B Noktası" } ]
+   }
+   {
+     "tip": "isin", "baslik": "CD Işını",
+     "veri": [ { "etiket": "C Başlangıç Noktası" }, { "etiket": "D Noktası" } ]
+   }
+   {
+     "tip": "paralel_dogrular", "baslik": "Paralel Doğrular",
+     "veri": [ { "etiket": "d doğrusu" }, { "etiket": "k doğrusu" } ]
+   }
+   {
+     "tip": "kesisen_dogrular", "baslik": "Kesişen Doğrular",
+     "veri": [ { "etiket": "m doğrusu" }, { "etiket": "n doğrusu" }, { "etiket": "P Kesişim Noktası" } ]
    }
 `
     : '';
@@ -104,7 +113,7 @@ Lütfen çıktı olarak sadece soruları içeren bir JSON nesnesi döndür. Her 
           type: Type.OBJECT,
           description: "Soru bir grafik, tablo veya geometrik şekil gerektiriyorsa, bu alanda yapısal verileri barındırır. ASCII görseller KULLANILMAMALIDIR.",
           properties: {
-            tip: { type: Type.STRING, description: "Görsel türü: 'siklik_tablosu', 'nesne_grafiği', 'sutun_grafiği', 'ucgen', 'dikdortgen', 'kare', 'kup'." },
+            tip: { type: Type.STRING, description: "Görsel türü: 'siklik_tablosu', 'nesne_grafiği', 'sutun_grafiği', 'ucgen', 'dikdortgen', 'kare', 'kup', 'dogru_parcasi', 'isin', 'dogru', 'paralel_dogrular', 'kesisen_dogrular', 'dik_kesisen_doğrular'." },
             baslik: { type: Type.STRING, description: "Görsel için bir başlık." },
             veri: {
               type: Type.ARRAY,
@@ -112,7 +121,7 @@ Lütfen çıktı olarak sadece soruları içeren bir JSON nesnesi döndür. Her 
               items: {
                 type: Type.OBJECT,
                 properties: {
-                  etiket: { type: Type.STRING, description: "Veri noktasının etiketi (örn: 'Elma', 'AB Kenarı' veya 'A Köşesi')." },
+                  etiket: { type: Type.STRING, description: "Veri noktasının etiketi (örn: 'Elma', 'AB Kenarı' veya 'A Noktası')." },
                   deger: { type: Type.NUMBER, description: "Veri noktasının sayısal değeri (örn: 12 veya 90)." },
                   nesne: { type: Type.STRING, description: "Nesne grafikleri için kullanılacak sembol (örn: '🍎')." },
                   birim: { type: Type.STRING, description: "Geometrik veriler için birim (örn: 'cm', '°')." }
