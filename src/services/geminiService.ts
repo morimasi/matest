@@ -41,9 +41,9 @@ Eğer bir kazanım görsel bir veri gerektiriyorsa (Veri İşleme ünitelerindek
        { "etiket": "A Köşesi" }, { "etiket": "B Köşesi" }, { "etiket": "C Köşesi" },
        { "etiket": "AB Kenarı", "deger": 8, "birim": "cm" },
        { "etiket": "BC Kenarı", "deger": 6, "birim": "cm" },
-       { "etiket": "Açısı", "deger": 90, "birim": "°" }
+       { "etiket": "B Açısı", "deger": 90, "birim": "°" }
      ],
-     "not": "B açısı dik açıdır."
+     "not": "Şekildeki verilere göre AC kenarının uzunluğu nedir?"
    }
    {
      "tip": "dogru_parcasi", "baslik": "AB Doğru Parçası",

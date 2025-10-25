@@ -1,5 +1,6 @@
 
 
+
 import React, { useRef, useState, useEffect } from 'react';
 import { DetailedQuestion, ChartDataItem } from '../types';
 import { DownloadIcon, PrintIcon, ShareIcon, SparklesIcon, SettingsIcon, CopyIcon, CheckIcon, RefreshCwIcon, EditIcon } from './icons';
@@ -18,31 +19,6 @@ interface QuizViewProps {
 
 const VIEW_SETTINGS_KEY = 'quizViewSettings';
 const NOTES_PREFIX = 'quizNotes_';
-
-const getCornerLabels = (data: ChartDataItem[] = [], defaultLabels: string[]): string[] => {
-    const labels = new Set<string>();
-    data.forEach(item => {
-        const cornerMatch = item.etiket.match(/^(\w+)\s+Köşesi/i);
-        if (cornerMatch && cornerMatch[1]) {
-            labels.add(cornerMatch[1].toUpperCase());
-            return;
-        }
-        const sideMatch = item.etiket.match(/(\w)(\w)\s+Kenarı/i);
-        if(sideMatch && sideMatch[1] && sideMatch[2]){
-            labels.add(sideMatch[1].toUpperCase());
-            labels.add(sideMatch[2].toUpperCase());
-            return;
-        }
-        const angleMatch = item.etiket.match(/^(\w+)\s+Açısı/i);
-        if(angleMatch && angleMatch[1]){
-            labels.add(angleMatch[1].toUpperCase());
-            return;
-        }
-    });
-    
-    const foundLabels = Array.from(labels).sort();
-    return foundLabels.length >= defaultLabels.length ? foundLabels : defaultLabels;
-};
 
 // State for drag information
 interface DragInfo {
@@ -156,7 +132,7 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
     return pt.matrixTransform(svg.getScreenCTM()!.inverse());
   };
 
-  const handleLabelDragStart = (e: React.MouseEvent<SVGTextElement>, questionIndex: number, itemIndex: number, defaultPos: {x: number, y: number}) => {
+  const handleLabelDragStart = (e: React.MouseEvent<SVGElement>, questionIndex: number, itemIndex: number, defaultPos: {x: number, y: number}) => {
     if (!isEditing) return;
     e.stopPropagation();
     const svg = svgRefs.current[questionIndex];
@@ -186,7 +162,7 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
   const handleShapeDragStart = (e: React.MouseEvent<SVGGElement>, questionIndex: number) => {
     if (!isEditing) return;
     
-    if ((e.target as SVGElement).closest('text')) return;
+    if ((e.target as SVGElement).closest('text, path')) return;
 
     const svg = svgRefs.current[questionIndex];
     if (!svg) return;
@@ -669,226 +645,149 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                               ))}
                           </div>
                       )}
-                      {q.grafik_verisi && ['ucgen', 'dikdortgen', 'kare', 'kup', 'dogru_parcasi', 'isin', 'dogru', 'paralel_dogrular', 'kesisen_dogrular', 'dik_kesisen_doğrular'].includes(q.grafik_verisi.tip) && (
-                           <div className="my-4 p-4 flex justify-center items-center">
-                              <svg ref={el => svgRefs.current[index] = el} width="250" height="180" viewBox="0 0 250 180" 
-                                className={`overflow-visible drop-shadow-sm text-slate-700`}
-                              >
-                                  <title>{q.grafik_verisi.baslik}</title>
-                                   <defs>
-                                    <marker id={`arrow-${quizId}-${index}`} viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-                                        <path d="M 0 0 L 10 5 L 0 10 z" className="fill-current" />
-                                    </marker>
-                                </defs>
-                                  
-                                <g 
-                                  transform={`translate(${q.grafik_verisi.x || 0}, ${q.grafik_verisi.y || 0})`}
-                                  onMouseDown={e => handleShapeDragStart(e, index)}
-                                  className={isEditing ? 'cursor-move' : ''}
-                                >
-                                  {(() => {
-                                      const data = q.grafik_verisi!.veri;
-                                      
-                                      switch (q.grafik_verisi!.tip) {
-                                          case 'ucgen': {
-                                              const cornerLabels = getCornerLabels(data, ['A', 'B', 'C']);
-                                              const [c1, c2, c3] = cornerLabels;
-                                              const pts = {[c1]: {x: 40, y: 30}, [c2]: {x: 40, y: 150}, [c3]: {x: 210, y: 150}};
-                                              
-                                              return (
-                                                  <>
-                                                      <polygon points={`${pts[c1].x},${pts[c1].y} ${pts[c2].x},${pts[c2].y} ${pts[c3].x},${pts[c3].y}`} className="fill-blue-100/50 stroke-blue-500" strokeWidth="2" />
-                                                      {data.map((item, i) => {
-                                                          let defaultPos = {x:0, y:0};
-                                                          let content: (string | number | undefined)[] = [];
-                                                          const textProps: any = { textAnchor: "middle", dominantBaseline: "middle", className: `text-[10pt] ${isEditing ? 'cursor-grab' : ''}` };
+                      {['ucgen', 'dikdortgen', 'kare', 'dogru_parcasi', 'isin', 'dogru', 'paralel_dogrular', 'kesisen_dogrular', 'dik_kesisen_doğrular'].includes(q.grafik_verisi.tip) && (() => {
+                          const { tip, veri } = q.grafik_verisi;
+                          // FIX: Changed JSX.Element to React.ReactElement to resolve "Cannot find namespace 'JSX'" error.
+                          const shapeElements: React.ReactElement[] = [];
+                          const textElements: React.ReactElement[] = [];
+                          const vertexCoords: { [key: string]: { x: number; y: number } } = {};
 
-                                                          if (item.etiket.includes(`${c1} Köşesi`)) { defaultPos = {x: pts[c1].x-12, y: pts[c1].y-5}; content=[c1]; textProps.className="font-semibold text-lg"; }
-                                                          else if (item.etiket.includes(`${c2} Köşesi`)) { defaultPos = {x: pts[c2].x-12, y: pts[c2].y+15}; content=[c2]; textProps.className="font-semibold text-lg"; }
-                                                          else if (item.etiket.includes(`${c3} Köşesi`)) { defaultPos = {x: pts[c3].x+12, y: pts[c3].y+15}; content=[c3]; textProps.className="font-semibold text-lg"; }
-                                                          else if (item.etiket.includes(`${c1} Açısı`)) { defaultPos = {x: pts[c1].x+15, y: pts[c1].y+20}; content=[item.deger, '°']; }
-                                                          else if (item.etiket.includes(`${c2} Açısı`)) { defaultPos = {x: pts[c2].x+20, y: pts[c2].y-15}; content=[item.deger, '°']; if(item.deger === 90) return <path key={i} d={`M ${pts[c2].x} ${pts[c2].y-15} L ${pts[c2].x+15} ${pts[c2].y-15} L ${pts[c2].x+15} ${pts[c2].y}`} className="fill-none stroke-current" strokeWidth="1.5" /> }
-                                                          else if (item.etiket.includes(`${c3} Açısı`)) { defaultPos = {x: pts[c3].x-20, y: pts[c3].y-10}; content=[item.deger, '°']; }
-                                                          else if (item.etiket.includes(`${c1}${c2}`)) { defaultPos = {x: pts[c1].x-10, y: (pts[c1].y+pts[c2].y)/2}; content=[item.deger, item.birim]; textProps.textAnchor="end"; }
-                                                          else if (item.etiket.includes(`${c2}${c3}`)) { defaultPos = {x: (pts[c2].x+pts[c3].x)/2, y: pts[c2].y+15}; content=[item.deger, item.birim]; textProps.dominantBaseline="hanging"; }
-                                                          else if (item.etiket.match(new RegExp(`${c1}${c3}|Hipotenüs`, 'i'))) { 
-                                                            defaultPos = {x: (pts[c1].x+pts[c3].x)/2, y: (pts[c1].y+pts[c3].y)/2 - 8}; 
-                                                            content=[item.deger, item.birim]; 
-                                                            textProps.transform=`rotate(-35, ${(pts[c1].x+pts[c3].x)/2}, ${(pts[c1].y+pts[c3].y)/2})`; 
-                                                          }
-                                                          else return null;
+                          // 1. Identify vertices and assign default coordinates
+                          const vertexLabels = new Set<string>();
+                           veri.forEach(item => {
+                                let match = item.etiket.match(/^(\w)\s+(Köşesi|Noktası|Başlangıç Noktası)/i);
+                                if (match && match[1]) vertexLabels.add(match[1].toUpperCase());
+                                match = item.etiket.match(/^(\w)(\w)\s+Kenarı/i);
+                                if (match && match[1] && match[2]) {
+                                    vertexLabels.add(match[1].toUpperCase());
+                                    vertexLabels.add(match[2].toUpperCase());
+                                }
+                            });
+                          const sortedVertexLabels = Array.from(vertexLabels).sort();
+                          
+                          if (tip === 'ucgen') {
+                                const labels = sortedVertexLabels.length >= 3 ? sortedVertexLabels : ['A', 'B', 'C'];
+                                vertexCoords[labels[0]] = { x: 125, y: 30 };
+                                vertexCoords[labels[1]] = { x: 40, y: 150 };
+                                vertexCoords[labels[2]] = { x: 210, y: 150 };
+                                shapeElements.push(<polygon key="shape" points={`${vertexCoords[labels[0]].x},${vertexCoords[labels[0]].y} ${vertexCoords[labels[1]].x},${vertexCoords[labels[1]].y} ${vertexCoords[labels[2]].x},${vertexCoords[labels[2]].y}`} className="fill-blue-100/50 stroke-blue-500" strokeWidth="2" />);
+                            } else if (tip === 'kare' || tip === 'dikdortgen') {
+                                const labels = sortedVertexLabels.length >= 4 ? sortedVertexLabels : ['A', 'B', 'C', 'D'];
+                                vertexCoords[labels[0]] = { x: 40, y: 30 };
+                                vertexCoords[labels[1]] = { x: 210, y: 30 };
+                                vertexCoords[labels[2]] = { x: 210, y: 150 };
+                                vertexCoords[labels[3]] = { x: 40, y: 150 };
+                                shapeElements.push(<polygon key="shape" points={`${vertexCoords[labels[0]].x},${vertexCoords[labels[0]].y} ${vertexCoords[labels[1]].x},${vertexCoords[labels[1]].y} ${vertexCoords[labels[2]].x},${vertexCoords[labels[2]].y} ${vertexCoords[labels[3]].x},${vertexCoords[labels[3]].y}`} className="fill-blue-100/50 stroke-blue-500" strokeWidth="2" />);
+                            }
 
-                                                          return <text key={i} x={item.x ?? defaultPos.x} y={item.y ?? defaultPos.y} {...textProps} onMouseDown={e => handleLabelDragStart(e, index, i, defaultPos)}>
-                                                              <tspan contentEditable={isEditing} suppressContentEditableWarning={true} onBlur={(e) => handleContentUpdate(e, index, ['grafik_verisi', 'veri', i, 'deger'])} className={isEditing ? 'editable-field-svg' : ''}>{content[0]}</tspan>
-                                                              {content[1] && <tspan dy={content[1] === '°' ? -3 : 0}>{content[1]}</tspan>}
-                                                          </text>
-                                                      })}
-                                                  </>
-                                              );
-                                          }
-                                         case 'dikdortgen':
-                                          case 'kare': {
-                                              const cornerLabels = getCornerLabels(data, ['A', 'B', 'C', 'D']);
-                                              const [c1, c2, c3, c4] = cornerLabels;
-                                              const pts = { [c1]: {x: 40, y: 30}, [c2]: {x: 210, y: 30}, [c3]: {x: 210, y: 150}, [c4]: {x: 40, y: 150} };
-                                              
-                                              return (
-                                                  <>
-                                                      <polygon points={`${pts[c1].x},${pts[c1].y} ${pts[c2].x},${pts[c2].y} ${pts[c3].x},${pts[c3].y} ${pts[c4].x},${pts[c4].y}`} className="fill-blue-100/50 stroke-blue-500" strokeWidth="2" />
-                                                      <path d={`M ${pts[c4].x} ${pts[c4].y-15} L ${pts[c4].x+15} ${pts[c4].y-15} L ${pts[c4].x+15} ${pts[c4].y}`} className="fill-none stroke-current" strokeWidth="1.5" />
-                                                      {data.map((item, i) => {
-                                                            let defaultPos = {x:0, y:0};
-                                                            let content: (string | number | undefined)[] = [];
-                                                            const textProps: any = { textAnchor: "middle", dominantBaseline: "middle", className: `text-[10pt] ${isEditing ? 'cursor-grab' : ''}` };
+                          // 2. Process and position labels
+                          const centroid = {
+                              x: Object.values(vertexCoords).reduce((sum, v) => sum + v.x, 0) / (Object.keys(vertexCoords).length || 1),
+                              y: Object.values(vertexCoords).reduce((sum, v) => sum + v.y, 0) / (Object.keys(vertexCoords).length || 1)
+                          };
 
-                                                            if (item.etiket.includes(`${c1} Köşesi`)) { defaultPos = {x: pts[c1].x-12, y: pts[c1].y-5}; content=[c1]; textProps.className="font-semibold text-lg"; }
-                                                            else if (item.etiket.includes(`${c2} Köşesi`)) { defaultPos = {x: pts[c2].x+12, y: pts[c2].y-5}; content=[c2]; textProps.className="font-semibold text-lg"; }
-                                                            else if (item.etiket.includes(`${c3} Köşesi`)) { defaultPos = {x: pts[c3].x+12, y: pts[c3].y+15}; content=[c3]; textProps.className="font-semibold text-lg"; }
-                                                            else if (item.etiket.includes(`${c4} Köşesi`)) { defaultPos = {x: pts[c4].x-12, y: pts[c4].y+15}; content=[c4]; textProps.className="font-semibold text-lg"; }
-                                                            else if (item.etiket.match(new RegExp(`${c1}${c2}|${c4}${c3}|Uzun|Genişlik|Kenar`, 'i'))) { defaultPos = {x: (pts[c1].x+pts[c2].x)/2, y: pts[c1].y - 10}; content=[item.deger, item.birim]; }
-                                                            else if (item.etiket.match(new RegExp(`${c2}${c3}|${c1}${c4}|Kısa|Yükseklik`, 'i'))) { defaultPos = {x: pts[c2].x + 10, y: (pts[c2].y+pts[c3].y)/2}; content=[item.deger, item.birim]; textProps.textAnchor="start"; }
-                                                            else return null;
+                          veri.forEach((item, itemIndex) => {
+                              let defaultPos = { x: 0, y: 0 };
+                              let content: (string | number | undefined)[] | null = null;
+                              const textProps: any = { textAnchor: "middle", dominantBaseline: "middle", className: `text-[10pt] fill-current ${isEditing ? 'cursor-grab' : ''}` };
 
-                                                            return <text key={i} x={item.x ?? defaultPos.x} y={item.y ?? defaultPos.y} {...textProps} onMouseDown={e => handleLabelDragStart(e, index, i, defaultPos)}>
-                                                                <tspan contentEditable={isEditing} suppressContentEditableWarning={true} onBlur={(e) => handleContentUpdate(e, index, ['grafik_verisi', 'veri', i, 'deger'])} className={isEditing ? 'editable-field-svg' : ''}>{content[0]}</tspan>
-                                                                {content[1] && <tspan>{content[1]}</tspan>}
-                                                            </text>
-                                                      })}
-                                                  </>
-                                              )
-                                          }
-                                         case 'dogru_parcasi': {
-                                              const p1 = { x: 40, y: 90 };
-                                              const p2 = { x: 210, y: 90 };
-                                              const dataP1 = data.find(d => d.etiket.match(/A|ilk/i));
-                                              const dataP2 = data.find(d => d.etiket.match(/B|ikinci/i));
-                                              const indexP1 = dataP1 ? data.indexOf(dataP1) : -1;
-                                              const indexP2 = dataP2 ? data.indexOf(dataP2) : -1;
-                                              const label1 = dataP1?.etiket.match(/^(\w+)/i)?.[1] || 'A';
-                                              const label2 = dataP2?.etiket.match(/^(\w+)/i)?.[1] || 'B';
-                                              const defaultPos1 = { x: p1.x, y: p1.y - 15 };
-                                              const defaultPos2 = { x: p2.x, y: p2.y - 15 };
+                              // Vertex labels
+                              let match = item.etiket.match(/^(\w)\s+(Köşesi|Noktası|Başlangıç Noktası)/i);
+                              if (match && vertexCoords[match[1].toUpperCase()]) {
+                                  const vName = match[1].toUpperCase();
+                                  const pos = vertexCoords[vName];
+                                  const angle = Math.atan2(pos.y - centroid.y, pos.x - centroid.x);
+                                  defaultPos = { x: pos.x + 15 * Math.cos(angle), y: pos.y + 15 * Math.sin(angle) };
+                                  content = [vName];
+                                  textProps.className = `font-semibold text-lg fill-current ${isEditing ? 'cursor-grab' : ''}`;
+                              }
 
-                                              return (
-                                                  <>
-                                                      <line x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y} className="stroke-blue-500" strokeWidth="2" />
-                                                      <circle cx={p1.x} cy={p1.y} r="3" className="fill-blue-500" />
-                                                      <circle cx={p2.x} cy={p2.y} r="3" className="fill-blue-500" />
-                                                      
-                                                      {dataP1 && indexP1 !== -1 && (
-                                                          <text x={dataP1.x ?? defaultPos1.x} y={dataP1.y ?? defaultPos1.y} textAnchor="middle" className={`font-semibold text-lg ${isEditing ? 'cursor-grab' : ''}`} onMouseDown={e => handleLabelDragStart(e, index, indexP1, defaultPos1)}>
-                                                              {label1}
-                                                          </text>
-                                                      )}
-                                                      {dataP2 && indexP2 !== -1 && (
-                                                          <text x={dataP2.x ?? defaultPos2.x} y={dataP2.y ?? defaultPos2.y} textAnchor="middle" className={`font-semibold text-lg ${isEditing ? 'cursor-grab' : ''}`} onMouseDown={e => handleLabelDragStart(e, index, indexP2, defaultPos2)}>
-                                                              {label2}
-                                                          </text>
-                                                      )}
-                                                  </>
-                                              );
-                                          }
-                                          case 'isin': {
-                                              const p1 = { x: 40, y: 90 };
-                                              const p2 = { x: 210, y: 90 };
-                                              return (
-                                                  <>
-                                                      <line x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y} className="stroke-blue-500" strokeWidth="2" markerEnd={`url(#arrow-${quizId}-${index})`} />
-                                                      <circle cx={p1.x} cy={p1.y} r="3" className="fill-blue-500" />
-                                                      {data.map((item, i) => {
-                                                          let defaultPos = { x: 0, y: 0 };
-                                                          const label = item.etiket.match(/^(\w+)/i)?.[1] || '';
-                                                          const textProps: any = { textAnchor: "middle", className: `font-semibold text-lg ${isEditing ? 'cursor-grab' : ''}` };
-                                                          if (i === 0) { defaultPos = { x: p1.x, y: p1.y - 15 }; } 
-                                                          else if (i === 1) { defaultPos = { x: p2.x - 20, y: p2.y - 15 }; }
-                                                          else return null;
-                                                          return <text key={i} x={item.x ?? defaultPos.x} y={item.y ?? defaultPos.y} {...textProps} onMouseDown={e => handleLabelDragStart(e, index, i, defaultPos)}>{label}</text>
-                                                      })}
-                                                  </>
-                                              );
-                                          }
-                                          case 'dogru': {
-                                              const p1 = { x: 40, y: 90 };
-                                              const p2 = { x: 210, y: 90 };
-                                              const labelData = data.find(item => item.etiket.includes('doğrusu'));
-                                              const label = labelData?.etiket.match(/^(\w+)/i)?.[1] || 'd';
-                                              const labelIndex = labelData ? data.indexOf(labelData) : -1;
-                                              const defaultPos = { x: p2.x + 15, y: p2.y };
-                                              return (
-                                                  <>
-                                                      <line x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y} className="stroke-blue-500" strokeWidth="2" markerStart={`url(#arrow-${quizId}-${index})`} markerEnd={`url(#arrow-${quizId}-${index})`} />
-                                                      {labelIndex !== -1 && (
-                                                          <text x={labelData?.x ?? defaultPos.x} y={labelData?.y ?? defaultPos.y} className={`font-semibold text-lg italic ${isEditing ? 'cursor-grab' : ''}`} textAnchor="middle" onMouseDown={e => handleLabelDragStart(e, index, labelIndex, defaultPos)}>{label}</text>
-                                                      )}
-                                                  </>
-                                              );
-                                          }
-                                          case 'paralel_dogrular': {
-                                              const p1 = { x: 40, y: 70 }, p2 = { x: 210, y: 70 };
-                                              const p3 = { x: 40, y: 110 }, p4 = { x: 210, y: 110 };
-                                              return (
-                                                  <>
-                                                      <line x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y} className="stroke-blue-500" strokeWidth="2" markerStart={`url(#arrow-${quizId}-${index})`} markerEnd={`url(#arrow-${quizId}-${index})`} />
-                                                      <line x1={p3.x} y1={p3.y} x2={p4.x} y2={p4.y} className="stroke-blue-500" strokeWidth="2" markerStart={`url(#arrow-${quizId}-${index})`} markerEnd={`url(#arrow-${quizId}-${index})`} />
-                                                      {data.map((item, i) => {
-                                                          let defaultPos = { x: 0, y: 0 };
-                                                          const label = item.etiket.match(/^(\w+)/i)?.[1] || '';
-                                                          const textProps = { textAnchor: "start", className: `font-semibold text-lg italic ${isEditing ? 'cursor-grab' : ''}` };
-                                                          if (i === 0) { defaultPos = { x: p2.x + 10, y: p2.y }; }
-                                                          else if (i === 1) { defaultPos = { x: p4.x + 10, y: p4.y }; }
-                                                          else return null;
-                                                          return <text key={i} x={item.x ?? defaultPos.x} y={item.y ?? defaultPos.y} {...textProps} onMouseDown={e => handleLabelDragStart(e, index, i, defaultPos)}>{label}</text>
-                                                      })}
-                                                  </>
-                                              );
-                                          }
-                                          case 'kesisen_dogrular': {
-                                              const p1 = { x: 40, y: 40 }, p2 = { x: 210, y: 140 };
-                                              const p3 = { x: 40, y: 140 }, p4 = { x: 210, y: 40 };
-                                              return (
-                                                  <>
-                                                      <line x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y} className="stroke-blue-500" strokeWidth="2" markerStart={`url(#arrow-${quizId}-${index})`} markerEnd={`url(#arrow-${quizId}-${index})`} />
-                                                      <line x1={p3.x} y1={p3.y} x2={p4.x} y2={p4.y} className="stroke-blue-500" strokeWidth="2" markerStart={`url(#arrow-${quizId}-${index})`} markerEnd={`url(#arrow-${quizId}-${index})`} />
-                                                      {data.map((item, i) => {
-                                                          let defaultPos = { x: 0, y: 0 };
-                                                          const label = item.etiket.match(/^(\w+)/i)?.[1] || '';
-                                                          const textProps = { className: `font-semibold text-lg ${isEditing ? 'cursor-grab' : ''}` };
-                                                          if (item.etiket.includes('Kesişim Noktası')) { defaultPos = { x: 130, y: 80 }; }
-                                                          else if (i === 0) { defaultPos = { x: p2.x - 20, y: p2.y + 15 }; }
-                                                          else if (i === 1) { defaultPos = { x: p4.x - 20, y: p4.y - 15 }; }
-                                                          else return null;
-                                                          return <text key={i} x={item.x ?? defaultPos.x} y={item.y ?? defaultPos.y} {...textProps} onMouseDown={e => handleLabelDragStart(e, index, i, defaultPos)}>{label}</text>
-                                                      })}
-                                                  </>
-                                              );
-                                          }
-                                          case 'dik_kesisen_doğrular': {
-                                              const p1 = { x: 40, y: 90 }, p2 = { x: 210, y: 90 };
-                                              const p3 = { x: 125, y: 20 }, p4 = { x: 125, y: 160 };
-                                              return (
-                                                  <>
-                                                      <line x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y} className="stroke-blue-500" strokeWidth="2" markerStart={`url(#arrow-${quizId}-${index})`} markerEnd={`url(#arrow-${quizId}-${index})`} />
-                                                      <line x1={p3.x} y1={p3.y} x2={p4.x} y2={p4.y} className="stroke-blue-500" strokeWidth="2" markerStart={`url(#arrow-${quizId}-${index})`} markerEnd={`url(#arrow-${quizId}-${index})`} />
-                                                      <path d="M 125 90 L 135 90 L 135 80" className="fill-none stroke-current" strokeWidth="1.5" />
-                                                      {data.map((item, i) => {
-                                                          let defaultPos = { x: 0, y: 0 };
-                                                          const label = item.etiket.match(/^(\w+)/i)?.[1] || '';
-                                                          const textProps: any = { textAnchor: "start", className: `font-semibold text-lg italic ${isEditing ? 'cursor-grab' : ''}` };
-                                                          if (i === 0) { defaultPos = { x: p2.x + 10, y: p2.y }; }
-                                                          else if (i === 1) { defaultPos = { x: p3.x + 10, y: p3.y + 10 }; }
-                                                          else return null;
-                                                          return <text key={i} x={item.x ?? defaultPos.x} y={item.y ?? defaultPos.y} {...textProps} onMouseDown={e => handleLabelDragStart(e, index, i, defaultPos)}>{label}</text>
-                                                      })}
-                                                  </>
-                                              );
-                                          }
-                                          default: return null;
+                              // Side labels
+                              match = item.etiket.match(/^(\w)(\w)\s+Kenarı/i);
+                              if (match && vertexCoords[match[1].toUpperCase()] && vertexCoords[match[2].toUpperCase()]) {
+                                  const p1 = vertexCoords[match[1].toUpperCase()];
+                                  const p2 = vertexCoords[match[2].toUpperCase()];
+                                  const midX = (p1.x + p2.x) / 2;
+                                  const midY = (p1.y + p2.y) / 2;
+                                  const angle = Math.atan2(p2.y - p1.y, p2.x - p1.x);
+                                  defaultPos = { x: midX + 10 * Math.sin(angle), y: midY - 10 * Math.cos(angle) };
+                                  content = [item.deger, item.birim];
+                              }
+
+                              // Angle labels
+                              match = item.etiket.match(/^(\w)\s+Açısı/i);
+                              if (match && vertexCoords[match[1].toUpperCase()]) {
+                                  const vName = match[1].toUpperCase();
+                                  const vPos = vertexCoords[vName];
+                                  if (item.deger === 90) {
+                                      const neighbors = Object.keys(vertexCoords).filter(key => key !== vName)
+                                          .map(key => vertexCoords[key])
+                                          .sort((a,b) => (Math.abs(a.x - vPos.x) + Math.abs(a.y - vPos.y)) - (Math.abs(b.x - vPos.x) + Math.abs(b.y - vPos.y)))
+                                          .slice(0, 2);
+                                      if (neighbors.length === 2) {
+                                          const v1 = {x: neighbors[0].x - vPos.x, y: neighbors[0].y - vPos.y};
+                                          const v2 = {x: neighbors[1].x - vPos.x, y: neighbors[1].y - vPos.y};
+                                          const l1 = Math.sqrt(v1.x*v1.x + v1.y*v1.y);
+                                          const l2 = Math.sqrt(v2.x*v2.x + v2.y*v2.y);
+                                          const d = 15;
+                                          const p1 = {x: vPos.x + v1.x/l1*d, y: vPos.y + v1.y/l1*d};
+                                          const p2 = {x: vPos.x + v2.x/l2*d, y: vPos.y + v2.y/l2*d};
+                                          const p3 = {x: p1.x + v2.x/l2*d, y: p1.y + v2.y/l2*d};
+                                          shapeElements.push(<path key={`angle-${itemIndex}`} d={`M ${p1.x} ${p1.y} L ${p3.x} ${p3.y} L ${p2.x} ${p2.y}`} className="fill-none stroke-current" strokeWidth="1.5" />);
                                       }
-                                  })()}
+                                  } else {
+                                      defaultPos = { x: vPos.x + (centroid.x - vPos.x) * 0.3, y: vPos.y + (centroid.y - vPos.y) * 0.3 };
+                                      content = [item.deger, '°'];
+                                  }
+                              }
+                              
+                              if (content) {
+                                textElements.push(
+                                  <text key={itemIndex} x={item.x ?? defaultPos.x} y={item.y ?? defaultPos.y} {...textProps} onMouseDown={(e) => handleLabelDragStart(e, index, itemIndex, defaultPos)}>
+                                      <tspan contentEditable={isEditing} suppressContentEditableWarning={true} onBlur={(e) => handleContentUpdate(e, index, ['grafik_verisi', 'veri', itemIndex, 'deger'])} className={isEditing ? 'editable-field-svg' : ''}>{content[0]}</tspan>
+                                      {content[1] && <tspan dy={content[1] === '°' ? -4 : 0} className="text-[8pt]">{content[1]}</tspan>}
+                                  </text>
+                                );
+                              }
+                          });
+
+                          // For simple line types without vertices
+                          if (['dogru_parcasi', 'isin', 'dogru', 'paralel_dogrular', 'kesisen_dogrular', 'dik_kesisen_doğrular'].includes(tip)) {
+                              shapeElements.push(
+                                ...(() => {
+                                  const p1 = { x: 40, y: 90 }, p2 = { x: 210, y: 90 };
+                                  const p3 = { x: 40, y: 70 }, p4 = { x: 210, y: 70 };
+                                  const p5 = { x: 40, y: 110 }, p6 = { x: 210, y: 110 };
+                                  const cross1 = { x: 40, y: 40 }, cross2 = { x: 210, y: 140 };
+                                  const cross3 = { x: 40, y: 140 }, cross4 = { x: 210, y: 40 };
+                                  const perp1 = { x: 125, y: 20 }, perp2 = { x: 125, y: 160 };
+                                  const marker = `url(#arrow-${quizId}-${index})`;
+                                  switch (tip) {
+                                    case 'dogru_parcasi': return [<line key="l" x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y} className="stroke-blue-500" strokeWidth="2" />, <circle key="c1" cx={p1.x} cy={p1.y} r="3" className="fill-blue-500" />, <circle key="c2" cx={p2.x} cy={p2.y} r="3" className="fill-blue-500" />];
+                                    case 'isin': return [<line key="l" x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y} className="stroke-blue-500" strokeWidth="2" markerEnd={marker} />, <circle key="c1" cx={p1.x} cy={p1.y} r="3" className="fill-blue-500" />];
+                                    case 'dogru': return [<line key="l" x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y} className="stroke-blue-500" strokeWidth="2" markerStart={marker} markerEnd={marker} />];
+                                    case 'paralel_dogrular': return [<line key="l1" x1={p3.x} y1={p3.y} x2={p4.x} y2={p4.y} className="stroke-blue-500" strokeWidth="2" markerStart={marker} markerEnd={marker}/>, <line key="l2" x1={p5.x} y1={p5.y} x2={p6.x} y2={p6.y} className="stroke-blue-500" strokeWidth="2" markerStart={marker} markerEnd={marker} />];
+                                    case 'kesisen_dogrular': return [<line key="l1" x1={cross1.x} y1={cross1.y} x2={cross2.x} y2={cross2.y} className="stroke-blue-500" strokeWidth="2" markerStart={marker} markerEnd={marker} />, <line key="l2" x1={cross3.x} y1={cross3.y} x2={cross4.x} y2={cross4.y} className="stroke-blue-500" strokeWidth="2" markerStart={marker} markerEnd={marker} />];
+                                    case 'dik_kesisen_doğrular': return [<line key="l1" x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y} className="stroke-blue-500" strokeWidth="2" markerStart={marker} markerEnd={marker} />, <line key="l2" x1={perp1.x} y1={perp1.y} x2={perp2.x} y2={perp2.y} className="stroke-blue-500" strokeWidth="2" markerStart={marker} markerEnd={marker} />, <path key="angle" d="M 125 90 L 135 90 L 135 80" className="fill-none stroke-current" strokeWidth="1.5" />];
+                                    default: return [];
+                                  }
+                                })()
+                              );
+                          }
+                          
+                          return (
+                            <div className="my-4 p-4 flex justify-center items-center">
+                              <svg ref={el => svgRefs.current[index] = el} width="250" height="180" viewBox="0 0 250 180" className={`overflow-visible drop-shadow-sm text-slate-700`}>
+                                <title>{q.grafik_verisi.baslik}</title>
+                                <defs><marker id={`arrow-${quizId}-${index}`} viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" className="fill-current" /></marker></defs>
+                                <g transform={`translate(${q.grafik_verisi.x || 0}, ${q.grafik_verisi.y || 0})`} onMouseDown={e => handleShapeDragStart(e, index)} className={isEditing ? 'cursor-move' : ''}>
+                                  {shapeElements}
+                                  {textElements}
                                 </g>
                               </svg>
-                          </div>
-                      )}
+                            </div>
+                          );
+                      })()}
                       
                       {q.grafik_verisi.not && <p 
                         className={`text-xs text-center mt-2 text-slate-500 ${isEditing ? 'editable-field' : ''}`}
