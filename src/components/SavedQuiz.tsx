@@ -1,7 +1,4 @@
 
-
-
-
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getQuiz, updateQuiz } from '../services/storageService';
@@ -41,8 +38,8 @@ const SavedQuiz: React.FC = () => {
     };
 
     const handleRemixQuestion = async (questionIndex: number) => {
-        if (!(await window.aistudio.hasSelectedApiKey())) {
-            await handleSelectKey();
+        if (window.aistudio && !(await window.aistudio.hasSelectedApiKey())) {
+            handleSelectKey();
             return;
         }
 
@@ -72,7 +69,7 @@ const SavedQuiz: React.FC = () => {
             }
         } catch (error: any) {
             const errorMessage = error.message || "Soru yenilenirken bir hata oluştu.";
-            if (errorMessage.includes("API keys are not supported") || errorMessage.includes("CREDENTIALS_MISSING") || errorMessage.includes("Requested entity was not found")) {
+            if (error.toString().includes("401") || errorMessage.includes("API keys are not supported") || errorMessage.includes("CREDENTIALS_MISSING") || errorMessage.includes("Requested entity was not found")) {
                 setRemixError("API anahtarınızla ilgili bir sorun oluştu. Lütfen yeniden seçin.");
                 setHasApiKey(false);
             } else {

@@ -1,5 +1,4 @@
 
-
 import { GoogleGenAI, Type } from "@google/genai";
 import { DetailedQuestion, Kazanim, QuestionType } from '../types';
 

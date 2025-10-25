@@ -1,7 +1,4 @@
 
-
-
-
 import React, { useState, useEffect } from 'react';
 import CurriculumSelector from './CurriculumSelector';
 import QuizView from './QuizView';
@@ -74,8 +71,8 @@ const QuizGenerator: React.FC = () => {
     };
 
     const handleGenerateQuiz = async () => {
-        if (!(await window.aistudio.hasSelectedApiKey())) {
-            await handleSelectKey();
+        if (window.aistudio && !(await window.aistudio.hasSelectedApiKey())) {
+            handleSelectKey();
             return;
         }
 
@@ -135,7 +132,7 @@ const QuizGenerator: React.FC = () => {
             }
         } catch (err: any) {
             const errorMessage = err.message || "Bilinmeyen bir hata oluştu.";
-            if (errorMessage.includes("API keys are not supported") || errorMessage.includes("CREDENTIALS_MISSING") || errorMessage.includes("Requested entity was not found")) {
+            if (err.toString().includes("401") || errorMessage.includes("API keys are not supported") || errorMessage.includes("CREDENTIALS_MISSING") || errorMessage.includes("Requested entity was not found")) {
                 setError("API anahtarınızla ilgili bir sorun oluştu. Lütfen yeniden seçin.");
                 setHasApiKey(false);
             } else {
@@ -194,8 +191,8 @@ Teşekkürler.
     };
     
     const handleRemixQuestion = async (questionIndex: number) => {
-        if (!(await window.aistudio.hasSelectedApiKey())) {
-            await handleSelectKey();
+        if (window.aistudio && !(await window.aistudio.hasSelectedApiKey())) {
+            handleSelectKey();
             return;
         }
         const quiz = generatedQuiz;
@@ -224,7 +221,7 @@ Teşekkürler.
             }
         } catch (err: any) {
             const errorMessage = err.message || "Soru yenilenirken bir hata oluştu.";
-             if (errorMessage.includes("API keys are not supported") || errorMessage.includes("CREDENTIALS_MISSING") || errorMessage.includes("Requested entity was not found")) {
+             if (err.toString().includes("401") || errorMessage.includes("API keys are not supported") || errorMessage.includes("CREDENTIALS_MISSING") || errorMessage.includes("Requested entity was not found")) {
                 setError("API anahtarınızla ilgili bir sorun oluştu. Lütfen yeniden seçin.");
                 setHasApiKey(false);
             } else {
