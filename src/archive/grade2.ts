@@ -487,12 +487,20 @@ export const ARCHIVE_DATA_GRADE_2: Record<string, ArchiveQuiz> = {
       return {
         sinif: 2, unite_adi: "Veri İşleme", unite_no: 4, kazanim_kodu: "M.2.4.1.1", kazanim_metni: "Veri toplar ve çetele tablosu oluşturur.",
         soru_tipi: 'coktan_secmeli',
-        soru_metni: `Bir kutudaki bilyelerin renklerine göre çetele tablosu aşağıdadır.\n\nKırmızı: |||||${'||'.slice(0, Math.max(0,red-5))}\nMavi: |||${'|'.slice(0, Math.max(0,blue-3))}\n\nBu kutuda kaç tane kırmızı bilye vardır?`,
+        soru_metni: `Bir kutudaki bilyelerin renklerine göre oluşturulan sıklık tablosu aşağıdadır. Bu kutuda kaç tane kırmızı bilye vardır?`,
+        grafik_verisi: {
+          tip: 'siklik_tablosu',
+          baslik: 'Kutudaki Bilyeler',
+          veri: [
+            { etiket: 'Kırmızı', deger: red },
+            { etiket: 'Mavi', deger: blue }
+          ]
+        },
         secenekler: options,
         dogru_cevap: correctAnswerKey,
         yanlis_secenek_tipleri: ["Diğer rengin sayısı", "Yanlış sayma"],
         gercek_yasam_baglantisi: "Sınıf başkanlığı seçiminde adayların aldığı oyları saymak için çetele tablosu kullanabiliriz.",
-        seviye: 'temel', cozum_anahtari: `Çetele tablosunda her dört çizgiden sonra beşinci çizgi üzerlerine yan çizilir. Kırmızı bilye sayısı ${answer}'dir.`
+        seviye: 'temel', cozum_anahtari: `Çetele veya sıklık tablosunda 'Kırmızı' satırının karşısındaki sayıya bakılır. Cevap ${answer}'dir.`
       };
     })}]
   },
@@ -507,12 +515,21 @@ export const ARCHIVE_DATA_GRADE_2: Record<string, ArchiveQuiz> = {
       return {
         sinif: 2, unite_adi: "Veri İşleme", unite_no: 4, kazanim_kodu: "M.2.4.1.2", kazanim_metni: "Nesne ve şekil grafiği oluşturur.",
         soru_tipi: 'coktan_secmeli',
-        soru_metni: `Bir grup öğrencinin en sevdiği meyveler nesne grafiği ile gösterilmiştir.\n\nElma  : ${'🍎'.repeat(elma)}\nÇilek : ${'🍓'.repeat(cilek)}\n(Her nesne 1 öğrenciyi göstermektedir.)\n\nGrafiğe göre çileği seven kaç öğrenci vardır?`,
+        soru_metni: `Bir grup öğrencinin en sevdiği meyveler nesne grafiği ile gösterilmiştir. Grafiğe göre çileği seven kaç öğrenci vardır?`,
+        grafik_verisi: {
+          tip: 'nesne_grafiği',
+          baslik: 'En Sevilen Meyveler',
+          veri: [
+            { etiket: 'Elma', deger: elma, nesne: '🍎' },
+            { etiket: 'Çilek', deger: cilek, nesne: '🍓' }
+          ],
+          not: 'Her nesne 1 öğrenciyi göstermektedir.'
+        },
         secenekler: options,
         dogru_cevap: correctAnswerKey,
         yanlis_secenek_tipleri: ["Diğer meyveyi sevenlerin sayısı", "Yanlış sayma"],
         gercek_yasam_baglantisi: "Hava durumu takviminde güneşli ve yağmurlu günleri saymak için nesne grafiği kullanabiliriz.",
-        seviye: 'orta', cozum_anahtari: `Grafikte çilek sırasında ${cilek} tane çilek nesnesi bulunmaktadır. Bu, ${cilek} öğrenci demektir.`
+        seviye: 'orta', cozum_anahtari: `Grafikte 'Çilek' satırında ${cilek} tane nesne bulunmaktadır. Bu, ${cilek} öğrenci demektir.`
       };
     })}]
   },

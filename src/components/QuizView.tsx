@@ -566,7 +566,7 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                       </h4>
                       
                       {q.grafik_verisi.tip === 'siklik_tablosu' && (
-                          <table className="w-full mt-2 border-collapse text-sm">
+                          <table className="w-full mt-2 border-collapse text-sm" style={{maxWidth: '300px', margin: '0 auto'}}>
                               <thead>
                                   <tr>
                                       <th className="border p-2 bg-slate-100 font-semibold">Veri</th>
@@ -593,57 +593,114 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                               </tbody>
                           </table>
                       )}
-                      {q.grafik_verisi.tip === 'sutun_grafiği' && (
-                           <div className="space-y-2 mt-2 text-sm">
-                                {q.grafik_verisi.veri.map((item, i) => (
-                                <div key={i} className="flex items-center gap-2">
-                                    <span 
-                                        className={`w-24 text-right pr-2 shrink-0 ${isEditing ? 'editable-field' : ''}`}
-                                        contentEditable={isEditing}
-                                        suppressContentEditableWarning={true}
-                                        onBlur={(e) => handleContentUpdate(e, index, ['grafik_verisi', 'veri', i, 'etiket'])}
-                                    >{item.etiket}:</span>
-                                    <div className="flex-1 bg-slate-200 rounded-full h-5 flex items-center">
-                                        <div className="bg-blue-500 h-full text-xs font-medium text-white text-right pr-1 flex items-center justify-end rounded-full" style={{ width: `${(item.deger / Math.max(1, ...q.grafik_verisi!.veri.map(d => d.deger))) * 100}%` }}>
-                                          <span 
-                                            className={`${isEditing ? 'editable-field bg-white/30 rounded px-1' : ''}`}
-                                            contentEditable={isEditing}
-                                            suppressContentEditableWarning={true}
-                                            onBlur={(e) => handleContentUpdate(e, index, ['grafik_verisi', 'veri', i, 'deger'])}
-                                          >{item.deger}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                ))}
-                            </div>
-                      )}
-                      {q.grafik_verisi.tip === 'nesne_grafiği' && (
-                          <div className="mt-2 space-y-1 text-sm">
-                              {q.grafik_verisi.veri.map((item, i) => (
-                                  <div key={i} className="flex items-start">
-                                      <span 
-                                        className={`w-24 text-right pr-2 shrink-0 ${isEditing ? 'editable-field' : ''}`}
-                                        contentEditable={isEditing}
-                                        suppressContentEditableWarning={true}
-                                        onBlur={(e) => handleContentUpdate(e, index, ['grafik_verisi', 'veri', i, 'etiket'])}
-                                      >{item.etiket}:</span>
-                                      <div className="flex-1 flex flex-wrap gap-1">
-                                        {Array.from({ length: item.deger }).map((_, j) => (
-                                          <span key={j}>{item.nesne || '■'}</span>
-                                        ))}
-                                         {isEditing && 
-                                            <span 
-                                                className="text-xs text-blue-600 font-bold ml-2 editable-field" 
-                                                contentEditable={isEditing} 
-                                                suppressContentEditableWarning={true}
-                                                onBlur={(e) => handleContentUpdate(e, index, ['grafik_verisi', 'veri', i, 'deger'])}
-                                            >({item.deger})</span>
-                                          }
-                                      </div>
-                                  </div>
-                              ))}
-                          </div>
-                      )}
+                      {q.grafik_verisi.tip === 'sutun_grafiği' && (() => {
+                          const chartData = q.grafik_verisi;
+                          const colors = ['#3b82f6', '#8b5cf6', '#ec4899', '#f97316', '#10b981'];
+                          
+                          return (
+                              <div className="space-y-3 mt-4 text-sm" style={{ paddingLeft: '1rem', paddingRight: '1rem' }}>
+                                  {chartData.veri.map((item, i) => {
+                                      const barSegments = Math.floor(item.deger);
+                                      const segmentWidth = 12;
+                                      const segmentHeight = 20;
+                                      const segmentGap = 2;
+                                      
+                                      return (
+                                          <div key={i} className="flex items-center gap-2">
+                                              <span 
+                                                  className={`w-28 text-right pr-2 shrink-0 ${isEditing ? 'editable-field' : ''}`}
+                                                  contentEditable={isEditing}
+                                                  suppressContentEditableWarning={true}
+                                                  onBlur={(e) => handleContentUpdate(e, index, ['grafik_verisi', 'veri', i, 'etiket'])}
+                                              >{item.etiket}:</span>
+                                              <div className="flex-grow flex items-center">
+                                                  <svg width="100%" height={segmentHeight} className="min-w-[100px]">
+                                                      {Array.from({ length: barSegments }).map((_, j) => (
+                                                          <rect
+                                                              key={j}
+                                                              x={j * (segmentWidth + segmentGap)}
+                                                              y={0}
+                                                              width={segmentWidth}
+                                                              height={segmentHeight}
+                                                              fill={colors[i % colors.length]}
+                                                              rx="2"
+                                                          />
+                                                      ))}
+                                                  </svg>
+                                                   <span 
+                                                      className={`ml-2 font-semibold ${isEditing ? 'editable-field' : ''}`}
+                                                      contentEditable={isEditing}
+                                                      suppressContentEditableWarning={true}
+                                                      onBlur={(e) => handleContentUpdate(e, index, ['grafik_verisi', 'veri', i, 'deger'])}
+                                                  >({item.deger})</span>
+                                              </div>
+                                          </div>
+                                      );
+                                  })}
+                              </div>
+                          );
+                      })()}
+                       {q.grafik_verisi.tip === 'nesne_grafiği' && (() => {
+                          const chartData = q.grafik_verisi;
+                          const colors = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6', '#8b5cf6'];
+                          const shapes = ['circle', 'square', 'triangle'];
+
+                          const renderShape = (type: string, props: any) => {
+                              const size = props.width;
+                              if (type === 'square') {
+                                  return <rect {...props} rx="2" />;
+                              }
+                              if (type === 'triangle') {
+                                  return <path d={`M ${props.x} ${props.y+size} L ${props.x+size/2} ${props.y} L ${props.x+size} ${props.y+size} Z`} fill={props.fill} />
+                              }
+                              return <circle cx={props.x + size/2} cy={props.y + size/2} r={size/2} fill={props.fill} />;
+                          }
+                          
+                          return (
+                              <div className="mt-4 space-y-2 text-sm">
+                                  {chartData.veri.map((item, i) => {
+                                      const iconSize = 16;
+                                      const iconGap = 4;
+                                      const iconsPerRow = 15;
+                                      const numRows = Math.ceil(item.deger / iconsPerRow);
+                                      const svgWidth = Math.min(item.deger, iconsPerRow) * (iconSize + iconGap);
+                                      const svgHeight = numRows * (iconSize + iconGap);
+                                      const shapeType = shapes[i % shapes.length];
+                                      const color = colors[i % colors.length];
+
+                                      return (
+                                          <div key={i} className="flex items-start">
+                                               <span 
+                                                  className={`w-28 text-right pr-2 shrink-0 pt-1 ${isEditing ? 'editable-field' : ''}`}
+                                                  contentEditable={isEditing}
+                                                  suppressContentEditableWarning={true}
+                                                  onBlur={(e) => handleContentUpdate(e, index, ['grafik_verisi', 'veri', i, 'etiket'])}
+                                              >{item.etiket}:</span>
+                                              <div className="flex-1 flex items-center flex-wrap">
+                                                  <svg width={svgWidth} height={svgHeight}>
+                                                      {Array.from({ length: item.deger }).map((_, j) => {
+                                                          const row = Math.floor(j / iconsPerRow);
+                                                          const col = j % iconsPerRow;
+                                                          const x = col * (iconSize + iconGap);
+                                                          const y = row * (iconSize + iconGap);
+                                                          return renderShape(shapeType, { key: j, x: x, y: y, width: iconSize, height: iconSize, fill: color });
+                                                      })}
+                                                  </svg>
+                                                  {isEditing && 
+                                                      <span 
+                                                          className="text-xs text-blue-600 font-bold ml-2 editable-field self-center" 
+                                                          contentEditable={isEditing} 
+                                                          suppressContentEditableWarning={true}
+                                                          onBlur={(e) => handleContentUpdate(e, index, ['grafik_verisi', 'veri', i, 'deger'])}
+                                                      >({item.deger})</span>
+                                                  }
+                                              </div>
+                                          </div>
+                                      );
+                                  })}
+                              </div>
+                          );
+                      })()}
                       {['ucgen', 'dikdortgen', 'kare', 'besgen', 'altıgen', 'dogru_parcasi', 'isin', 'dogru', 'paralel_dogrular', 'kesisen_dogrular', 'dik_kesisen_doğrular'].includes(q.grafik_verisi.tip) && (() => {
                           const { tip, veri } = q.grafik_verisi;
                           const shapeElements: React.ReactElement[] = [];
