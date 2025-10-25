@@ -678,6 +678,10 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                                 vertexCoords[labels[2]] = { x: 210, y: 150 };
                                 vertexCoords[labels[3]] = { x: 40, y: 150 };
                                 shapeElements.push(<polygon key="shape" points={`${vertexCoords[labels[0]].x},${vertexCoords[labels[0]].y} ${vertexCoords[labels[1]].x},${vertexCoords[labels[1]].y} ${vertexCoords[labels[2]].x},${vertexCoords[labels[2]].y} ${vertexCoords[labels[3]].x},${vertexCoords[labels[3]].y}`} className="fill-blue-100/50 stroke-blue-500" strokeWidth="2" />);
+                            } else if (['dogru_parcasi', 'isin', 'dogru'].includes(tip)) {
+                                const labels = sortedVertexLabels.length >= 2 ? sortedVertexLabels : ['A', 'B'];
+                                vertexCoords[labels[0]] = { x: 40, y: 90 };
+                                vertexCoords[labels[1]] = { x: 210, y: 90 };
                             }
 
                           // 2. Process and position labels
@@ -696,8 +700,12 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                               if (match && vertexCoords[match[1].toUpperCase()]) {
                                   const vName = match[1].toUpperCase();
                                   const pos = vertexCoords[vName];
-                                  const angle = Math.atan2(pos.y - centroid.y, pos.x - centroid.x);
-                                  defaultPos = { x: pos.x + 15 * Math.cos(angle), y: pos.y + 15 * Math.sin(angle) };
+                                  if (tip === 'ucgen' || tip === 'kare' || tip === 'dikdortgen') {
+                                      const angle = Math.atan2(pos.y - centroid.y, pos.x - centroid.x);
+                                      defaultPos = { x: pos.x + 15 * Math.cos(angle), y: pos.y + 15 * Math.sin(angle) };
+                                  } else {
+                                      defaultPos = { x: pos.x, y: pos.y - 15 };
+                                  }
                                   content = [vName];
                                   textProps.className = `font-semibold text-lg fill-current ${isEditing ? 'cursor-grab' : ''}`;
                               }
@@ -741,6 +749,37 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                                   }
                               }
                               
+                              if (!content) {
+                                  match = item.etiket.match(/^(\w)\s+Kesişim\s+Noktası/i);
+                                  if (match) {
+                                      const pointName = match[1].toUpperCase();
+                                      content = [pointName];
+                                      textProps.className = `font-semibold text-lg fill-current ${isEditing ? 'cursor-grab' : ''}`;
+                                      if (tip === 'kesisen_dogrular') {
+                                          defaultPos = { x: 130, y: 95 }; // Position near the intersection
+                                      }
+                                  }
+                              }
+                      
+                              if (!content) {
+                                  match = item.etiket.match(/^(\w+)\s+doğrusu/i);
+                                  if (match) {
+                                      const lineName = match[1];
+                                      content = [lineName];
+                                      textProps.className = `italic text-lg fill-current ${isEditing ? 'cursor-grab' : ''}`;
+                                      textProps.textAnchor = 'start';
+                                      const lineIndex = veri.findIndex(v => v.etiket === item.etiket);
+
+                                      if (tip === 'paralel_dogrular') {
+                                          defaultPos = lineIndex === 0 ? { x: 215, y: 70 } : { x: 215, y: 110 };
+                                      } else if (tip === 'kesisen_dogrular') {
+                                          defaultPos = lineIndex === 0 ? { x: 215, y: 145 } : { x: 215, y: 35 };
+                                      } else if (tip === 'dik_kesisen_doğrular') {
+                                          defaultPos = lineIndex === 0 ? { x: 215, y: 90 } : { x: 130, y: 20 };
+                                      }
+                                  }
+                              }
+
                               if (content) {
                                 textElements.push(
                                   <text key={itemIndex} x={item.x ?? defaultPos.x} y={item.y ?? defaultPos.y} {...textProps} onMouseDown={(e) => handleLabelDragStart(e, index, itemIndex, defaultPos)}>
