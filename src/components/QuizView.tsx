@@ -46,8 +46,9 @@ const getCornerLabels = (data: ChartDataItem[] = [], defaultLabels: string[]): s
 
 // State for drag information
 interface DragInfo {
+  type: 'label' | 'shape';
   questionIndex: number;
-  itemIndex: number;
+  itemIndex?: number; // For label dragging
   offsetX: number;
   offsetY: number;
 }
@@ -148,52 +149,115 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
       });
   };
 
-  const handleDragStart = (e: React.MouseEvent<SVGElement>, questionIndex: number, itemIndex: number, defaultPos: {x: number, y: number}) => {
-    if (!isEditing) return;
-    const svg = svgRefs.current[questionIndex];
-    if (!svg) return;
-
+  const getSVGCoordinates = (e: MouseEvent, svg: SVGSVGElement) => {
     const pt = svg.createSVGPoint();
     pt.x = e.clientX;
     pt.y = e.clientY;
-    const svgP = pt.matrixTransform(svg.getScreenCTM()!.inverse());
+    return pt.matrixTransform(svg.getScreenCTM()!.inverse());
+  };
 
-    const currentItem = editableQuestions[questionIndex]?.grafik_verisi?.veri[itemIndex];
-    const currentX = currentItem?.x ?? defaultPos.x;
-    const currentY = currentItem?.y ?? defaultPos.y;
+  const handleLabelDragStart = (e: React.MouseEvent<SVGTextElement>, questionIndex: number, itemIndex: number, defaultPos: {x: number, y: number}) => {
+    if (!isEditing) return;
+    e.stopPropagation();
+    const svg = svgRefs.current[questionIndex];
+    if (!svg) return;
+
+    const svgP = getSVGCoordinates(e.nativeEvent, svg);
+    const chartData = editableQuestions[questionIndex]?.grafik_verisi;
+    const shapeX = chartData?.x ?? 0;
+    const shapeY = chartData?.y ?? 0;
+
+    const relMouseX = svgP.x - shapeX;
+    const relMouseY = svgP.y - shapeY;
+
+    const currentItem = chartData?.veri[itemIndex];
+    const currentRelX = currentItem?.x ?? defaultPos.x;
+    const currentRelY = currentItem?.y ?? defaultPos.y;
 
     setDragInfo({
+        type: 'label',
         questionIndex,
         itemIndex,
+        offsetX: relMouseX - currentRelX,
+        offsetY: relMouseY - currentRelY,
+    });
+  };
+
+  const handleShapeDragStart = (e: React.MouseEvent<SVGGElement>, questionIndex: number) => {
+    if (!isEditing) return;
+    
+    // Check if the actual target of the mousedown event is a text element or one of its children (tspan)
+    // If so, do not initiate a shape drag, as the label drag handler will take over via stopPropagation.
+    if ((e.target as SVGElement).closest('text')) return;
+
+    const svg = svgRefs.current[questionIndex];
+    if (!svg) return;
+    
+    const svgP = getSVGCoordinates(e.nativeEvent, svg);
+
+    const chartData = editableQuestions[questionIndex]?.grafik_verisi;
+    const currentX = chartData?.x ?? 0;
+    const currentY = chartData?.y ?? 0;
+
+    setDragInfo({
+        type: 'shape',
+        questionIndex,
         offsetX: svgP.x - currentX,
         offsetY: svgP.y - currentY,
     });
   };
 
-  const handleDrag = (e: React.MouseEvent<SVGSVGElement>) => {
-      if (!dragInfo) return;
-      const svg = svgRefs.current[dragInfo.questionIndex];
-      if (!svg) return;
+  useEffect(() => {
+    const handleGlobalDrag = (e: MouseEvent) => {
+        if (!dragInfo) return;
+        const svg = svgRefs.current[dragInfo.questionIndex];
+        if (!svg) return;
 
-      const pt = svg.createSVGPoint();
-      pt.x = e.clientX;
-      pt.y = e.clientY;
-      const svgP = pt.matrixTransform(svg.getScreenCTM()!.inverse());
+        const svgP = getSVGCoordinates(e, svg);
 
-      const newX = svgP.x - dragInfo.offsetX;
-      const newY = svgP.y - dragInfo.offsetY;
+        setEditableQuestions(prev => 
+            prev.map((q, idx) => {
+                if (idx !== dragInfo.questionIndex || !q.grafik_verisi) return q;
 
-      setEditableQuestions(prev => {
-          const newQuestions = [...prev];
-          const item = newQuestions[dragInfo.questionIndex].grafik_verisi!.veri[dragInfo.itemIndex];
-          newQuestions[dragInfo.questionIndex].grafik_verisi!.veri[dragInfo.itemIndex] = { ...item, x: newX, y: newY };
-          return newQuestions;
-      });
-  };
+                const newGrafikVerisi = { ...q.grafik_verisi };
+                
+                if (dragInfo.type === 'shape') {
+                    newGrafikVerisi.x = svgP.x - dragInfo.offsetX;
+                    newGrafikVerisi.y = svgP.y - dragInfo.offsetY;
+                } else if (dragInfo.type === 'label' && dragInfo.itemIndex !== undefined) {
+                    const shapeX = newGrafikVerisi.x ?? 0;
+                    const shapeY = newGrafikVerisi.y ?? 0;
+                    const newVeri = [...newGrafikVerisi.veri];
+                    const item = newVeri[dragInfo.itemIndex];
+                    if (item) {
+                        newVeri[dragInfo.itemIndex] = {
+                            ...item,
+                            x: (svgP.x - shapeX) - dragInfo.offsetX,
+                            y: (svgP.y - shapeY) - dragInfo.offsetY,
+                        };
+                        newGrafikVerisi.veri = newVeri;
+                    }
+                }
+                
+                return { ...q, grafik_verisi: newGrafikVerisi };
+            })
+        );
+    };
 
-  const handleDragEnd = () => {
-      setDragInfo(null);
-  };
+    const handleGlobalDragEnd = () => {
+        setDragInfo(null);
+    };
+
+    if (dragInfo) {
+        window.addEventListener('mousemove', handleGlobalDrag);
+        window.addEventListener('mouseup', handleGlobalDragEnd);
+    }
+
+    return () => {
+        window.removeEventListener('mousemove', handleGlobalDrag);
+        window.removeEventListener('mouseup', handleGlobalDragEnd);
+    };
+  }, [dragInfo]);
   
   if (!questions || questions.length === 0) return null;
 
@@ -610,8 +674,7 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                       {q.grafik_verisi && ['ucgen', 'dikdortgen', 'kare', 'kup', 'dogru_parcasi', 'isin', 'dogru', 'paralel_dogrular', 'kesisen_dogrular', 'dik_kesisen_doğrular'].includes(q.grafik_verisi.tip) && (
                            <div className="my-4 p-4 flex justify-center items-center">
                               <svg ref={el => svgRefs.current[index] = el} width="250" height="180" viewBox="0 0 250 180" 
-                                className={`overflow-visible drop-shadow-sm text-slate-700 ${isEditing ? 'cursor-grab' : ''}`}
-                                onMouseMove={handleDrag} onMouseUp={handleDragEnd} onMouseLeave={handleDragEnd}
+                                className={`overflow-visible drop-shadow-sm text-slate-700`}
                               >
                                   <title>{q.grafik_verisi.baslik}</title>
                                    <defs>
@@ -620,6 +683,11 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                                     </marker>
                                 </defs>
                                   
+                                <g 
+                                  transform={`translate(${q.grafik_verisi.x || 0}, ${q.grafik_verisi.y || 0})`}
+                                  onMouseDown={e => handleShapeDragStart(e, index)}
+                                  className={isEditing ? 'cursor-move' : ''}
+                                >
                                   {(() => {
                                       const data = q.grafik_verisi!.veri;
                                       
@@ -630,12 +698,12 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                                               const pts = {[c1]: {x: 40, y: 30}, [c2]: {x: 40, y: 150}, [c3]: {x: 210, y: 150}};
                                               
                                               return (
-                                                  <g>
+                                                  <>
                                                       <polygon points={`${pts[c1].x},${pts[c1].y} ${pts[c2].x},${pts[c2].y} ${pts[c3].x},${pts[c3].y}`} className="fill-blue-100/50 stroke-blue-500" strokeWidth="2" />
                                                       {data.map((item, i) => {
                                                           let defaultPos = {x:0, y:0};
                                                           let content: (string | number | undefined)[] = [];
-                                                          const textProps: any = { textAnchor: "middle", dominantBaseline: "middle", className: "text-[10pt]" };
+                                                          const textProps: any = { textAnchor: "middle", dominantBaseline: "middle", className: `text-[10pt] ${isEditing ? 'cursor-grab' : ''}` };
 
                                                           if (item.etiket.includes(`${c1} Köşesi`)) { defaultPos = {x: pts[c1].x-12, y: pts[c1].y-5}; content=[c1]; textProps.className="font-semibold text-lg"; }
                                                           else if (item.etiket.includes(`${c2} Köşesi`)) { defaultPos = {x: pts[c2].x-12, y: pts[c2].y+15}; content=[c2]; textProps.className="font-semibold text-lg"; }
@@ -652,12 +720,12 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                                                           }
                                                           else return null;
 
-                                                          return <text key={i} x={item.x ?? defaultPos.x} y={item.y ?? defaultPos.y} {...textProps} onMouseDown={e => handleDragStart(e, index, i, defaultPos)}>
+                                                          return <text key={i} x={item.x ?? defaultPos.x} y={item.y ?? defaultPos.y} {...textProps} onMouseDown={e => handleLabelDragStart(e, index, i, defaultPos)}>
                                                               <tspan contentEditable={isEditing} suppressContentEditableWarning={true} onBlur={(e) => handleContentUpdate(e, index, ['grafik_verisi', 'veri', i, 'deger'])} className={isEditing ? 'editable-field-svg' : ''}>{content[0]}</tspan>
                                                               {content[1] && <tspan dy={content[1] === '°' ? -3 : 0}>{content[1]}</tspan>}
                                                           </text>
                                                       })}
-                                                  </g>
+                                                  </>
                                               );
                                           }
                                          case 'dikdortgen':
@@ -667,13 +735,13 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                                               const pts = { [c1]: {x: 40, y: 30}, [c2]: {x: 210, y: 30}, [c3]: {x: 210, y: 150}, [c4]: {x: 40, y: 150} };
                                               
                                               return (
-                                                  <g>
+                                                  <>
                                                       <polygon points={`${pts[c1].x},${pts[c1].y} ${pts[c2].x},${pts[c2].y} ${pts[c3].x},${pts[c3].y} ${pts[c4].x},${pts[c4].y}`} className="fill-blue-100/50 stroke-blue-500" strokeWidth="2" />
                                                       <path d={`M ${pts[c4].x} ${pts[c4].y-15} L ${pts[c4].x+15} ${pts[c4].y-15} L ${pts[c4].x+15} ${pts[c4].y}`} className="fill-none stroke-current" strokeWidth="1.5" />
                                                       {data.map((item, i) => {
                                                             let defaultPos = {x:0, y:0};
                                                             let content: (string | number | undefined)[] = [];
-                                                            const textProps: any = { textAnchor: "middle", dominantBaseline: "middle", className: "text-[10pt]" };
+                                                            const textProps: any = { textAnchor: "middle", dominantBaseline: "middle", className: `text-[10pt] ${isEditing ? 'cursor-grab' : ''}` };
 
                                                             if (item.etiket.includes(`${c1} Köşesi`)) { defaultPos = {x: pts[c1].x-12, y: pts[c1].y-5}; content=[c1]; textProps.className="font-semibold text-lg"; }
                                                             else if (item.etiket.includes(`${c2} Köşesi`)) { defaultPos = {x: pts[c2].x+12, y: pts[c2].y-5}; content=[c2]; textProps.className="font-semibold text-lg"; }
@@ -683,17 +751,18 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                                                             else if (item.etiket.match(new RegExp(`${c2}${c3}|${c1}${c4}|Kısa|Yükseklik`, 'i'))) { defaultPos = {x: pts[c2].x + 10, y: (pts[c2].y+pts[c3].y)/2}; content=[item.deger, item.birim]; textProps.textAnchor="start"; }
                                                             else return null;
 
-                                                            return <text key={i} x={item.x ?? defaultPos.x} y={item.y ?? defaultPos.y} {...textProps} onMouseDown={e => handleDragStart(e, index, i, defaultPos)}>
+                                                            return <text key={i} x={item.x ?? defaultPos.x} y={item.y ?? defaultPos.y} {...textProps} onMouseDown={e => handleLabelDragStart(e, index, i, defaultPos)}>
                                                                 <tspan contentEditable={isEditing} suppressContentEditableWarning={true} onBlur={(e) => handleContentUpdate(e, index, ['grafik_verisi', 'veri', i, 'deger'])} className={isEditing ? 'editable-field-svg' : ''}>{content[0]}</tspan>
                                                                 {content[1] && <tspan>{content[1]}</tspan>}
                                                             </text>
                                                       })}
-                                                  </g>
+                                                  </>
                                               )
                                           }
                                           default: return null;
                                       }
                                   })()}
+                                </g>
                               </svg>
                           </div>
                       )}

@@ -14,6 +14,8 @@ export interface ChartData {
   baslik: string;
   veri: ChartDataItem[];
   not?: string; // örn: "Her nesne 1 öğrenciyi göstermektedir."
+  x?: number; // Şeklin genel x-koordinatı
+  y?: number; // Şeklin genel y-koordinatı
 }
 
 export interface DetailedQuestion {

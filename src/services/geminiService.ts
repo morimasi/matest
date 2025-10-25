@@ -131,7 +131,9 @@ Lütfen çıktı olarak sadece soruları içeren bir JSON nesnesi döndür. Her 
                 required: ["etiket"]
               }
             },
-            not: { type: Type.STRING, description: "Grafik altında gösterilecek ek not." }
+            not: { type: Type.STRING, description: "Grafik altında gösterilecek ek not." },
+            x: { type: Type.NUMBER, description: "Kullanıcı tarafından düzenlenen şeklin x-koordinatı." },
+            y: { type: Type.NUMBER, description: "Kullanıcı tarafından düzenlenen şeklin y-koordinatı." }
           },
           required: ["tip", "baslik", "veri"]
         },
