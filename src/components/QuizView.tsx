@@ -2,6 +2,7 @@
 
 
 
+
 import React, { useRef, useState, useEffect } from 'react';
 import { DetailedQuestion, ChartDataItem } from '../types';
 import { DownloadIcon, PrintIcon, ShareIcon, SparklesIcon, SettingsIcon, CopyIcon, CheckIcon, RefreshCwIcon, EditIcon } from './icons';
@@ -736,7 +737,7 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                               }
 
                               match = item.etiket.match(/^(\w)\s+Açısı/i);
-                              if (match && vertexCoords[match[1].toUpperCase()]) {
+                               if (match && vertexCoords[match[1].toUpperCase()]) {
                                   const vName = match[1].toUpperCase();
                                   const vPos = vertexCoords[vName];
                                   const neighbors = Object.keys(vertexCoords)
@@ -759,25 +760,41 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                                       if (l1 > 0.001 && l2 > 0.001) {
                                           const v1_norm = { x: v1.x / l1, y: v1.y / l1 };
                                           const v2_norm = { x: v2.x / l2, y: v2.y / l2 };
-                              
+                                          
+                                          let bisector = { x: v1_norm.x + v2_norm.x, y: v1_norm.y + v2_norm.y };
+                                          const vecToCentroid = { x: centroid.x - vPos.x, y: centroid.y - vPos.y };
+
+                                          if ((bisector.x * vecToCentroid.x + bisector.y * vecToCentroid.y) < 0) {
+                                              bisector.x *= -1;
+                                              bisector.y *= -1;
+                                          }
+
                                           if (item.deger === 90) {
                                               const d = 15;
-                                              const p1 = { x: vPos.x + v1_norm.x * d, y: vPos.y + v1_norm.y * d };
-                                              const p2 = { x: vPos.x + v2_norm.x * d, y: vPos.y + v2_norm.y * d };
-                                              const p3 = { x: p1.x + v2_norm.x * d, y: p1.y + v2_norm.y * d };
+                                              const crossProduct = v1.x * v2.y - v1.y * v2.x;
+                                              const vA_norm = crossProduct > 0 ? v1_norm : v2_norm;
+                                              const vB_norm = crossProduct > 0 ? v2_norm : v1_norm;
+
+                                              const p1 = { x: vPos.x + vA_norm.x * d, y: vPos.y + vA_norm.y * d };
+                                              const p2 = { x: vPos.x + vB_norm.x * d, y: vPos.y + vB_norm.y * d };
+                                              const p3 = { x: p1.x + vB_norm.x * d, y: p1.y + vB_norm.y * d };
+                                              
                                               shapeElements.push(<path key={`angle-${itemIndex}`} d={`M ${p1.x} ${p1.y} L ${p3.x} ${p3.y} L ${p2.x} ${p2.y}`} className="fill-none stroke-current" strokeWidth="1.5" />);
                                           } else if (item.deger) {
-                                              const bisector = { x: v1_norm.x + v2_norm.x, y: v1_norm.y + v2_norm.y };
                                               const lBisector = Math.sqrt(bisector.x * bisector.x + bisector.y * bisector.y);
-                              
                                               if (lBisector > 0.001) {
                                                   const d = 25;
                                                   defaultPos = {
                                                       x: vPos.x + (bisector.x / lBisector) * d,
                                                       y: vPos.y + (bisector.y / lBisector) * d
                                                   };
-                                              } else {
-                                                  defaultPos = { x: vPos.x + (centroid.x - vPos.x) * 0.3, y: vPos.y + (centroid.y - vPos.y) * 0.3 };
+                                              } else { 
+                                                  const normal = { x: -v1_norm.y, y: v1_norm.x };
+                                                  if (normal.x * vecToCentroid.x + normal.y * vecToCentroid.y < 0) {
+                                                      normal.x *= -1;
+                                                      normal.y *= -1;
+                                                  }
+                                                  defaultPos = { x: vPos.x + normal.x * 15, y: vPos.y + normal.y * 15 };
                                               }
                                               content = [item.deger, '°'];
                                           }
