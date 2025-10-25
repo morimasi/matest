@@ -882,7 +882,7 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                                           } else if (item.deger) {
                                               const lBisector = Math.sqrt(bisector.x * bisector.x + bisector.y * bisector.y);
                                               if (lBisector > 0.001) {
-                                                  const d = 18;
+                                                  const d = 15;
                                                   defaultPos = {
                                                       x: vPos.x + (bisector.x / lBisector) * d,
                                                       y: vPos.y + (bisector.y / lBisector) * d

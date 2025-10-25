@@ -250,7 +250,6 @@ export const generateQuizStream = async (
     try {
         const CHUNK_SIZE = 5;
         let remainingQuestions = questionCount;
-        const promises: Promise<void>[] = [];
 
         while (remainingQuestions > 0) {
             const currentChunkSize = Math.min(CHUNK_SIZE, remainingQuestions);
@@ -266,29 +265,30 @@ export const generateQuizStream = async (
                 numOperations
             );
 
-            const promise = ai.models.generateContent({
+            // Await each API call sequentially to avoid hitting rate limits.
+            const response = await ai.models.generateContent({
                 model: "gemini-2.5-flash",
                 contents: prompt,
                 config: {
                     responseMimeType: "application/json",
                     responseSchema: schema,
                 },
-            }).then(response => {
-                const jsonText = response.text.trim();
-                const parsedData = JSON.parse(jsonText);
-                const questions = (parsedData?.questions || []) as DetailedQuestion[];
-                if (questions.length > 0) {
-                    onChunk(questions);
-                }
             });
 
-            promises.push(promise);
+            const jsonText = response.text.trim();
+            const parsedData = JSON.parse(jsonText);
+            const questions = (parsedData?.questions || []) as DetailedQuestion[];
+            if (questions.length > 0) {
+                onChunk(questions);
+            }
+            
             remainingQuestions -= currentChunkSize;
         }
-
-        await Promise.all(promises);
-    } catch (error) {
+    } catch (error: any) {
         console.error("Error generating quiz stream:", error);
+        if (error.toString().includes('429') || (error.message && error.message.includes('429'))) {
+             throw new Error("API istek limiti aşıldı. Lütfen bir dakika bekleyip daha az sayıda soruyla tekrar deneyin.");
+        }
         throw new Error("Yapay zeka ile sınav oluşturulurken bir hata oluştu. Lütfen tekrar deneyin.");
     }
 };
