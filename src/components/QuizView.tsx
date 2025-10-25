@@ -19,6 +19,38 @@ interface QuizViewProps {
 const VIEW_SETTINGS_KEY = 'quizViewSettings';
 const NOTES_PREFIX = 'quizNotes_';
 
+// Helper to extract corner labels from geometry data for consistent rendering
+const getCornerLabels = (data: ChartDataItem[] = [], defaultLabels: string[]): string[] => {
+    const labels = new Set<string>();
+    data.forEach(item => {
+        // Match "A Köşesi", "B Köşesi", etc.
+        const cornerMatch = item.etiket.match(/^(\w+)\s+Köşesi/i);
+        if (cornerMatch && cornerMatch[1]) {
+            labels.add(cornerMatch[1].toUpperCase());
+            return;
+        }
+        // Fallback: Match from side labels like "AB Kenarı"
+        const sideMatch = item.etiket.match(/(\w)(\w)\s+Kenarı/i);
+        if(sideMatch && sideMatch[1] && sideMatch[2]){
+            labels.add(sideMatch[1].toUpperCase());
+            labels.add(sideMatch[2].toUpperCase());
+            return;
+        }
+        // Fallback: Match from angle labels like "A Açısı"
+        const angleMatch = item.etiket.match(/^(\w+)\s+Açısı/i);
+        if(angleMatch && angleMatch[1]){
+            labels.add(angleMatch[1].toUpperCase());
+            return;
+        }
+    });
+    
+    const foundLabels = Array.from(labels).sort();
+
+    // If we found enough labels, use them. Otherwise, use defaults.
+    return foundLabels.length >= defaultLabels.length ? foundLabels : defaultLabels;
+};
+
+
 const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQuestion, remixingIndex, onUpdateQuiz, onArchive, isArchived }) => {
   const quizRef = useRef<HTMLDivElement>(null);
   const [showAnswers, setShowAnswers] = useState(false);
@@ -236,7 +268,7 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
         setTimeout(() => setCopyStatus('idle'), 2000);
     }).catch(err => {
         console.error('Failed to copy: ', err);
-        alert("Bağlantı kopyalanamadı.");
+        alert("Bağlantıyı kopyalanamadı.");
     });
   };
 
@@ -544,50 +576,58 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                                       
                                       switch (q.grafik_verisi!.tip) {
                                           case 'ucgen': {
-                                              const pts = {A: {x: 40, y: 30}, B: {x: 40, y: 150}, C: {x: 210, y: 150}};
-                                              const sideAB = findData(/AB/i);
-                                              const sideBC = findData(/BC/i);
-                                              const sideAC = findData(/AC|Hipotenüs/i);
-                                              const angleA = findData(/A Açısı/i);
-                                              const angleB = findData(/B Açısı/i);
-                                              const angleC = findData(/C Açısı/i);
+                                              const cornerLabels = getCornerLabels(data, ['A', 'B', 'C']);
+                                              const [c1, c2, c3] = cornerLabels;
+
+                                              const pts = {[c1]: {x: 40, y: 30}, [c2]: {x: 40, y: 150}, [c3]: {x: 210, y: 150}};
+                                              
+                                              const side12 = findData(new RegExp(`${c1}${c2}`, 'i'));
+                                              const side23 = findData(new RegExp(`${c2}${c3}`, 'i'));
+                                              const side13 = findData(new RegExp(`${c1}${c3}|Hipotenüs`, 'i'));
+                                              const angle1 = findData(new RegExp(`${c1} Açısı`, 'i'));
+                                              const angle2 = findData(new RegExp(`${c2} Açısı`, 'i'));
+                                              const angle3 = findData(new RegExp(`${c3} Açısı`, 'i'));
 
                                               return (
                                                   <g>
-                                                      <polygon points={`${pts.A.x},${pts.A.y} ${pts.B.x},${pts.B.y} ${pts.C.x},${pts.C.y}`} className="fill-blue-100/50 stroke-blue-500" strokeWidth="2" />
-                                                      <text {...pts.A} dx="-12" dy="-5" textAnchor="middle" className="font-semibold text-lg">{isEditing ? <tspan {...editableProps(['grafik_verisi', 'veri', findIndex(/A Köşesi/i), 'etiket'])}>A</tspan> : 'A'}</text>
-                                                      <text {...pts.B} dx="-12" dy="15" textAnchor="middle" className="font-semibold text-lg">{isEditing ? <tspan {...editableProps(['grafik_verisi', 'veri', findIndex(/B Köşesi/i), 'etiket'])}>B</tspan> : 'B'}</text>
-                                                      <text {...pts.C} dx="12" dy="15" textAnchor="middle" className="font-semibold text-lg">{isEditing ? <tspan {...editableProps(['grafik_verisi', 'veri', findIndex(/C Köşesi/i), 'etiket'])}>C</tspan> : 'C'}</text>
+                                                      <polygon points={`${pts[c1].x},${pts[c1].y} ${pts[c2].x},${pts[c2].y} ${pts[c3].x},${pts[c3].y}`} className="fill-blue-100/50 stroke-blue-500" strokeWidth="2" />
+                                                      <text {...pts[c1]} dx="-12" dy="-5" textAnchor="middle" className="font-semibold text-lg">{c1}</text>
+                                                      <text {...pts[c2]} dx="-12" dy="15" textAnchor="middle" className="font-semibold text-lg">{c2}</text>
+                                                      <text {...pts[c3]} dx="12" dy="15" textAnchor="middle" className="font-semibold text-lg">{c3}</text>
                                                       
-                                                      {angleA && (angleA.deger !== 90 && <text x={pts.A.x + 15} y={pts.A.y + 20} className="text-[10pt]"><tspan {...editableProps(['grafik_verisi', 'veri', findIndex(/A Açısı/i), 'deger'])}>{angleA.deger}</tspan><tspan dy="-3">°</tspan></text>)}
-                                                      {angleB && (angleB.deger === 90 ? <path d={`M ${pts.B.x} ${pts.B.y-15} L ${pts.B.x+15} ${pts.B.y-15} L ${pts.B.x+15} ${pts.B.y}`} className="fill-none stroke-current" strokeWidth="1.5" /> : <text x={pts.B.x + 10} y={pts.B.y - 10} className="text-[10pt]"><tspan {...editableProps(['grafik_verisi', 'veri', findIndex(/B Açısı/i), 'deger'])}>{angleB.deger}</tspan><tspan dy="-3">°</tspan></text>)}
-                                                      {angleC && (angleC.deger !== 90 && <text x={pts.C.x - 20} y={pts.C.y - 10} className="text-[10pt]"><tspan {...editableProps(['grafik_verisi', 'veri', findIndex(/C Açısı/i), 'deger'])}>{angleC.deger}</tspan><tspan dy="-3">°</tspan></text>)}
+                                                      {angle1 && (angle1.deger !== 90 && <text x={pts[c1].x + 15} y={pts[c1].y + 20} className="text-[10pt]"><tspan {...editableProps(['grafik_verisi', 'veri', findIndex(new RegExp(`${c1} Açısı`, 'i')), 'deger'])}>{angle1.deger}</tspan><tspan dy="-3">°</tspan></text>)}
+                                                      {angle2 && (angle2.deger === 90 ? <path d={`M ${pts[c2].x} ${pts[c2].y-15} L ${pts[c2].x+15} ${pts[c2].y-15} L ${pts[c2].x+15} ${pts[c2].y}`} className="fill-none stroke-current" strokeWidth="1.5" /> : <text x={pts[c2].x + 10} y={pts[c2].y - 10} className="text-[10pt]"><tspan {...editableProps(['grafik_verisi', 'veri', findIndex(new RegExp(`${c2} Açısı`, 'i')), 'deger'])}>{angle2.deger}</tspan><tspan dy="-3">°</tspan></text>)}
+                                                      {angle3 && (angle3.deger !== 90 && <text x={pts[c3].x - 20} y={pts[c3].y - 10} className="text-[10pt]"><tspan {...editableProps(['grafik_verisi', 'veri', findIndex(new RegExp(`${c3} Açısı`, 'i')), 'deger'])}>{angle3.deger}</tspan><tspan dy="-3">°</tspan></text>)}
                                                       
-                                                      {sideAB && <text x={pts.A.x-10} y={(pts.A.y+pts.B.y)/2} className="text-[10pt]" textAnchor="end" dominantBaseline="middle"><tspan {...editableProps(['grafik_verisi', 'veri', findIndex(/AB/i), 'deger'])}>{sideAB.deger}</tspan><tspan>{sideAB.birim}</tspan></text>}
-                                                      {sideBC && <text x={(pts.B.x+pts.C.x)/2} y={pts.B.y+15} className="text-[10pt]" textAnchor="middle" dominantBaseline="hanging"><tspan {...editableProps(['grafik_verisi', 'veri', findIndex(/BC/i), 'deger'])}>{sideBC.deger}</tspan><tspan>{sideBC.birim}</tspan></text>}
-                                                      {sideAC && <text x={(pts.A.x+pts.C.x)/2} y={(pts.A.y+pts.C.y)/2} dy="-8" className="text-[10pt]" textAnchor="middle" dominantBaseline="auto" transform={`rotate(-35, ${(pts.A.x+pts.C.x)/2}, ${(pts.A.y+pts.C.y)/2})`}><tspan {...editableProps(['grafik_verisi', 'veri', findIndex(/AC|Hipotenüs/i), 'deger'])}>{sideAC.deger}</tspan><tspan>{sideAC.birim}</tspan></text>}
+                                                      {side12 && <text x={pts[c1].x-10} y={(pts[c1].y+pts[c2].y)/2} className="text-[10pt]" textAnchor="end" dominantBaseline="middle"><tspan {...editableProps(['grafik_verisi', 'veri', findIndex(new RegExp(`${c1}${c2}`, 'i')), 'deger'])}>{side12.deger}</tspan><tspan>{side12.birim}</tspan></text>}
+                                                      {side23 && <text x={(pts[c2].x+pts[c3].x)/2} y={pts[c2].y+15} className="text-[10pt]" textAnchor="middle" dominantBaseline="hanging"><tspan {...editableProps(['grafik_verisi', 'veri', findIndex(new RegExp(`${c2}${c3}`, 'i')), 'deger'])}>{side23.deger}</tspan><tspan>{side23.birim}</tspan></text>}
+                                                      {side13 && <text x={(pts[c1].x+pts[c3].x)/2} y={(pts[c1].y+pts[c3].y)/2} dy="-8" className="text-[10pt]" textAnchor="middle" dominantBaseline="auto" transform={`rotate(-35, ${(pts[c1].x+pts[c3].x)/2}, ${(pts[c1].y+pts[c3].y)/2})`}><tspan {...editableProps(['grafik_verisi', 'veri', findIndex(new RegExp(`${c1}${c3}|Hipotenüs`, 'i')), 'deger'])}>{side13.deger}</tspan><tspan>{side13.birim}</tspan></text>}
                                                   </g>
                                               );
                                           }
                                           case 'dikdortgen':
                                           case 'kare': {
-                                              const pts = { A: {x: 40, y: 30}, B: {x: 210, y: 30}, C: {x: 210, y: 150}, D: {x: 40, y: 150} };
-                                              const sideH = findData(/AB|CD|Uzun|Genişlik|Kenar/i);
-                                              const sideV = findData(/BC|DA|Kısa|Yükseklik/i);
+                                              const cornerLabels = getCornerLabels(data, ['A', 'B', 'C', 'D']);
+                                              const [c1, c2, c3, c4] = cornerLabels;
+
+                                              const pts = { [c1]: {x: 40, y: 30}, [c2]: {x: 210, y: 30}, [c3]: {x: 210, y: 150}, [c4]: {x: 40, y: 150} };
+                                              
+                                              const sideH = findData(new RegExp(`${c1}${c2}|${c4}${c3}|Uzun|Genişlik|Kenar`, 'i'));
+                                              const sideV = findData(new RegExp(`${c2}${c3}|${c1}${c4}|Kısa|Yükseklik`, 'i'));
                                               
                                               return (
                                                   <g>
-                                                      <polygon points={`${pts.A.x},${pts.A.y} ${pts.B.x},${pts.B.y} ${pts.C.x},${pts.C.y} ${pts.D.x},${pts.D.y}`} className="fill-blue-100/50 stroke-blue-500" strokeWidth="2" />
-                                                      <text {...pts.D} dx="-12" dy="15" textAnchor="middle" className="font-semibold text-lg">D</text>
-                                                      <text {...pts.A} dx="-12" dy="-5" textAnchor="middle" className="font-semibold text-lg">A</text>
-                                                      <text {...pts.B} dx="12" dy="-5" textAnchor="middle" className="font-semibold text-lg">B</text>
-                                                      <text {...pts.C} dx="12" dy="15" textAnchor="middle" className="font-semibold text-lg">C</text>
+                                                      <polygon points={`${pts[c1].x},${pts[c1].y} ${pts[c2].x},${pts[c2].y} ${pts[c3].x},${pts[c3].y} ${pts[c4].x},${pts[c4].y}`} className="fill-blue-100/50 stroke-blue-500" strokeWidth="2" />
+                                                      <text {...pts[c4]} dx="-12" dy="15" textAnchor="middle" className="font-semibold text-lg">{c4}</text>
+                                                      <text {...pts[c1]} dx="-12" dy="-5" textAnchor="middle" className="font-semibold text-lg">{c1}</text>
+                                                      <text {...pts[c2]} dx="12" dy="-5" textAnchor="middle" className="font-semibold text-lg">{c2}</text>
+                                                      <text {...pts[c3]} dx="12" dy="15" textAnchor="middle" className="font-semibold text-lg">{c3}</text>
 
-                                                      <path d={`M ${pts.D.x} ${pts.D.y-15} L ${pts.D.x+15} ${pts.D.y-15} L ${pts.D.x+15} ${pts.D.y}`} className="fill-none stroke-current" strokeWidth="1.5" />
+                                                      <path d={`M ${pts[c4].x} ${pts[c4].y-15} L ${pts[c4].x+15} ${pts[c4].y-15} L ${pts[c4].x+15} ${pts[c4].y}`} className="fill-none stroke-current" strokeWidth="1.5" />
                                                       
-                                                      {sideH && <text x={(pts.A.x+pts.B.x)/2} y={pts.A.y - 10} className="text-[10pt]" textAnchor="middle" dominantBaseline="auto"><tspan {...editableProps(['grafik_verisi', 'veri', findIndex(/AB|CD|Uzun|Genişlik|Kenar/i), 'deger'])}>{sideH.deger}</tspan><tspan>{sideH.birim}</tspan></text>}
-                                                      {sideV && <text x={pts.B.x + 10} y={(pts.B.y+pts.C.y)/2} className="text-[10pt]" textAnchor="start" dominantBaseline="middle"><tspan {...editableProps(['grafik_verisi', 'veri', findIndex(/BC|DA|Kısa|Yükseklik/i), 'deger'])}>{sideV.deger}</tspan><tspan>{sideV.birim}</tspan></text>}
-                                                      {q.grafik_verisi!.tip === 'kare' && sideH && !sideV && <text x={pts.B.x + 10} y={(pts.B.y+pts.C.y)/2} className="text-[10pt]" textAnchor="start" dominantBaseline="middle"><tspan {...editableProps(['grafik_verisi', 'veri', findIndex(/AB|CD|Uzun|Genişlik|Kenar/i), 'deger'])}>{sideH.deger}</tspan><tspan>{sideH.birim}</tspan></text>}
+                                                      {sideH && <text x={(pts[c1].x+pts[c2].x)/2} y={pts[c1].y - 10} className="text-[10pt]" textAnchor="middle" dominantBaseline="auto"><tspan {...editableProps(['grafik_verisi', 'veri', findIndex(new RegExp(`${c1}${c2}|${c4}${c3}|Uzun|Genişlik|Kenar`, 'i')), 'deger'])}>{sideH.deger}</tspan><tspan>{sideH.birim}</tspan></text>}
+                                                      {sideV && <text x={pts[c2].x + 10} y={(pts[c2].y+pts[c3].y)/2} className="text-[10pt]" textAnchor="start" dominantBaseline="middle"><tspan {...editableProps(['grafik_verisi', 'veri', findIndex(new RegExp(`${c2}${c3}|${c1}${c4}|Kısa|Yükseklik`, 'i')), 'deger'])}>{sideV.deger}</tspan><tspan>{sideV.birim}</tspan></text>}
+                                                      {q.grafik_verisi!.tip === 'kare' && sideH && !sideV && <text x={pts[c2].x + 10} y={(pts[c2].y+pts[c3].y)/2} className="text-[10pt]" textAnchor="start" dominantBaseline="middle"><tspan {...editableProps(['grafik_verisi', 'veri', findIndex(new RegExp(`${c1}${c2}|${c4}${c3}|Uzun|Genişlik|Kenar`, 'i')), 'deger'])}>{sideH.deger}</tspan><tspan>{sideH.birim}</tspan></text>}
                                                   </g>
                                               )
                                           }
