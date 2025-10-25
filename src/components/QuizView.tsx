@@ -1,4 +1,5 @@
 
+
 import React, { useRef, useState, useEffect } from 'react';
 import { DetailedQuestion, ChartDataItem } from '../types';
 import { DownloadIcon, PrintIcon, ShareIcon, SparklesIcon, SettingsIcon, CopyIcon, CheckIcon, RefreshCwIcon, EditIcon } from './icons';
@@ -598,7 +599,8 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                           const colors = ['#3b82f6', '#8b5cf6', '#ec4899', '#f97316', '#10b981'];
                           
                           return (
-                              <div className="space-y-3 mt-4 text-sm" style={{ paddingLeft: '1rem', paddingRight: '1rem' }}>
+                              <div className="mt-4 text-sm" style={{ paddingLeft: '1rem', paddingRight: '1rem' }}>
+                                <div className="space-y-3">
                                   {chartData.veri.map((item, i) => {
                                       const barSegments = Math.floor(item.deger);
                                       const segmentWidth = 12;
@@ -627,16 +629,27 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                                                           />
                                                       ))}
                                                   </svg>
-                                                   <span 
-                                                      className={`ml-2 font-semibold ${isEditing ? 'editable-field' : ''}`}
-                                                      contentEditable={isEditing}
-                                                      suppressContentEditableWarning={true}
-                                                      onBlur={(e) => handleContentUpdate(e, index, ['grafik_verisi', 'veri', i, 'deger'])}
-                                                  >({item.deger})</span>
+                                                  {isEditing && (
+                                                     <span 
+                                                        className={`ml-2 font-semibold editable-field`}
+                                                        contentEditable={isEditing}
+                                                        suppressContentEditableWarning={true}
+                                                        onBlur={(e) => handleContentUpdate(e, index, ['grafik_verisi', 'veri', i, 'deger'])}
+                                                    >({item.deger})</span>
+                                                  )}
                                               </div>
                                           </div>
                                       );
                                   })}
+                                </div>
+                                <p 
+                                  className={`text-xs text-center mt-2 text-slate-500 italic ${isEditing ? 'editable-field' : ''}`}
+                                  contentEditable={isEditing}
+                                  suppressContentEditableWarning={true}
+                                  onBlur={(e) => handleContentUpdate(e, index, ['grafik_verisi', 'not'])}
+                                >
+                                  {chartData.not || '(Her bir bölüm 1 birimi göstermektedir.)'}
+                                </p>
                               </div>
                           );
                       })()}
@@ -645,15 +658,19 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                           const colors = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6', '#8b5cf6'];
                           const shapes = ['circle', 'square', 'triangle'];
 
-                          const renderShape = (type: string, props: any) => {
-                              const size = props.width;
-                              if (type === 'square') {
-                                  return <rect {...props} rx="2" />;
-                              }
-                              if (type === 'triangle') {
-                                  return <path d={`M ${props.x} ${props.y+size} L ${props.x+size/2} ${props.y} L ${props.x+size} ${props.y+size} Z`} fill={props.fill} />
-                              }
-                              return <circle cx={props.x + size/2} cy={props.y + size/2} r={size/2} fill={props.fill} />;
+                          const renderObject = (item: ChartDataItem, props: any) => {
+                            if(item.nesne) {
+                                return <text {...props} fontSize={props.width} dominantBaseline="middle" textAnchor="middle" x={props.x + props.width/2} y={props.y + props.width/2}>{item.nesne}</text>
+                            }
+                            const shapeType = shapes[props.shapeIndex % shapes.length];
+                            const size = props.width;
+                            if (shapeType === 'square') {
+                                return <rect {...props} rx="2" />;
+                            }
+                            if (shapeType === 'triangle') {
+                                return <path d={`M ${props.x} ${props.y+size} L ${props.x+size/2} ${props.y} L ${props.x+size} ${props.y+size} Z`} fill={props.fill} />
+                            }
+                            return <circle cx={props.x + size/2} cy={props.y + size/2} r={size/2} fill={props.fill} />;
                           }
                           
                           return (
@@ -665,7 +682,6 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                                       const numRows = Math.ceil(item.deger / iconsPerRow);
                                       const svgWidth = Math.min(item.deger, iconsPerRow) * (iconSize + iconGap);
                                       const svgHeight = numRows * (iconSize + iconGap);
-                                      const shapeType = shapes[i % shapes.length];
                                       const color = colors[i % colors.length];
 
                                       return (
@@ -677,13 +693,13 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                                                   onBlur={(e) => handleContentUpdate(e, index, ['grafik_verisi', 'veri', i, 'etiket'])}
                                               >{item.etiket}:</span>
                                               <div className="flex-1 flex items-center flex-wrap">
-                                                  <svg width={svgWidth} height={svgHeight}>
+                                                  <svg width={svgWidth || 0} height={svgHeight || 0}>
                                                       {Array.from({ length: item.deger }).map((_, j) => {
                                                           const row = Math.floor(j / iconsPerRow);
                                                           const col = j % iconsPerRow;
                                                           const x = col * (iconSize + iconGap);
                                                           const y = row * (iconSize + iconGap);
-                                                          return renderShape(shapeType, { key: j, x: x, y: y, width: iconSize, height: iconSize, fill: color });
+                                                          return renderObject(item, { key: j, x: x, y: y, width: iconSize, height: iconSize, fill: color, shapeIndex: i });
                                                       })}
                                                   </svg>
                                                   {isEditing && 
