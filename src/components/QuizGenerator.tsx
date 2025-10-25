@@ -55,9 +55,13 @@ const QuizGenerator: React.FC = () => {
 
     useEffect(() => {
         const checkApiKey = async () => {
-            if (window.aistudio) {
+            if (typeof window.aistudio?.hasSelectedApiKey === 'function') {
                 const keySelected = await window.aistudio.hasSelectedApiKey();
                 setHasApiKey(keySelected);
+            } else {
+                // If aistudio API is not available, assume key is provided via environment
+                // and bypass the key selection screen.
+                setHasApiKey(true);
             }
         };
         checkApiKey();
@@ -71,10 +75,17 @@ const QuizGenerator: React.FC = () => {
     };
 
     const handleGenerateQuiz = async () => {
-        if (window.aistudio && !(await window.aistudio.hasSelectedApiKey())) {
-            handleSelectKey();
+        if (typeof window.aistudio?.hasSelectedApiKey === 'function') {
+            const keySelected = await window.aistudio.hasSelectedApiKey();
+            if (!keySelected) {
+                await handleSelectKey();
+                // We proceed, assuming the user selected a key, to avoid a second button click.
+            }
+        } else if (!process.env.API_KEY) {
+            setError("API anahtarı yapılandırılmamış. Lütfen uygulamanın yapılandırmasını kontrol edin.");
             return;
         }
+
 
         if (!selectedGrade || selectedUnits.length === 0) return;
 
@@ -132,9 +143,11 @@ const QuizGenerator: React.FC = () => {
             }
         } catch (err: any) {
             const errorMessage = err.message || "Bilinmeyen bir hata oluştu.";
-            if (err.toString().includes("401") || errorMessage.includes("API keys are not supported") || errorMessage.includes("CREDENTIALS_MISSING") || errorMessage.includes("Requested entity was not found")) {
-                setError("API anahtarınızla ilgili bir sorun oluştu. Lütfen yeniden seçin.");
-                setHasApiKey(false);
+            if (err.toString().includes("401") || errorMessage.includes("API key not valid") || errorMessage.includes("CREDENTIALS_MISSING") || errorMessage.includes("Requested entity was not found")) {
+                setError("Kimlik doğrulama hatası. API anahtarınız geçersiz veya süresi dolmuş olabilir. Lütfen yeni bir anahtar seçin.");
+                if (typeof window.aistudio?.hasSelectedApiKey === 'function') {
+                    setHasApiKey(false);
+                }
             } else {
                 setError(errorMessage);
             }
@@ -191,10 +204,16 @@ Teşekkürler.
     };
     
     const handleRemixQuestion = async (questionIndex: number) => {
-        if (window.aistudio && !(await window.aistudio.hasSelectedApiKey())) {
-            handleSelectKey();
+        if (typeof window.aistudio?.hasSelectedApiKey === 'function') {
+            const keySelected = await window.aistudio.hasSelectedApiKey();
+            if (!keySelected) {
+                await handleSelectKey();
+            }
+        } else if (!process.env.API_KEY) {
+            setError("API anahtarı yapılandırılmamış. Lütfen uygulamanın yapılandırmasını kontrol edin.");
             return;
         }
+
         const quiz = generatedQuiz;
         if (!quiz) return;
         setRemixingIndex(questionIndex);
@@ -221,9 +240,11 @@ Teşekkürler.
             }
         } catch (err: any) {
             const errorMessage = err.message || "Soru yenilenirken bir hata oluştu.";
-             if (err.toString().includes("401") || errorMessage.includes("API keys are not supported") || errorMessage.includes("CREDENTIALS_MISSING") || errorMessage.includes("Requested entity was not found")) {
-                setError("API anahtarınızla ilgili bir sorun oluştu. Lütfen yeniden seçin.");
-                setHasApiKey(false);
+             if (err.toString().includes("401") || errorMessage.includes("API key not valid") || errorMessage.includes("CREDENTIALS_MISSING") || errorMessage.includes("Requested entity was not found")) {
+                setError("Kimlik doğrulama hatası. API anahtarınız geçersiz veya süresi dolmuş olabilir. Lütfen yeni bir anahtar seçin.");
+                 if (typeof window.aistudio?.hasSelectedApiKey === 'function') {
+                    setHasApiKey(false);
+                }
             } else {
                 setError(errorMessage);
             }

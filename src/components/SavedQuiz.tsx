@@ -16,9 +16,12 @@ const SavedQuiz: React.FC = () => {
 
     useEffect(() => {
         const checkApiKey = async () => {
-             if (window.aistudio) {
+             if (typeof window.aistudio?.hasSelectedApiKey === 'function') {
                 const keySelected = await window.aistudio.hasSelectedApiKey();
                 setHasApiKey(keySelected);
+            } else {
+                // If aistudio API is not available, assume key is provided via environment.
+                setHasApiKey(true);
             }
         };
         checkApiKey();
@@ -38,8 +41,13 @@ const SavedQuiz: React.FC = () => {
     };
 
     const handleRemixQuestion = async (questionIndex: number) => {
-        if (window.aistudio && !(await window.aistudio.hasSelectedApiKey())) {
-            handleSelectKey();
+        if (typeof window.aistudio?.hasSelectedApiKey === 'function') {
+            const keySelected = await window.aistudio.hasSelectedApiKey();
+            if (!keySelected) {
+                await handleSelectKey();
+            }
+        } else if (!process.env.API_KEY) {
+            setRemixError("API anahtarı yapılandırılmamış. Lütfen uygulamanın yapılandırmasını kontrol edin.");
             return;
         }
 
@@ -69,9 +77,11 @@ const SavedQuiz: React.FC = () => {
             }
         } catch (error: any) {
             const errorMessage = error.message || "Soru yenilenirken bir hata oluştu.";
-            if (error.toString().includes("401") || errorMessage.includes("API keys are not supported") || errorMessage.includes("CREDENTIALS_MISSING") || errorMessage.includes("Requested entity was not found")) {
-                setRemixError("API anahtarınızla ilgili bir sorun oluştu. Lütfen yeniden seçin.");
-                setHasApiKey(false);
+            if (error.toString().includes("401") || errorMessage.includes("API key not valid") || errorMessage.includes("CREDENTIALS_MISSING") || errorMessage.includes("Requested entity was not found")) {
+                setRemixError("Kimlik doğrulama hatası. API anahtarınız geçersiz veya süresi dolmuş olabilir. Lütfen yeni bir anahtar seçin.");
+                if (typeof window.aistudio?.hasSelectedApiKey === 'function') {
+                    setHasApiKey(false);
+                }
             } else {
                 setRemixError(errorMessage);
             }
@@ -111,7 +121,7 @@ const SavedQuiz: React.FC = () => {
         );
     }
     
-    if (!hasApiKey && (remixingIndex !== null || remixError?.includes("API")) ) {
+    if (!hasApiKey && (remixingIndex !== null || remixError?.includes("Kimlik doğrulama hatası")) ) {
          return (
             <div className="text-center mt-12 p-8 bg-[--bg-component] backdrop-blur-xl rounded-3xl shadow-2xl border border-[--border-color] animate-fade-in-up">
                 <h3 className="text-xl font-semibold text-[--text-primary]">API Anahtarı Gerekli</h3>
