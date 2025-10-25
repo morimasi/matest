@@ -186,8 +186,6 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
   const handleShapeDragStart = (e: React.MouseEvent<SVGGElement>, questionIndex: number) => {
     if (!isEditing) return;
     
-    // Check if the actual target of the mousedown event is a text element or one of its children (tspan)
-    // If so, do not initiate a shape drag, as the label drag handler will take over via stopPropagation.
     if ((e.target as SVGElement).closest('text')) return;
 
     const svg = svgRefs.current[questionIndex];
