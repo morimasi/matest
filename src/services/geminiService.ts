@@ -28,7 +28,7 @@ Eğer bir kazanım görsel bir veri gerektiriyorsa (Veri İşleme ünitelerindek
    }
 
 2. GEOMETRİ ŞEKİLLERİ VE KAVRAMLARI:
-   - "tip": 'ucgen', 'dikdortgen', 'kare', 'kup', 'dogru_parcasi', 'isin', 'dogru', 'paralel_dogrular', 'kesisen_dogrular', 'dik_kesisen_doğrular'.
+   - "tip": 'ucgen', 'dikdortgen', 'kare', 'besgen', 'altıgen', 'kup', 'dogru_parcasi', 'isin', 'dogru', 'paralel_dogrular', 'kesisen_dogrular', 'dik_kesisen_doğrular'.
    - "baslik": Şekil/kavram için bir başlık (örn: "ABC Üçgeni", "AB Doğru Parçası", "d1 ve d2 Paralel Doğruları").
    - "veri": Bir dizi (array) olmalıdır. Her eleman şeklin bir özelliğini tanımlar. Etiketler çizim için kullanılır.
      **ÖNEMLİ TUTARLILIK KURALI: "soru_metni" içinde bahsedilen harf/isimler (örn: AB doğru parçası, d doğrusu) ile "grafik_verisi" içindeki etiketler (örn: "A Köşesi", "d doğrusu") BİREBİR AYNI OLMALIDIR.**
@@ -44,6 +44,14 @@ Eğer bir kazanım görsel bir veri gerektiriyorsa (Veri İşleme ünitelerindek
        { "etiket": "B Açısı", "deger": 90, "birim": "°" }
      ],
      "not": "Şekildeki verilere göre AC kenarının uzunluğu nedir?"
+   }
+   {
+     "tip": "altıgen", "baslik": "ABCDEF Düzgün Altıgeni",
+     "veri": [ { "etiket": "A Köşesi" }, { "etiket": "B Köşesi" }, { "etiket": "C Köşesi" }, { "etiket": "D Köşesi" }, { "etiket": "E Köşesi" }, { "etiket": "F Köşesi" }, { "etiket": "AB Kenarı", "deger": 5, "birim": "cm" } ]
+   }
+   {
+     "tip": "besgen", "baslik": "ABCDE Düzgün Beşgeni",
+     "veri": [ { "etiket": "A Köşesi" }, { "etiket": "B Köşesi" }, { "etiket": "C Köşesi" }, { "etiket": "D Köşesi" }, { "etiket": "E Köşesi" }, { "etiket": "BC Kenarı", "deger": 7, "birim": "cm" } ]
    }
    {
      "tip": "dogru_parcasi", "baslik": "AB Doğru Parçası",
@@ -117,7 +125,7 @@ Lütfen çıktı olarak sadece soruları içeren bir JSON nesnesi döndür. Her 
           type: Type.OBJECT,
           description: "Soru bir grafik, tablo veya geometrik şekil gerektiriyorsa, bu alanda yapısal verileri barındırır. ASCII görseller KULLANILMAMALIDIR.",
           properties: {
-            tip: { type: Type.STRING, description: "Görsel türü: 'siklik_tablosu', 'nesne_grafiği', 'sutun_grafiği', 'ucgen', 'dikdortgen', 'kare', 'kup', 'dogru_parcasi', 'isin', 'dogru', 'paralel_dogrular', 'kesisen_dogrular', 'dik_kesisen_doğrular'." },
+            tip: { type: Type.STRING, description: "Görsel türü: 'siklik_tablosu', 'nesne_grafiği', 'sutun_grafiği', 'ucgen', 'dikdortgen', 'kare', 'besgen', 'altıgen', 'kup', 'dogru_parcasi', 'isin', 'dogru', 'paralel_dogrular', 'kesisen_dogrular', 'dik_kesisen_doğrular'." },
             baslik: { type: Type.STRING, description: "Görsel için bir başlık." },
             veri: {
               type: Type.ARRAY,

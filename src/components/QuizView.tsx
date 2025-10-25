@@ -645,7 +645,7 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                               ))}
                           </div>
                       )}
-                      {['ucgen', 'dikdortgen', 'kare', 'dogru_parcasi', 'isin', 'dogru', 'paralel_dogrular', 'kesisen_dogrular', 'dik_kesisen_doğrular'].includes(q.grafik_verisi.tip) && (() => {
+                      {['ucgen', 'dikdortgen', 'kare', 'besgen', 'altıgen', 'dogru_parcasi', 'isin', 'dogru', 'paralel_dogrular', 'kesisen_dogrular', 'dik_kesisen_doğrular'].includes(q.grafik_verisi.tip) && (() => {
                           const { tip, veri } = q.grafik_verisi;
                           // FIX: Changed JSX.Element to React.ReactElement to resolve "Cannot find namespace 'JSX'" error.
                           const shapeElements: React.ReactElement[] = [];
@@ -678,6 +678,23 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                                 vertexCoords[labels[2]] = { x: 210, y: 150 };
                                 vertexCoords[labels[3]] = { x: 40, y: 150 };
                                 shapeElements.push(<polygon key="shape" points={`${vertexCoords[labels[0]].x},${vertexCoords[labels[0]].y} ${vertexCoords[labels[1]].x},${vertexCoords[labels[1]].y} ${vertexCoords[labels[2]].x},${vertexCoords[labels[2]].y} ${vertexCoords[labels[3]].x},${vertexCoords[labels[3]].y}`} className="fill-blue-100/50 stroke-blue-500" strokeWidth="2" />);
+                            } else if (tip === 'besgen') {
+                                const labels = sortedVertexLabels.length >= 5 ? sortedVertexLabels : ['A', 'B', 'C', 'D', 'E'];
+                                vertexCoords[labels[0]] = { x: 125, y: 20 }; // Top
+                                vertexCoords[labels[1]] = { x: 215, y: 80 }; // Top-right
+                                vertexCoords[labels[2]] = { x: 175, y: 160 }; // Bottom-right
+                                vertexCoords[labels[3]] = { x: 75, y: 160 }; // Bottom-left
+                                vertexCoords[labels[4]] = { x: 35, y: 80 }; // Top-left
+                                shapeElements.push(<polygon key="shape" points={labels.map(l => `${vertexCoords[l].x},${vertexCoords[l].y}`).join(' ')} className="fill-blue-100/50 stroke-blue-500" strokeWidth="2" />);
+                            } else if (tip === 'altıgen') {
+                                const labels = sortedVertexLabels.length >= 6 ? sortedVertexLabels : ['A', 'B', 'C', 'D', 'E', 'F'];
+                                vertexCoords[labels[0]] = { x: 85, y: 30 }; // Top-left
+                                vertexCoords[labels[1]] = { x: 165, y: 30 }; // Top-right
+                                vertexCoords[labels[2]] = { x: 205, y: 90 }; // Right
+                                vertexCoords[labels[3]] = { x: 165, y: 150 }; // Bottom-right
+                                vertexCoords[labels[4]] = { x: 85, y: 150 }; // Bottom-left
+                                vertexCoords[labels[5]] = { x: 45, y: 90 }; // Left
+                                shapeElements.push(<polygon key="shape" points={labels.map(l => `${vertexCoords[l].x},${vertexCoords[l].y}`).join(' ')} className="fill-blue-100/50 stroke-blue-500" strokeWidth="2" />);
                             } else if (['dogru_parcasi', 'isin', 'dogru'].includes(tip)) {
                                 const labels = sortedVertexLabels.length >= 2 ? sortedVertexLabels : ['A', 'B'];
                                 vertexCoords[labels[0]] = { x: 40, y: 90 };
@@ -700,7 +717,7 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                               if (match && vertexCoords[match[1].toUpperCase()]) {
                                   const vName = match[1].toUpperCase();
                                   const pos = vertexCoords[vName];
-                                  if (tip === 'ucgen' || tip === 'kare' || tip === 'dikdortgen') {
+                                  if (['ucgen', 'kare', 'dikdortgen', 'besgen', 'altıgen'].includes(tip)) {
                                       const angle = Math.atan2(pos.y - centroid.y, pos.x - centroid.x);
                                       defaultPos = { x: pos.x + 15 * Math.cos(angle), y: pos.y + 15 * Math.sin(angle) };
                                   } else {

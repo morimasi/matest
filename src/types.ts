@@ -10,7 +10,7 @@ export interface ChartDataItem {
 }
 
 export interface ChartData {
-  tip: 'siklik_tablosu' | 'nesne_grafiği' | 'sutun_grafiği' | 'ucgen' | 'dikdortgen' | 'kare' | 'kup' | 'dogru_parcasi' | 'isin' | 'dogru' | 'paralel_dogrular' | 'kesisen_dogrular' | 'dik_kesisen_doğrular';
+  tip: 'siklik_tablosu' | 'nesne_grafiği' | 'sutun_grafiği' | 'ucgen' | 'dikdortgen' | 'kare' | 'besgen' | 'altıgen' | 'kup' | 'dogru_parcasi' | 'isin' | 'dogru' | 'paralel_dogrular' | 'kesisen_dogrular' | 'dik_kesisen_doğrular';
   baslik: string;
   veri: ChartDataItem[];
   not?: string; // örn: "Her nesne 1 öğrenciyi göstermektedir."
