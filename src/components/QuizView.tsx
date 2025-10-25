@@ -1,7 +1,7 @@
 
 
 import React, { useRef, useState, useEffect } from 'react';
-import { DetailedQuestion } from '../types';
+import { DetailedQuestion, ChartDataItem } from '../types';
 import { DownloadIcon, PrintIcon, ShareIcon, SparklesIcon, SettingsIcon, CopyIcon, CheckIcon, RefreshCwIcon, EditIcon } from './icons';
 
 
@@ -101,8 +101,10 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
 
           let finalValue: string | number = value;
           // Special handling for chart data 'deger' to ensure it's a number
-          if(path.includes('veri') && path[path.length - 1] === 'deger') {
-              finalValue = Number(value) || 0;
+          const isNumericField = path.includes('veri') && path[path.length - 1] === 'deger';
+          if(isNumericField) {
+              const parsedNumber = parseFloat(value.replace(',', '.'));
+              finalValue = isNaN(parsedNumber) ? 0 : parsedNumber;
           }
 
           current[path[path.length - 1]] = finalValue;
@@ -523,33 +525,79 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                               ))}
                           </div>
                       )}
-                      {(q.grafik_verisi.tip === 'ucgen' || q.grafik_verisi.tip === 'dortgen' || q.grafik_verisi.tip === 'aci') && (
-                        <ul className="list-disc list-inside mt-2 space-y-1">
-                            {q.grafik_verisi.veri.map((item, i) => (
-                                <li key={i}>
-                                    <span 
-                                        className={`${isEditing ? 'editable-field' : ''}`}
-                                        contentEditable={isEditing}
-                                        suppressContentEditableWarning={true}
-                                        onBlur={(e) => handleContentUpdate(e, index, ['grafik_verisi', 'veri', i, 'etiket'])}
-                                    >{item.etiket}</span>: 
-                                    <strong className="ml-1">
-                                        <span 
-                                            className={`${isEditing ? 'editable-field' : ''}`}
-                                            contentEditable={isEditing}
-                                            suppressContentEditableWarning={true}
-                                            onBlur={(e) => handleContentUpdate(e, index, ['grafik_verisi', 'veri', i, 'deger'])}
-                                        >{item.deger}</span>
-                                        <span 
-                                            className={`${isEditing ? 'editable-field' : ''}`}
-                                            contentEditable={isEditing}
-                                            suppressContentEditableWarning={true}
-                                            onBlur={(e) => handleContentUpdate(e, index, ['grafik_verisi', 'veri', i, 'birim'])}
-                                        >{item.birim}</span>
-                                    </strong>
-                                </li>
-                            ))}
-                        </ul>
+                      {q.grafik_verisi && ['ucgen', 'dikdortgen', 'kare'].includes(q.grafik_verisi.tip) && (
+                          <div className="my-4 p-4 flex justify-center items-center bg-white/50 rounded-lg">
+                              <svg width="280" height="180" viewBox="0 0 280 180" className="overflow-visible drop-shadow-sm">
+                                  <title>{q.grafik_verisi.baslik}</title>
+                                  
+                                  {q.grafik_verisi.tip === 'ucgen' && (() => {
+                                      const data = q.grafik_verisi.veri;
+                                      const findData = (regex: RegExp) => data.find(d => regex.test(d.etiket));
+                                      const findIndex = (regex: RegExp) => data.findIndex(d => regex.test(d.etiket));
+                                      const sideAB = findData(/AB/i);
+                                      const sideBC = findData(/BC/i);
+                                      const sideAC = findData(/AC|Hipotenüs/i);
+                                      const angleB = findData(/B Açısı/i);
+                                      
+                                      return (
+                                          <>
+                                              <polygon points="50,150 230,150 50,30" fill="rgba(191, 219, 254, 0.4)" stroke="#60a5fa" strokeWidth="2" />
+                                              <text x="40" y="25" textAnchor="end" className="font-semibold fill-slate-700">A</text>
+                                              <text x="40" y="165" textAnchor="end" className="font-semibold fill-slate-700">B</text>
+                                              <text x="240" y="165" className="font-semibold fill-slate-700">C</text>
+                                              
+                                              {angleB?.deger === 90 && <polygon points="50,140 60,140 60,150" fill="none" stroke="currentColor" strokeWidth="1.5" />}
+
+                                              {sideAB && <text x="35" y="90" className="text-[10pt]" textAnchor="middle" transform="rotate(-90 35 90)">
+                                                  <tspan className={isEditing ? 'editable-field-svg' : ''} contentEditable={isEditing} suppressContentEditableWarning onBlur={(e) => handleContentUpdate(e, index, ['grafik_verisi', 'veri', findIndex(/AB/i), 'deger'])}>{sideAB.deger}</tspan>
+                                                  <tspan dy="-2" className="text-[8pt]">{sideAB.birim}</tspan>
+                                              </text>}
+                                              {sideBC && <text x="140" y="165" className="text-[10pt]" textAnchor="middle">
+                                                  <tspan className={isEditing ? 'editable-field-svg' : ''} contentEditable={isEditing} suppressContentEditableWarning onBlur={(e) => handleContentUpdate(e, index, ['grafik_verisi', 'veri', findIndex(/BC/i), 'deger'])}>{sideBC.deger}</tspan>
+                                                  <tspan dy="-2" className="text-[8pt]">{sideBC.birim}</tspan>
+                                              </text>}
+                                              {sideAC && <text x="130" y="80" className="text-[10pt]" textAnchor="middle" transform="rotate(30 130 80)">
+                                                  <tspan className={isEditing ? 'editable-field-svg' : ''} contentEditable={isEditing} suppressContentEditableWarning onBlur={(e) => handleContentUpdate(e, index, ['grafik_verisi', 'veri', findIndex(/AC|Hipotenüs/i), 'deger'])}>{sideAC.deger}</tspan>
+                                                  <tspan dy="-2" className="text-[8pt]">{sideAC.birim}</tspan>
+                                              </text>}
+                                          </>
+                                      );
+                                  })()}
+
+                                  {(q.grafik_verisi.tip === 'dikdortgen' || q.grafik_verisi.tip === 'kare') && (() => {
+                                      const data = q.grafik_verisi.veri;
+                                      const findData = (regex: RegExp) => data.find(d => regex.test(d.etiket));
+                                      const findIndex = (regex: RegExp) => data.findIndex(d => regex.test(d.etiket));
+                                      const sideH = findData(/AB|CD|Uzun|Genişlik/i);
+                                      const sideV = findData(/BC|DA|Kısa|Yükseklik/i);
+
+                                      return (
+                                          <>
+                                              <polygon points="50,30 230,30 230,150 50,150" fill="rgba(191, 219, 254, 0.4)" stroke="#60a5fa" strokeWidth="2" />
+                                              <text x="40" y="25" textAnchor="end" className="font-semibold fill-slate-700">A</text>
+                                              <text x="240" y="25" className="font-semibold fill-slate-700">B</text>
+                                              <text x="240" y="165" className="font-semibold fill-slate-700">C</text>
+                                              <text x="40" y="165" textAnchor="end" className="font-semibold fill-slate-700">D</text>
+
+                                              <polygon points="50,140 60,140 60,150" fill="none" stroke="currentColor" strokeWidth="1.5" />
+
+                                              {sideH && <text x="140" y="20" className="text-[10pt]" textAnchor="middle">
+                                                  <tspan className={isEditing ? 'editable-field-svg' : ''} contentEditable={isEditing} suppressContentEditableWarning onBlur={(e) => handleContentUpdate(e, index, ['grafik_verisi', 'veri', findIndex(/AB|CD|Uzun|Genişlik/i), 'deger'])}>{sideH.deger}</tspan>
+                                                  <tspan dy="-2" className="text-[8pt]">{sideH.birim}</tspan>
+                                              </text>}
+                                              {sideV && <text x="245" y="90" className="text-[10pt]" textAnchor="middle" transform="rotate(90 245 90)">
+                                                  <tspan className={isEditing ? 'editable-field-svg' : ''} contentEditable={isEditing} suppressContentEditableWarning onBlur={(e) => handleContentUpdate(e, index, ['grafik_verisi', 'veri', findIndex(/BC|DA|Kısa|Yükseklik/i), 'deger'])}>{sideV.deger}</tspan>
+                                                  <tspan dy="-2" className="text-[8pt]">{sideV.birim}</tspan>
+                                              </text>}
+                                              {q.grafik_verisi.tip === 'kare' && sideH && !sideV && <text x="245" y="90" className="text-[10pt]" textAnchor="middle" transform="rotate(90 245 90)">
+                                                  <tspan className={isEditing ? 'editable-field-svg' : ''} contentEditable={isEditing} suppressContentEditableWarning onBlur={(e) => handleContentUpdate(e, index, ['grafik_verisi', 'veri', findIndex(/AB|CD|Uzun|Genişlik/i), 'deger'])}>{sideH.deger}</tspan>
+                                                  <tspan dy="-2" className="text-[8pt]">{sideH.birim}</tspan>
+                                              </text>}
+                                          </>
+                                      )
+                                  })()}
+                              </svg>
+                          </div>
                       )}
                       
                       {q.grafik_verisi.not && <p 
@@ -641,6 +689,14 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
             outline: 2px dashed #a78bfa; /* tailwind purple-400 */
             background-color: #f5f3ff; /* tailwind purple-50 */
             padding: 2px 4px;
+            border-radius: 4px;
+        }
+        .editable-field-svg {
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .editable-field-svg[contentEditable="true"] {
+            outline: 2px dashed #a78bfa;
             border-radius: 4px;
         }
         .quiz-paper { 

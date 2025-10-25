@@ -8,7 +8,7 @@ export interface ChartDataItem {
 }
 
 export interface ChartData {
-  tip: 'siklik_tablosu' | 'nesne_grafiği' | 'sutun_grafiği' | 'ucgen' | 'dortgen' | 'aci';
+  tip: 'siklik_tablosu' | 'nesne_grafiği' | 'sutun_grafiği' | 'ucgen' | 'dikdortgen' | 'kare';
   baslik: string;
   veri: ChartDataItem[];
   not?: string; // örn: "Her nesne 1 öğrenciyi göstermektedir."

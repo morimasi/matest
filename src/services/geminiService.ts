@@ -28,19 +28,27 @@ Eğer bir kazanım görsel bir veri gerektiriyorsa (Veri İşleme ünitelerindek
    }
 
 2. GEOMETRİ ŞEKİLLERİ:
-   - "tip": 'ucgen', 'dortgen', 'aci'.
-   - "baslik": Şekil için bir başlık (örn: "ABC Üçgeni").
-   - "veri": Bir dizi (array) olmalıdır. Her eleman şeklin bir özelliğini tanımlar: {"etiket": "AB Kenarı", "deger": 5, "birim": "cm"} veya {"etiket": "B Açısı", "deger": 90, "birim": "°"}.
-   - "not": (İsteğe bağlı) Şekille ilgili ek bilgi.
+   - "tip": 'ucgen', 'dikdortgen', 'kare'.
+   - "baslik": Şekil için bir başlık (örn: "ABC Üçgeni", "ABCD Karesi").
+   - "veri": Bir dizi (array) olmalıdır. Her eleman şeklin bir özelliğini tanımlar. Köşeleri (A, B, C...) isimlendirerek etiketleri tutarlı oluşturmalısın (örn: {"etiket": "AB Kenarı", "deger": 5, "birim": "cm"} veya {"etiket": "B Açısı", "deger": 90, "birim": "°"}).
+   - "not": (İsteğe bağlı) Şekille ilgili ek bilgi (örn: "B açısı dik açıdır.").
 
    Örnek Geometri Şekli JSON:
+   {
+     "tip": "dikdortgen", "baslik": "ABCD Dikdörtgeni",
+     "veri": [
+       { "etiket": "AB Kenarı", "deger": 12, "birim": "cm" },
+       { "etiket": "BC Kenarı", "deger": 5, "birim": "cm" }
+     ]
+   }
    {
      "tip": "ucgen", "baslik": "ABC Dik Üçgeni",
      "veri": [
        { "etiket": "AB Kenarı", "deger": 8, "birim": "cm" },
        { "etiket": "BC Kenarı", "deger": 6, "birim": "cm" },
        { "etiket": "B Açısı", "deger": 90, "birim": "°" }
-     ]
+     ],
+     "not": "B açısı dik açıdır."
    }
 `
     : '';
@@ -94,7 +102,7 @@ Lütfen çıktı olarak sadece soruları içeren bir JSON nesnesi döndür. Her 
           type: Type.OBJECT,
           description: "Soru bir grafik, tablo veya geometrik şekil gerektiriyorsa, bu alanda yapısal verileri barındırır. ASCII görseller KULLANILMAMALIDIR.",
           properties: {
-            tip: { type: Type.STRING, description: "Görsel türü: 'siklik_tablosu', 'nesne_grafiği', 'sutun_grafiği', 'ucgen', 'dortgen', 'aci'." },
+            tip: { type: Type.STRING, description: "Görsel türü: 'siklik_tablosu', 'nesne_grafiği', 'sutun_grafiği', 'ucgen', 'dikdortgen', 'kare'." },
             baslik: { type: Type.STRING, description: "Görsel için bir başlık." },
             veri: {
               type: Type.ARRAY,
