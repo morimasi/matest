@@ -882,7 +882,7 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                                           } else if (item.deger) {
                                               const lBisector = Math.sqrt(bisector.x * bisector.x + bisector.y * bisector.y);
                                               if (lBisector > 0.001) {
-                                                  const d = 25;
+                                                  const d = 18;
                                                   defaultPos = {
                                                       x: vPos.x + (bisector.x / lBisector) * d,
                                                       y: vPos.y + (bisector.y / lBisector) * d
@@ -893,13 +893,13 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                                                       normal.x *= -1;
                                                       normal.y *= -1;
                                                   }
-                                                  defaultPos = { x: vPos.x + normal.x * 15, y: vPos.y + normal.y * 15 };
+                                                  defaultPos = { x: vPos.x + normal.x * 12, y: vPos.y + normal.y * 12 };
                                               }
                                               content = [item.deger, '°'];
                                           }
                                       }
                                   } else if (item.deger) {
-                                      defaultPos = { x: vPos.x + (centroid.x - vPos.x) * 0.3, y: vPos.y + (centroid.y - vPos.y) * 0.3 };
+                                      defaultPos = { x: vPos.x + (centroid.x - vPos.x) * 0.2, y: vPos.y + (centroid.y - vPos.y) * 0.2 };
                                       content = [item.deger, '°'];
                                   }
                               }
