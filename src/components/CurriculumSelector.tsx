@@ -17,7 +17,8 @@ interface CurriculumSelectorProps {
   questionType: QuestionType;
   setQuestionType: (type: QuestionType) => void;
   customPrompt: string;
-  setCustomPrompt: (prompt: string) => void;
+  // FIX: Changed type to React.Dispatch<React.SetStateAction<string>> to allow functional updates.
+  setCustomPrompt: React.Dispatch<React.SetStateAction<string>>;
   includeCharts: boolean;
   setIncludeCharts: (include: boolean) => void;
   numOperations: number;
