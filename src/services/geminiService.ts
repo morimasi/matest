@@ -7,28 +7,41 @@ const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 const getPromptAndSchema = (grade: string, units: string, kazanims: Kazanim[], questionCount: number, questionType: QuestionType, customPrompt?: string, includeCharts?: boolean, numOperations?: number) => {
     
-    const chartInstruction = includeCharts
+    const visualDataInstruction = includeCharts
     ? `
-ÖNEMLİ GRAFİK/TABLO KURALI:
-Eğer bir kazanım "çetele tablosu", "sıklık tablosu", "nesne grafiği" veya "sütun grafiği" ile ilgiliyse, soru metnini ("soru_metni" alanı) bu grafiği içermeyecek şekilde sade tutmalısın. Bunun yerine, grafiğin verilerini JSON formatında "grafik_verisi" adlı ayrı bir alana eklemelisin. ASCII-tabanlı, metin formatında grafikler KESİNLİKLE OLUŞTURMA.
+ÖNEMLİ GÖRSEL VERİ KURALI (GRAFİK/ŞEKİL):
+Eğer bir kazanım görsel bir veri gerektiriyorsa (Veri İşleme ünitelerindeki tablolar/grafikler veya Geometri ünitelerindeki şekiller gibi), soru metnini ("soru_metni" alanı) bu görseli içermeyecek şekilde sade tutmalısın. Bunun yerine, görselin verilerini JSON formatında "grafik_verisi" adlı ayrı bir alana eklemelisin. ASCII-tabanlı, metin formatında görseller KESİNLİKLE OLUŞTURMA.
 
-"grafik_verisi" alanı aşağıdaki yapıda olmalıdır:
-- "tip": Grafiğin türünü belirtir ('siklik_tablosu', 'nesne_grafiği', 'sutun_grafiği').
-- "baslik": Grafik için kısa bir başlık (örn: "Sınıftaki Öğrencilerin Göz Renkleri").
-- "veri": Bir dizi (array) olmalıdır. Her eleman bir etiketi ve sayısal bir değeri içermelidir (örn: [{"etiket": "Elma", "deger": 8}]).
-  - Eğer "tip" olarak 'nesne_grafiği' seçilirse, her veri elemanına ek olarak bir "nesne" alanı ekleyerek grafikte kullanılacak sembolü (örn: '🍎') belirtmelisin.
-- "not": (İsteğe bağlı) Grafiğin altında gösterilecek bir not (örn: "Her şekil 2 öğrenciyi temsil etmektedir.").
+"grafik_verisi" alanı aşağıdaki yapılardan birinde olmalıdır:
 
-Örnek "grafik_verisi" JSON objesi:
-{
-  "tip": "sutun_grafiği",
-  "baslik": "En Sevilen Meyveler",
-  "veri": [
-    { "etiket": "Elma", "deger": 12 },
-    { "etiket": "Çilek", "deger": 18 },
-    { "etiket": "Muz", "deger": 9 }
-  ]
-}
+1. VERİ İŞLEME GRAFİKLERİ:
+   - "tip": 'siklik_tablosu', 'nesne_grafiği', 'sutun_grafiği'.
+   - "baslik": Grafik için kısa bir başlık.
+   - "veri": Bir dizi (array) olmalıdır. Her eleman: {"etiket": "Elma", "deger": 8}.
+   - "nesne": (Sadece 'nesne_grafiği' için) Veri elemanına eklenecek sembol. örn: "🍎".
+   - "not": (İsteğe bağlı) Grafik altında gösterilecek not.
+
+   Örnek Veri Grafiği JSON:
+   {
+     "tip": "sutun_grafiği", "baslik": "En Sevilen Meyveler",
+     "veri": [ { "etiket": "Elma", "deger": 12 }, { "etiket": "Çilek", "deger": 18 } ]
+   }
+
+2. GEOMETRİ ŞEKİLLERİ:
+   - "tip": 'ucgen', 'dortgen', 'aci'.
+   - "baslik": Şekil için bir başlık (örn: "ABC Üçgeni").
+   - "veri": Bir dizi (array) olmalıdır. Her eleman şeklin bir özelliğini tanımlar: {"etiket": "AB Kenarı", "deger": 5, "birim": "cm"} veya {"etiket": "B Açısı", "deger": 90, "birim": "°"}.
+   - "not": (İsteğe bağlı) Şekille ilgili ek bilgi.
+
+   Örnek Geometri Şekli JSON:
+   {
+     "tip": "ucgen", "baslik": "ABC Dik Üçgeni",
+     "veri": [
+       { "etiket": "AB Kenarı", "deger": 8, "birim": "cm" },
+       { "etiket": "BC Kenarı", "deger": 6, "birim": "cm" },
+       { "etiket": "B Açısı", "deger": 90, "birim": "°" }
+     ]
+   }
 `
     : '';
 
@@ -50,7 +63,7 @@ Eğer bir kazanım "çetele tablosu", "sıklık tablosu", "nesne grafiği" veya 
 
     const basePrompt = `
 Görevin, 2025 yılı itibarıyla yürürlükte olan Türkiye Millî Eğitim Bakanlığı İlkokul Matematik dersi öğretim programına (müfredata) sadık kalarak, belirtilen sınıf, üniteler ve kazanımlara uygun, ${questionCount} adet soru üretmektir. Soruları, sağlanan kazanımlar listesi arasında adil ve dengeli bir şekilde dağıtmalısın. Eğer birden fazla ünite seçilmişse, soruları bu üniteler arasında da dengeli bir şekilde dağıtmalısın.
-${operationPrompt}${chartInstruction}${customPromptSection}
+${operationPrompt}${visualDataInstruction}${customPromptSection}
 
 Sınıf: ${grade}
 Üniteler: ${units}
@@ -79,19 +92,20 @@ Lütfen çıktı olarak sadece soruları içeren bir JSON nesnesi döndür. Her 
         soru_metni: { type: Type.STRING, description: "Sorunun metni. Grafik veya tablo içermemelidir." },
         grafik_verisi: {
           type: Type.OBJECT,
-          description: "Soru bir grafik veya tablo gerektiriyorsa, bu alanda yapısal verileri barındırır. ASCII grafikler KULLANILMAMALIDIR.",
+          description: "Soru bir grafik, tablo veya geometrik şekil gerektiriyorsa, bu alanda yapısal verileri barındırır. ASCII görseller KULLANILMAMALIDIR.",
           properties: {
-            tip: { type: Type.STRING, description: "Grafik türü: 'siklik_tablosu', 'nesne_grafiği', veya 'sutun_grafiği'." },
-            baslik: { type: Type.STRING, description: "Grafik için bir başlık." },
+            tip: { type: Type.STRING, description: "Görsel türü: 'siklik_tablosu', 'nesne_grafiği', 'sutun_grafiği', 'ucgen', 'dortgen', 'aci'." },
+            baslik: { type: Type.STRING, description: "Görsel için bir başlık." },
             veri: {
               type: Type.ARRAY,
-              description: "Grafik verilerini içeren bir dizi.",
+              description: "Görselin verilerini içeren bir dizi.",
               items: {
                 type: Type.OBJECT,
                 properties: {
-                  etiket: { type: Type.STRING, description: "Veri noktasının etiketi (örn: 'Elma')." },
-                  deger: { type: Type.NUMBER, description: "Veri noktasının sayısal değeri (örn: 12)." },
-                  nesne: { type: Type.STRING, description: "Nesne grafikleri için kullanılacak sembol (örn: '🍎')." }
+                  etiket: { type: Type.STRING, description: "Veri noktasının etiketi (örn: 'Elma' veya 'AB Kenarı')." },
+                  deger: { type: Type.NUMBER, description: "Veri noktasının sayısal değeri (örn: 12 veya 90)." },
+                  nesne: { type: Type.STRING, description: "Nesne grafikleri için kullanılacak sembol (örn: '🍎')." },
+                  birim: { type: Type.STRING, description: "Geometrik veriler için birim (örn: 'cm', '°')." }
                 },
                 required: ["etiket", "deger"]
               }
@@ -246,7 +260,7 @@ export const generateQuizStream = async (
 
 export const generateSingleQuestion = async (grade: string, unit: string, kazanim: Kazanim, questionType: QuestionType, existingQuestionText: string): Promise<DetailedQuestion | null> => {
     try {
-        const isDataKazanim = kazanim.name.toLowerCase().includes('tablo') || kazanim.name.toLowerCase().includes('grafik');
+        const isDataKazanim = kazanim.name.toLowerCase().includes('tablo') || kazanim.name.toLowerCase().includes('grafik') || unit.toLowerCase().includes('geometri');
         const { prompt: basePrompt, singleSchema } = getPromptAndSchema(grade, unit, [kazanim], 1, questionType, "", isDataKazanim, 0);
         const remixPrompt = `${basePrompt}\n\nÖNEMLİ KURAL: Üreteceğin yeni soru, aşağıdaki sorudan MUTLAKA farklı olmalıdır:\n"${existingQuestionText}"`;
 

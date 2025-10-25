@@ -4,10 +4,11 @@ export interface ChartDataItem {
   etiket: string;
   deger: number;
   nesne?: string; // Nesne grafikleri için, örn: '🍎'
+  birim?: string; // Geometri için, örn: 'cm', '°'
 }
 
 export interface ChartData {
-  tip: 'siklik_tablosu' | 'nesne_grafiği' | 'sutun_grafiği';
+  tip: 'siklik_tablosu' | 'nesne_grafiği' | 'sutun_grafiği' | 'ucgen' | 'dortgen' | 'aci';
   baslik: string;
   veri: ChartDataItem[];
   not?: string; // örn: "Her nesne 1 öğrenciyi göstermektedir."

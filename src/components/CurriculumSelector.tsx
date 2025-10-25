@@ -167,7 +167,7 @@ const CurriculumSelector: React.FC<CurriculumSelectorProps> = ({
   
   const showChartOption = currentGradeData?.units
       .filter(u => selectedUnits.includes(u.id))
-      .some(unit => unit.name === 'Veri İşleme') ?? false;
+      .some(unit => unit.name === 'Veri İşleme' || unit.name === 'Geometri') ?? false;
 
   useEffect(() => {
     if (!showChartOption) {
@@ -327,8 +327,8 @@ const CurriculumSelector: React.FC<CurriculumSelectorProps> = ({
             <div className="pt-2 animate-fade-in-up">
                 <label className="p-3 flex items-center justify-between bg-white/60 border border-slate-300/50 rounded-md shadow-sm cursor-pointer hover:bg-white/80 transition-all duration-300">
                     <div>
-                        <span className="font-semibold text-slate-700">Grafik/Tablo Ekle</span>
-                        <p className="text-xs text-slate-500 mt-1 pr-4">"Veri İşleme" kazanımları için sorulara yapısal grafik verileri ekler.</p>
+                        <span className="font-semibold text-slate-700">Görsel Yardımcı Ekle (Grafik/Şekil)</span>
+                        <p className="text-xs text-slate-500 mt-1 pr-4">Seçilen 'Veri İşleme' veya 'Geometri' kazanımları için sorulara yapısal grafik veya şekil verileri ekler.</p>
                     </div>
                     <input
                         type="checkbox"

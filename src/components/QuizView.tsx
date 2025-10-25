@@ -523,6 +523,34 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                               ))}
                           </div>
                       )}
+                      {(q.grafik_verisi.tip === 'ucgen' || q.grafik_verisi.tip === 'dortgen' || q.grafik_verisi.tip === 'aci') && (
+                        <ul className="list-disc list-inside mt-2 space-y-1">
+                            {q.grafik_verisi.veri.map((item, i) => (
+                                <li key={i}>
+                                    <span 
+                                        className={`${isEditing ? 'editable-field' : ''}`}
+                                        contentEditable={isEditing}
+                                        suppressContentEditableWarning={true}
+                                        onBlur={(e) => handleContentUpdate(e, index, ['grafik_verisi', 'veri', i, 'etiket'])}
+                                    >{item.etiket}</span>: 
+                                    <strong className="ml-1">
+                                        <span 
+                                            className={`${isEditing ? 'editable-field' : ''}`}
+                                            contentEditable={isEditing}
+                                            suppressContentEditableWarning={true}
+                                            onBlur={(e) => handleContentUpdate(e, index, ['grafik_verisi', 'veri', i, 'deger'])}
+                                        >{item.deger}</span>
+                                        <span 
+                                            className={`${isEditing ? 'editable-field' : ''}`}
+                                            contentEditable={isEditing}
+                                            suppressContentEditableWarning={true}
+                                            onBlur={(e) => handleContentUpdate(e, index, ['grafik_verisi', 'veri', i, 'birim'])}
+                                        >{item.birim}</span>
+                                    </strong>
+                                </li>
+                            ))}
+                        </ul>
+                      )}
                       
                       {q.grafik_verisi.not && <p 
                         className={`text-xs text-center mt-2 text-slate-500 ${isEditing ? 'editable-field' : ''}`}
