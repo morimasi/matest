@@ -1,5 +1,6 @@
 
 
+
 import React, { useRef, useState, useEffect } from 'react';
 import { DetailedQuestion, ChartDataItem } from '../types';
 import { DownloadIcon, PrintIcon, ShareIcon, SparklesIcon, SettingsIcon, CopyIcon, CheckIcon, RefreshCwIcon, EditIcon, ArchiveAddIcon } from './icons';
@@ -603,126 +604,110 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                               </tbody>
                           </table>
                       )}
-                      {q.grafik_verisi.tip === 'sutun_grafiği' && (() => {
+                       {q.grafik_verisi.tip === 'sutun_grafiği' && (() => {
                           const chartData = q.grafik_verisi;
                           const colors = ['#3b82f6', '#8b5cf6', '#ec4899', '#f97316', '#10b981'];
-                          
+                          const maxValue = Math.max(...chartData.veri.map(item => item.deger), 0);
+                          const chartHeight = chartData.veri.length * 40;
+                          const barAreaWidth = 300; 
+                          const labelWidth = 80;
+                          const valueLabelWidth = 40;
+
                           return (
-                              <div className="mt-4 text-sm" style={{ paddingLeft: '1rem', paddingRight: '1rem' }}>
-                                <div className="space-y-3">
-                                  {chartData.veri.map((item, i) => {
-                                      const barSegments = Math.floor(item.deger);
-                                      const segmentWidth = 12;
-                                      const segmentHeight = 20;
-                                      const segmentGap = 2;
-                                      
-                                      return (
-                                          <div key={i} className="flex items-center gap-2">
-                                              <span 
-                                                  className={`w-28 text-right pr-2 shrink-0 ${isEditing ? 'editable-field' : ''}`}
-                                                  contentEditable={isEditing}
-                                                  suppressContentEditableWarning={true}
-                                                  onBlur={(e) => handleContentUpdate(e, index, ['grafik_verisi', 'veri', i, 'etiket'])}
-                                              >{item.etiket}:</span>
-                                              <div className="flex-grow flex items-center">
-                                                  <svg width="100%" height={segmentHeight} className="min-w-[100px]">
-                                                      {Array.from({ length: barSegments }).map((_, j) => (
-                                                          <rect
-                                                              key={j}
-                                                              x={j * (segmentWidth + segmentGap)}
-                                                              y={0}
-                                                              width={segmentWidth}
-                                                              height={segmentHeight}
-                                                              fill={colors[i % colors.length]}
-                                                              rx="2"
-                                                          />
-                                                      ))}
-                                                  </svg>
-                                                  {isEditing && (
-                                                     <span 
-                                                        className={`ml-2 font-semibold editable-field`}
+                              <div className="my-4 flex justify-center">
+                                {/* FIX: 'maxWidth' is not a valid SVG attribute, moved to style object. */}
+                                <svg width="100%" style={{maxWidth: '500px'}} height={chartHeight} viewBox={`0 0 ${barAreaWidth + labelWidth + valueLabelWidth} ${chartHeight}`}>
+                                    <g>
+                                        {chartData.veri.map((item, i) => {
+                                            const barWidth = maxValue > 0 ? (item.deger / maxValue) * barAreaWidth : 0;
+                                            const yPos = i * 40;
+                                            const color = colors[i % colors.length];
+
+                                            return (
+                                                <g key={i} transform={`translate(0, ${yPos})`}>
+                                                    {/* FIX: contentEditable is not in React's SVG types. Ignoring TS error to allow direct editing on SVG text. */}
+                                                    {/* @ts-ignore */}
+                                                    <text
+                                                        x={labelWidth}
+                                                        y={20}
+                                                        textAnchor="end"
+                                                        dominantBaseline="middle"
+                                                        className={`text-sm fill-current ${isEditing ? 'editable-field-svg' : ''}`}
+                                                        contentEditable={isEditing}
+                                                        suppressContentEditableWarning={true}
+                                                        onBlur={(e) => handleContentUpdate(e, index, ['grafik_verisi', 'veri', i, 'etiket'])}
+                                                    >
+                                                        {item.etiket}:
+                                                    </text>
+                                                    <rect
+                                                        x={labelWidth + 5}
+                                                        y={5}
+                                                        width={barWidth}
+                                                        height={30}
+                                                        fill={color}
+                                                        rx="3"
+                                                    />
+                                                    {/* FIX: contentEditable is not in React's SVG types. Ignoring TS error to allow direct editing on SVG text. */}
+                                                    {/* @ts-ignore */}
+                                                    <text
+                                                        x={labelWidth + 10 + barWidth}
+                                                        y={20}
+                                                        dominantBaseline="middle"
+                                                        className={`text-sm font-semibold fill-current ${isEditing ? 'editable-field-svg' : ''}`}
                                                         contentEditable={isEditing}
                                                         suppressContentEditableWarning={true}
                                                         onBlur={(e) => handleContentUpdate(e, index, ['grafik_verisi', 'veri', i, 'deger'])}
-                                                    >({item.deger})</span>
-                                                  )}
-                                              </div>
-                                          </div>
-                                      );
-                                  })}
-                                </div>
-                                <p 
-                                  className={`text-xs text-center mt-2 text-slate-500 italic ${isEditing ? 'editable-field' : ''}`}
-                                  contentEditable={isEditing}
-                                  suppressContentEditableWarning={true}
-                                  onBlur={(e) => handleContentUpdate(e, index, ['grafik_verisi', 'not'])}
-                                >
-                                  {chartData.not || '(Her bir bölüm 1 birimi göstermektedir.)'}
-                                </p>
+                                                    >
+                                                        ({item.deger})
+                                                    </text>
+                                                </g>
+                                            );
+                                        })}
+                                    </g>
+                                </svg>
                               </div>
                           );
                       })()}
                        {q.grafik_verisi.tip === 'nesne_grafiği' && (() => {
                           const chartData = q.grafik_verisi;
-                          const colors = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6', '#8b5cf6'];
-                          const shapes = ['circle', 'square', 'triangle'];
-
-                          const renderObject = (item: ChartDataItem, props: any) => {
-                            if(item.nesne) {
-                                return <text {...props} fontSize={props.width} dominantBaseline="middle" textAnchor="middle" x={props.x + props.width/2} y={props.y + props.width/2}>{item.nesne}</text>
-                            }
-                            const shapeType = shapes[props.shapeIndex % shapes.length];
-                            const size = props.width;
-                            if (shapeType === 'square') {
-                                return <rect {...props} rx="2" />;
-                            }
-                            if (shapeType === 'triangle') {
-                                return <path d={`M ${props.x} ${props.y+size} L ${props.x+size/2} ${props.y} L ${props.x+size} ${props.y+size} Z`} fill={props.fill} />
-                            }
-                            return <circle cx={props.x + size/2} cy={props.y + size/2} r={size/2} fill={props.fill} />;
-                          }
-                          
                           return (
-                              <div className="mt-4 space-y-2 text-sm">
+                              <div className="mt-4 space-y-3 text-sm">
                                   {chartData.veri.map((item, i) => {
-                                      const iconSize = 16;
-                                      const iconGap = 4;
-                                      const iconsPerRow = 15;
-                                      const numRows = Math.ceil(item.deger / iconsPerRow);
-                                      const svgWidth = Math.min(item.deger, iconsPerRow) * (iconSize + iconGap);
-                                      const svgHeight = numRows * (iconSize + iconGap);
-                                      const color = colors[i % colors.length];
-
+                                      const objectSymbol = item.nesne || '●';
                                       return (
-                                          <div key={i} className="flex items-start">
-                                               <span 
-                                                  className={`w-28 text-right pr-2 shrink-0 pt-1 ${isEditing ? 'editable-field' : ''}`}
+                                          <div key={i} className="grid grid-cols-[80px_1fr] items-start gap-2">
+                                              <span 
+                                                  className={`text-right font-medium text-slate-600 ${isEditing ? 'editable-field' : ''}`}
                                                   contentEditable={isEditing}
                                                   suppressContentEditableWarning={true}
                                                   onBlur={(e) => handleContentUpdate(e, index, ['grafik_verisi', 'veri', i, 'etiket'])}
                                               >{item.etiket}:</span>
-                                              <div className="flex-1 flex items-center flex-wrap">
-                                                  <svg width={svgWidth || 0} height={svgHeight || 0}>
-                                                      {Array.from({ length: item.deger }).map((_, j) => {
-                                                          const row = Math.floor(j / iconsPerRow);
-                                                          const col = j % iconsPerRow;
-                                                          const x = col * (iconSize + iconGap);
-                                                          const y = row * (iconSize + iconGap);
-                                                          return renderObject(item, { key: j, x: x, y: y, width: iconSize, height: iconSize, fill: color, shapeIndex: i });
-                                                      })}
-                                                  </svg>
-                                                  {isEditing && 
+                                              <div className="flex items-center flex-wrap gap-1">
+                                                  {Array.from({ length: item.deger }).map((_, j) => (
+                                                      <span key={j} className="text-xl leading-none">{objectSymbol}</span>
+                                                  ))}
+                                                  {isEditing && (
                                                       <span 
                                                           className="text-xs text-blue-600 font-bold ml-2 editable-field self-center" 
                                                           contentEditable={isEditing} 
                                                           suppressContentEditableWarning={true}
                                                           onBlur={(e) => handleContentUpdate(e, index, ['grafik_verisi', 'veri', i, 'deger'])}
-                                                      >({item.deger})</span>
-                                                  }
+                                                      >
+                                                          ({item.deger})
+                                                      </span>
+                                                  )}
                                               </div>
                                           </div>
                                       );
                                   })}
+                                   {chartData.not && <p 
+                                    className={`text-xs text-center mt-3 text-slate-500 italic ${isEditing ? 'editable-field' : ''}`}
+                                    contentEditable={isEditing}
+                                    suppressContentEditableWarning={true}
+                                    onBlur={(e) => handleContentUpdate(e, index, ['grafik_verisi', 'not'])}
+                                  >
+                                    {chartData.not}
+                                  </p>}
                               </div>
                           );
                       })()}

@@ -500,7 +500,7 @@ export const ARCHIVE_DATA_GRADE_2: Record<string, ArchiveQuiz> = {
         dogru_cevap: correctAnswerKey,
         yanlis_secenek_tipleri: ["Diğer rengin sayısı", "Yanlış sayma"],
         gercek_yasam_baglantisi: "Sınıf başkanlığı seçiminde adayların aldığı oyları saymak için çetele tablosu kullanabiliriz.",
-        seviye: 'temel', cozum_anahtari: `Çetele veya sıklık tablosunda 'Kırmızı' satırının karşısındaki sayıya bakılır. Cevap ${answer}'dir.`
+        seviye: 'temel', cozum_anahtari: `Sıklık tablosunda 'Kırmızı' satırının karşısındaki sayıya bakılır. Cevap ${answer}'dir.`
       };
     })}]
   },
