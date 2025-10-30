@@ -1,6 +1,9 @@
 
+
 import { GoogleGenAI, Type } from "@google/genai";
 import { DetailedQuestion, Kazanim, QuestionType } from '../types';
+
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 const getPromptAndSchema = (grade: string, units: string, kazanims: Kazanim[], questionCount: number, questionType: QuestionType, customPrompt?: string, includeCharts?: boolean, numOperations?: number) => {
     
@@ -244,7 +247,6 @@ export const generateQuizStream = async (
     numOperations: number | undefined,
     onChunk: (chunk: DetailedQuestion[]) => void
 ): Promise<void> => {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     try {
         const CHUNK_SIZE = 5;
         let remainingQuestions = questionCount;
@@ -287,12 +289,11 @@ export const generateQuizStream = async (
         if (error.toString().includes('429') || (error.message && error.message.includes('429'))) {
              throw new Error("API istek limiti aşıldı. Lütfen bir dakika bekleyip daha az sayıda soruyla tekrar deneyin.");
         }
-        throw error; // Re-throw the original error to be handled by the caller
+        throw new Error("Yapay zeka ile sınav oluşturulurken bir hata oluştu. Lütfen tekrar deneyin.");
     }
 };
 
 export const generateSingleQuestion = async (grade: string, unit: string, kazanim: Kazanim, questionType: QuestionType, existingQuestionText: string): Promise<DetailedQuestion | null> => {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     try {
         const isDataKazanim = kazanim.name.toLowerCase().includes('tablo') || kazanim.name.toLowerCase().includes('grafik') || unit.toLowerCase().includes('geometri');
         const { prompt: basePrompt, singleSchema } = getPromptAndSchema(grade, unit, [kazanim], 1, questionType, "", isDataKazanim, 0);
@@ -311,6 +312,6 @@ export const generateSingleQuestion = async (grade: string, unit: string, kazani
         return JSON.parse(jsonText) as DetailedQuestion;
     } catch (error) {
         console.error("Error generating single question:", error);
-        throw error; // Re-throw the original error to be handled by the caller
+        throw new Error("Soru yenilenirken bir hata oluştu.");
     }
 }

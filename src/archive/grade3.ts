@@ -569,53 +569,10 @@ export const ARCHIVE_DATA_GRADE_3: Record<string, ArchiveQuiz> = {
             secenekler: { A: '1', B: '2', C: '4', D: 'Sonsuz' },
             dogru_cevap: Object.keys({ A: '1', B: '2', C: '4', D: 'Sonsuz' }).find(key => ({ A: '1', B: '2', C: '4', D: 'Sonsuz' }[key as 'A'|'B'|'C'|'D'] === current.lines))!,
             yanlis_secenek_tipleri: ["Başka bir şeklin simetri sayısı", "Yanlış sayma"],
-            gercek_yasam_baglantisi: "Bir kağıdı katlayıp keserek simetrik şekiller oluşturmak, simetri doğrusu kavramının bir uygulamasıdır.",
-            seviye: 'orta', cozum_anahtari: `Karenin 4, dikdörtgenin 2, dairenin sonsuz, dikey duran bir kelebeğin 1 simetri doğrusu vardır.`
+            gercek_yasam_baglantisi: "Kelebeklerin kanatları veya insan yüzü gibi doğadaki birçok şeyde simetriyi görebiliriz.",
+            seviye: 'orta',
+            cozum_anahtari: "Bir şekli iki eş parçaya bölen doğruya simetri doğrusu denir. Karenin 4, dikdörtgenin 2, dairenin sonsuz simetri doğrusu vardır."
         };
-    })}]
-  },
-  "M.3.3.1.1": {
-    gradeName: "3. Sınıf", unitName: "Ölçme", kazanimName: "Metre ve santimetre arasındaki ilişkiyi fark eder ve birbiri cinsinden yazar.",
-    templates: [{ id: 'system-default-M.3.3.1.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
-      const m = 2 + i;
-      const cm = 10 + i * 5;
-      const answer = m * 100 + cm;
-      return {
-        sinif: 3, unite_adi: "Ölçme", unite_no: 3, kazanim_kodu: "M.3.3.1.1", kazanim_metni: "Metre ve santimetre arasındaki ilişkiyi fark eder ve birbiri cinsinden yazar.",
-        soru_tipi: 'coktan_secmeli',
-        soru_metni: `${m} metre ${cm} santimetre, toplam kaç santimetredir?`,
-        secenekler: { A: `${answer}`, B: `${m}${cm}`, C: `${m+cm}`, D: `${answer*10}` },
-        dogru_cevap: 'A',
-        yanlis_secenek_tipleri: ["Yanlış birim çevirme", "Toplama yapma"],
-        gercek_yasam_baglantisi: "Boyumuzu ifade ederken hem metre hem de santimetre kullanırız, örneğin '1 metre 35 santimetre' gibi.",
-        seviye: 'orta', cozum_anahtari: `1 metre 100 santimetre olduğu için, ${m} metre ${m*100} santimetredir. Üzerine ${cm} santimetre daha eklenince toplam ${answer} santimetre olur.`
-      };
-    })}]
-  },
-  "M.3.3.1.2": {
-    gradeName: "3. Sınıf", unitName: "Ölçme", kazanimName: "Kilometrenin kullanım alanlarını belirtir.",
-    templates: [{ id: 'system-default-M.3.3.1.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
-      const contexts = [
-          { q: "Ankara ile İstanbul arasındaki mesafe", a: "Kilometre" },
-          { q: "Bir kalemin boyu", a: "Santimetre" },
-          { q: "Sınıf tahtasının eni", a: "Metre" },
-          { q: "İki şehir arasındaki yol", a: "Kilometre" }
-      ];
-      const current = contexts[i % contexts.length];
-      const options = { A: 'Metre', B: 'Santimetre', C: 'Kilogram', D: 'Kilometre' };
-      const correctAnswerKey = (Object.keys(options) as Array<keyof typeof options>).find(key => options[key] === current.a);
-      
-      return {
-        sinif: 3, unite_adi: "Ölçme", unite_no: 3, kazanim_kodu: "M.3.3.1.2", kazanim_metni: "Kilometrenin kullanım alanlarını belirtir.",
-        soru_tipi: 'coktan_secmeli',
-        soru_metni: `${current.q} ölçmek için en uygun birim hangisidir?`,
-        secenekler: options,
-        dogru_cevap: correctAnswerKey!,
-        yanlis_secenek_tipleri: ["Daha küçük/büyük uzunluk birimleri", "Ağırlık birimi"],
-        gercek_yasam_baglantisi: "Şehirler arası yolculuk planlarken mesafeleri kilometre cinsinden ifade ederiz.",
-        seviye: 'temel',
-        cozum_anahtari: "Uzun mesafeler, örneğin şehirler arası yollar, kilometre (km) ile ölçülür. Kalem gibi küçük nesneler santimetre, oda gibi daha büyük alanlar ise metre ile ölçülür."
-      };
     })}]
   },
 };

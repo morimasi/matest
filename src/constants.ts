@@ -302,13 +302,11 @@ export const CURRICULUM_DATA: Grade[] = [
         id: "5-3", 
         name: "Ölçme", 
         kazanimlar: [
-          { id: "M.5.3.1.1", name: "Uzunluk ölçme birimlerini (km, m, cm, mm) tanır ve birbirine dönüştürür." },
-          { id: "M.5.3.1.2", name: "Uzunluk ölçme birimleriyle ilgili problemleri çözer." },
-          { id: "M.5.3.1.3", name: "Zaman ölçü birimlerini (yıl, ay, hafta, gün, saat, dakika, saniye) tanır ve birbirine dönüştürür." },
-          { id: "M.5.3.1.4", name: "Zaman ölçme birimleriyle ilgili problemleri çözer." },
-          { id: "M.5.3.2.1", name: "Dikdörtgenin alanını hesaplar ve santimetrekare (cm²) ile metrekareyi (m²) kullanır." },
-          { id: "M.5.3.2.2", name: "Dikdörtgenin alanını hesaplamayı gerektiren problemleri çözer." },
-          { id: "M.5.3.2.3", name: "Üçgenin alanını hesaplar." },
+          { id: "M.5.3.1.1", name: "Uzunluk ölçme birimlerini (km, m, cm, mm) birbirine dönüştürür." },
+          { id: "M.5.3.1.2", name: "Zaman ölçü birimlerini (yıl, ay, hafta, gün) birbirine dönüştürür." },
+          { id: "M.5.3.1.3", name: "Uzunluk ve zaman ölçme birimleri ile ilgili problemleri çözer." },
+          { id: "M.5.3.2.1", name: "Dikdörtgenin alanını hesaplamayı gerektiren problemleri çözer." },
+          { id: "M.5.3.2.2", name: "Üçgenin alanını hesaplar." },
           { id: "M.5.3.3.1", name: "Dikdörtgenler prizmasının yüzey alanını hesaplar."},
           { id: "M.5.3.3.2", name: "Dikdörtgenler prizmasının hacmini hesaplar." },
         ]

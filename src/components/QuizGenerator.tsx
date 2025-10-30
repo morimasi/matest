@@ -1,5 +1,7 @@
 
-import React, { useState, useEffect } from 'react';
+
+
+import React, { useState } from 'react';
 import CurriculumSelector from './CurriculumSelector';
 import QuizView from './QuizView';
 import { CURRICULUM_DATA } from '../constants';
@@ -51,42 +53,9 @@ const QuizGenerator: React.FC = () => {
     const [feedbackText, setFeedbackText] = useState('');
     const [isArchived, setIsArchived] = useState(false);
     const [remixingIndex, setRemixingIndex] = useState<number | null>(null);
-    const [hasApiKey, setHasApiKey] = useState(false);
 
-    useEffect(() => {
-        const checkApiKey = async () => {
-            if (typeof window.aistudio?.hasSelectedApiKey === 'function') {
-                const keySelected = await window.aistudio.hasSelectedApiKey();
-                setHasApiKey(keySelected);
-            } else {
-                // If aistudio API is not available, assume key is provided via environment
-                // and bypass the key selection screen.
-                setHasApiKey(true);
-            }
-        };
-        checkApiKey();
-    }, []);
-    
-    const handleSelectKey = async () => {
-        if (window.aistudio) {
-            await window.aistudio.openSelectKey();
-            setHasApiKey(true);
-        }
-    };
 
     const handleGenerateQuiz = async () => {
-        if (typeof window.aistudio?.hasSelectedApiKey === 'function') {
-            const keySelected = await window.aistudio.hasSelectedApiKey();
-            if (!keySelected) {
-                await handleSelectKey();
-                // We proceed, assuming the user selected a key, to avoid a second button click.
-            }
-        } else if (!process.env.API_KEY) {
-            setError("API anahtarı yapılandırılmamış. Lütfen uygulamanın yapılandırmasını kontrol edin.");
-            return;
-        }
-
-
         if (!selectedGrade || selectedUnits.length === 0) return;
 
         const gradeData = CURRICULUM_DATA.find(g => g.id === selectedGrade);
@@ -142,15 +111,7 @@ const QuizGenerator: React.FC = () => {
                 setError("Sınav oluşturulamadı. Lütfen tekrar deneyin.");
             }
         } catch (err: any) {
-            const errorMessage = err.message || "Bilinmeyen bir hata oluştu.";
-            if (err.toString().includes("401") || errorMessage.includes("API key not valid") || errorMessage.includes("CREDENTIALS_MISSING") || errorMessage.includes("Requested entity was not found")) {
-                setError("Kimlik doğrulama hatası. API anahtarınız geçersiz veya süresi dolmuş olabilir. Lütfen yeni bir anahtar seçin.");
-                if (typeof window.aistudio?.hasSelectedApiKey === 'function') {
-                    setHasApiKey(false);
-                }
-            } else {
-                setError(errorMessage);
-            }
+            setError(err.message || "Bilinmeyen bir hata oluştu.");
         } finally {
             setIsLoading(false);
         }
@@ -204,16 +165,6 @@ Teşekkürler.
     };
     
     const handleRemixQuestion = async (questionIndex: number) => {
-        if (typeof window.aistudio?.hasSelectedApiKey === 'function') {
-            const keySelected = await window.aistudio.hasSelectedApiKey();
-            if (!keySelected) {
-                await handleSelectKey();
-            }
-        } else if (!process.env.API_KEY) {
-            setError("API anahtarı yapılandırılmamış. Lütfen uygulamanın yapılandırmasını kontrol edin.");
-            return;
-        }
-
         const quiz = generatedQuiz;
         if (!quiz) return;
         setRemixingIndex(questionIndex);
@@ -239,37 +190,13 @@ Teşekkürler.
                  throw new Error("Yapay zeka yeni bir soru üretemedi.");
             }
         } catch (err: any) {
-            const errorMessage = err.message || "Soru yenilenirken bir hata oluştu.";
-             if (err.toString().includes("401") || errorMessage.includes("API key not valid") || errorMessage.includes("CREDENTIALS_MISSING") || errorMessage.includes("Requested entity was not found")) {
-                setError("Kimlik doğrulama hatası. API anahtarınız geçersiz veya süresi dolmuş olabilir. Lütfen yeni bir anahtar seçin.");
-                 if (typeof window.aistudio?.hasSelectedApiKey === 'function') {
-                    setHasApiKey(false);
-                }
-            } else {
-                setError(errorMessage);
-            }
+            setError(err.message || "Soru yenilenirken bir hata oluştu.");
         } finally {
             setRemixingIndex(null);
         }
     };
 
     const hasQuizToShow = questionsForView.length > 0 || generatedQuiz;
-
-    if (!hasApiKey) {
-        return (
-            <div className="text-center mt-12 p-8 bg-[--bg-component] backdrop-blur-xl rounded-3xl shadow-2xl border border-[--border-color] animate-fade-in-up">
-                <h3 className="text-xl font-semibold text-[--text-primary]">API Anahtarı Gerekli</h3>
-                <p className="text-[--text-secondary] mt-2">Uygulamayı kullanmaya başlamak için lütfen bir API anahtarı seçin.</p>
-                <p className="text-xs text-[--text-muted] mt-4">API anahtarı kullanımıyla ilgili ücretlendirme bilgileri için <a href="https://ai.google.dev/gemini-api/docs/billing" target="_blank" rel="noopener noreferrer" className="underline text-[--text-accent]">Google AI Studio dokümantasyonunu</a> ziyaret edebilirsiniz.</p>
-                <button 
-                    onClick={handleSelectKey}
-                    className="mt-6 inline-block bg-gradient-to-r from-[--accent-gradient-from] via-[--accent-gradient-via] to-[--accent-gradient-to] text-[--text-inverted] font-semibold py-2 px-5 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105"
-                >
-                    API Anahtarı Seç
-                </button>
-            </div>
-        );
-    }
 
     return (
         <>
@@ -322,29 +249,29 @@ Teşekkürler.
                     />
                     
                     {generatedQuiz && (
-                         <div className="mt-8 bg-[--bg-component] backdrop-blur-xl p-6 sm:p-8 rounded-3xl shadow-2xl border border-[--border-color] non-printable">
-                            <h3 className="text-xl font-semibold text-[--text-secondary] text-center">Üretilen Soru Hakkında Geri Bildirim</h3>
+                         <div className="mt-8 bg-white/50 backdrop-blur-xl p-6 sm:p-8 rounded-3xl shadow-2xl border border-white/50 non-printable">
+                            <h3 className="text-xl font-semibold text-slate-700 text-center">Üretilen Soru Hakkında Geri Bildirim</h3>
                             {feedbackSent ? (
                                 <div className="text-center mt-4 p-4 bg-green-500/20 text-green-800 rounded-xl">
                                     <p className="font-semibold">Teşekkürler! Geri bildiriminiz en kısa sürede editörlerimiz tarafından incelemeye alınacaktır.</p>
                                 </div>
                             ) : (
                                 <>
-                                <p className="text-[--text-muted] mt-2 text-center text-sm">Üretilen soruların kalitesini artırmamıza yardımcı olun.</p>
+                                <p className="text-slate-500 mt-2 text-center text-sm">Üretilen soruların kalitesini artırmamıza yardımcı olun.</p>
                                 <div className="mt-4 flex flex-wrap justify-center gap-3">
-                                    <button onClick={() => handleSendFeedback('Soru Hatalı')} className="px-4 py-2 text-sm bg-[--bg-component] border border-[--border-muted] rounded-full hover:bg-[--bg-component-hover] transition-all">Soru Hatalı</button>
-                                    <button onClick={() => handleSendFeedback('Zorluk Seviyesi Uygun Değil')} className="px-4 py-2 text-sm bg-[--bg-component] border border-[--border-muted] rounded-full hover:bg-[--bg-component-hover] transition-all">Zorluk Seviyesi Uygun Değil</button>
-                                    <button onClick={() => handleSendFeedback('Bağlantı Zayıf')} className="px-4 py-2 text-sm bg-[--bg-component] border border-[--border-muted] rounded-full hover:bg-[--bg-component-hover] transition-all">Bağlantı Zayıf</button>
+                                    <button onClick={() => handleSendFeedback('Soru Hatalı')} className="px-4 py-2 text-sm bg-white/60 border border-slate-300/50 rounded-full hover:bg-white/80 transition-all">Soru Hatalı</button>
+                                    <button onClick={() => handleSendFeedback('Zorluk Seviyesi Uygun Değil')} className="px-4 py-2 text-sm bg-white/60 border border-slate-300/50 rounded-full hover:bg-white/80 transition-all">Zorluk Seviyesi Uygun Değil</button>
+                                    <button onClick={() => handleSendFeedback('Bağlantı Zayıf')} className="px-4 py-2 text-sm bg-white/60 border border-slate-300/50 rounded-full hover:bg-white/80 transition-all">Bağlantı Zayıf</button>
                                 </div>
                                 <div className="mt-4">
                                     <textarea 
                                         rows={2} 
                                         placeholder="Diğer yorumlarınız..." 
-                                        className="w-full p-2.5 text-sm bg-[--bg-component] border border-[--border-muted] rounded-md shadow-sm focus:ring-1 focus:ring-[--text-accent]"
+                                        className="w-full p-2.5 text-sm bg-white/60 border border-slate-300/50 rounded-md shadow-sm focus:ring-1 focus:ring-purple-500"
                                         value={feedbackText}
                                         onChange={(e) => setFeedbackText(e.target.value)}
                                     ></textarea>
-                                    <button onClick={() => handleSendFeedback()} className="w-full mt-2 bg-[--accent-gradient-via] text-[--text-inverted] font-semibold py-2 px-4 rounded-lg hover:bg-[--accent-gradient-via]/90 transition-all">
+                                    <button onClick={() => handleSendFeedback()} className="w-full mt-2 bg-purple-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-purple-600 transition-all">
                                         Gönder
                                     </button>
                                 </div>
@@ -354,9 +281,9 @@ Teşekkürler.
                     )}
                  </div>
             ) : !isLoading && !error && (
-                 <div className="text-center mt-12 p-8 bg-[--bg-component] backdrop-blur-xl rounded-3xl shadow-2xl border border-[--border-color] animate-fade-in-up" style={{ animationDelay: '300ms' }}>
-                    <h3 className="text-xl font-semibold text-[--text-primary]">Sınavınızı Oluşturmaya Başlayın</h3>
-                    <p className="text-[--text-secondary] mt-2">Yukarıdaki menüden sınıf, ünite ve kazanım seçerek yapay zeka destekli sınavınızı oluşturun.</p>
+                 <div className="text-center mt-12 p-8 bg-white/50 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/50 animate-fade-in-up" style={{ animationDelay: '300ms' }}>
+                    <h3 className="text-xl font-semibold text-slate-700">Sınavınızı Oluşturmaya Başlayın</h3>
+                    <p className="text-slate-500 mt-2">Yukarıdaki menüden sınıf, ünite ve kazanım seçerek yapay zeka destekli sınavınızı oluşturun.</p>
                 </div>
             )}
         </>
