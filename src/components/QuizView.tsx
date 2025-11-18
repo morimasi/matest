@@ -98,7 +98,6 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
     setIsEditing(!isEditing);
   };
 
-  // FIX: Changed event type to handle both HTML and SVG elements, and use textContent.
   const handleContentUpdate = (e: React.FocusEvent<HTMLElement | SVGElement>, questionIndex: number, path: (string | number)[]) => {
       const value = e.currentTarget.textContent ?? '';
       
@@ -985,7 +984,6 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                               if (content) {
                                 textElements.push(
                                   <text key={itemIndex} x={item.x ?? defaultPos.x} y={item.y ?? defaultPos.y} {...textProps} onMouseDown={(e) => handleLabelDragStart(e, index, itemIndex, defaultPos)}>
-                                      {/* FIX: contentEditable is not in React's SVG types. Ignoring TS error to allow direct editing on SVG text. */}
                                       {/* @ts-ignore */}
                                       <tspan contentEditable={isEditing} suppressContentEditableWarning={true} onBlur={(e) => handleContentUpdate(e, index, ['grafik_verisi', 'veri', itemIndex, 'deger'])} className={isEditing ? 'editable-field-svg' : ''}>{content[0]}</tspan>
                                       {content[1] && <tspan dy={content[1] === '°' ? -4 : 0} className="text-[8pt]">{content[1]}</tspan>}
@@ -1019,7 +1017,6 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                           
                           return (
                             <div className="my-4 p-4 flex justify-center items-center">
-                              {/* FIX: Changed ref callback to not return a value, resolving a TypeScript type error. */}
                               <svg ref={el => { svgRefs.current[index] = el; }} width="250" height="180" viewBox="0 0 250 180" className={`overflow-visible drop-shadow-sm text-slate-700`}>
                                 <title>{q.grafik_verisi.baslik}</title>
                                 <defs><marker id={`arrow-${quizId}-${index}`} viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" className="fill-current" /></marker></defs>
