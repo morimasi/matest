@@ -1,5 +1,4 @@
 
-
 import { GoogleGenAI, Type } from "@google/genai";
 import { DetailedQuestion, Kazanim, QuestionType } from '../types';
 
@@ -93,7 +92,7 @@ Eğer bir kazanım görsel bir veri gerektiriyorsa (Veri İşleme ünitelerindek
     const kazanimList = kazanims.map(k => `- ${k.id}: ${k.name}`).join('\n');
 
     const basePrompt = `
-Görevin, 2025 yılı itibarıyla yürürlükte olan Türkiye Millî Eğitim Bakanlığı İlkokul Matematik dersi öğretim programına (müfredata) sadık kalarak, belirtilen sınıf, üniteler ve kazanımlara uygun, ${questionCount} adet soru üretmektir. Soruları, sağlanan kazanımlar listesi arasında adil ve dengeli bir şekilde dağıtmalısın. Eğer birden fazla ünite seçilmişse, soruları bu üniteler arasında da dengeli bir şekilde dağıtmalısın.
+Görevin, 2025 yılı itibarıyla yürürlükte olan Türkiye Millî Eğitim Bakanlığı İlkokul Matematik dersi öğretim programına (müfredata) sadık kalarak, belirtilen sınıf, üniteler ve kazanımlara uygun, ${questionCount} adet soru üretmektir. Üreteceğin tüm sorular SADECE aşağıdaki kazanım(lar)ı hedeflemelidir.
 ${operationPrompt}${visualDataInstruction}${customPromptSection}
 
 Sınıf: ${grade}
@@ -248,24 +247,32 @@ export const generateQuizStream = async (
     onChunk: (chunk: DetailedQuestion[]) => void
 ): Promise<void> => {
     try {
-        const CHUNK_SIZE = 5;
-        let remainingQuestions = questionCount;
+        const numKazanims = kazanims.length;
+        if (numKazanims === 0) return;
 
-        while (remainingQuestions > 0) {
-            const currentChunkSize = Math.min(CHUNK_SIZE, remainingQuestions);
+        const baseCount = Math.floor(questionCount / numKazanims);
+        let remainder = questionCount % numKazanims;
 
+        const tasks = kazanims.map(kazanim => {
+            const count = baseCount + (remainder > 0 ? 1 : 0);
+            if (remainder > 0) {
+                remainder--;
+            }
+            return { kazanim, count };
+        }).filter(task => task.count > 0);
+
+        for (const task of tasks) {
             const { prompt, schema } = getPromptAndSchema(
                 grade,
                 units,
-                kazanims,
-                currentChunkSize,
+                [task.kazanim],
+                task.count,
                 questionType,
                 customPrompt,
                 includeCharts,
                 numOperations
             );
 
-            // Await each API call sequentially to avoid hitting rate limits.
             const response = await ai.models.generateContent({
                 model: "gemini-2.5-flash",
                 contents: prompt,
@@ -276,16 +283,18 @@ export const generateQuizStream = async (
             });
 
             const jsonText = response.text.trim();
-            const parsedData = JSON.parse(jsonText);
-            const questions = (parsedData?.questions || []) as DetailedQuestion[];
-            if (questions.length > 0) {
-                onChunk(questions);
+            try {
+                const parsedData = JSON.parse(jsonText);
+                const questions = (parsedData?.questions || []) as DetailedQuestion[];
+                if (questions.length > 0) {
+                    onChunk(questions);
+                }
+            } catch (parseError) {
+                console.error(`AI'dan gelen JSON ayrıştırılamadı (kazanım: ${task.kazanim.id}):`, parseError);
             }
-            
-            remainingQuestions -= currentChunkSize;
         }
     } catch (error: any) {
-        console.error("Error generating quiz stream:", error);
+        console.error("Sınav oluşturma akışında hata:", error);
         if (error.toString().includes('429') || (error.message && error.message.includes('429'))) {
              throw new Error("API istek limiti aşıldı. Lütfen bir dakika bekleyip daha az sayıda soruyla tekrar deneyin.");
         }
