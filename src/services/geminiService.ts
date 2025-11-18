@@ -1,10 +1,11 @@
 
+
 import { GoogleGenAI, Type } from "@google/genai";
-import { DetailedQuestion, Kazanim, QuestionType } from '../types';
+import { DetailedQuestion, Kazanim, QuestionType, DifficultyLevel } from '../types';
 
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
-const getPromptAndSchema = (grade: string, units: string, kazanims: Kazanim[], questionCount: number, questionType: QuestionType, customPrompt?: string, includeCharts?: boolean, numOperations?: number) => {
+const getPromptAndSchema = (grade: string, units: string, kazanims: Kazanim[], questionCount: number, questionType: QuestionType, customPrompt?: string, includeCharts?: boolean, numOperations?: number, difficultyLevel?: DifficultyLevel) => {
     
     const visualDataInstruction = includeCharts
     ? `
@@ -84,6 +85,12 @@ Eğer bir kazanım görsel bir veri gerektiriyorsa (Veri İşleme ünitelerindek
         operationPrompt = `\n\nÖNEMLİ PROBLEM TİPİ KURALI:
 Üreteceğin her soru, ilgili kazanımın doğası elverdiği sürece, ${stepText} Bu kural, özellikle problem çözme becerisini ölçen kazanımlar için geçerlidir. Çözüm adımları net ve mantıksal olmalıdır.`;
     }
+    
+    let difficultyPrompt = '';
+    if (difficultyLevel && difficultyLevel !== 'otomatik') {
+        difficultyPrompt = `\n\nÖNEMLİ ZORLUK SEVİYESİ KURALI:
+Üreteceğin her sorunun zorluk seviyesi ("seviye" alanı) MUTLAKA "${difficultyLevel}" olmalıdır. Kazanım metnine dayalı otomatik seviye belirleme kuralını bu istek için göz ardı etmelisin.`;
+    }
 
     const customPromptSection = customPrompt 
         ? `\n\nKullanıcının Ek Talimatları:\n${customPrompt}\nBu talimatlara harfiyen uyulmalıdır.`
@@ -93,7 +100,7 @@ Eğer bir kazanım görsel bir veri gerektiriyorsa (Veri İşleme ünitelerindek
 
     const basePrompt = `
 Görevin, 2025 yılı itibarıyla yürürlükte olan Türkiye Millî Eğitim Bakanlığı İlkokul Matematik dersi öğretim programına (müfredata) sadık kalarak, belirtilen sınıf, üniteler ve kazanımlara uygun, ${questionCount} adet soru üretmektir. Üreteceğin tüm sorular SADECE aşağıdaki kazanım(lar)ı hedeflemelidir.
-${operationPrompt}${visualDataInstruction}${customPromptSection}
+${operationPrompt}${difficultyPrompt}${visualDataInstruction}${customPromptSection}
 
 Sınıf: ${grade}
 Üniteler: ${units}
@@ -235,6 +242,26 @@ Lütfen çıktı olarak sadece soruları içeren bir JSON nesnesi döndür. Her 
     return { prompt: finalPrompt, schema: multipleQuestionSchema, singleSchema: singleQuestionSchema };
 };
 
+const MAX_RETRIES = 3;
+const INITIAL_DELAY_MS = 1000;
+
+const handleApiError = (error: any, context: 'quiz' | 'single_question'): Error => {
+    console.error(`Sınav oluşturma hatası (${context}):`, error);
+    const errorMessage = error.toString().toLowerCase();
+    
+    if (errorMessage.includes('429') || errorMessage.includes('resource exhausted')) {
+         return new Error("API istek limiti aşıldı. Lütfen bir süre bekleyip tekrar deneyin.");
+    }
+    if (errorMessage.includes('503') || errorMessage.includes('overloaded') || errorMessage.includes('unavailable')) {
+         return new Error("Yapay zeka sunucusu şu an yoğun. Lütfen birkaç dakika sonra tekrar deneyin.");
+    }
+    const defaultMessage = context === 'quiz' 
+        ? "Yapay zeka ile sınav oluşturulurken beklenmedik bir hata oluştu."
+        : "Soru yenilenirken beklenmedik bir hata oluştu.";
+
+    return new Error(`${defaultMessage} Lütfen tekrar deneyin.`);
+};
+
 export const generateQuizStream = async (
     grade: string,
     units: string,
@@ -244,6 +271,7 @@ export const generateQuizStream = async (
     customPrompt: string | undefined,
     includeCharts: boolean | undefined,
     numOperations: number | undefined,
+    difficultyLevel: DifficultyLevel | undefined,
     onChunk: (chunk: DetailedQuestion[]) => void
 ): Promise<void> => {
     try {
@@ -270,57 +298,81 @@ export const generateQuizStream = async (
                 questionType,
                 customPrompt,
                 includeCharts,
-                numOperations
+                numOperations,
+                difficultyLevel
             );
 
-            const response = await ai.models.generateContent({
-                model: "gemini-2.5-flash",
-                contents: prompt,
-                config: {
-                    responseMimeType: "application/json",
-                    responseSchema: schema,
-                },
-            });
-
-            const jsonText = response.text.trim();
-            try {
-                const parsedData = JSON.parse(jsonText);
-                const questions = (parsedData?.questions || []) as DetailedQuestion[];
-                if (questions.length > 0) {
-                    onChunk(questions);
+            let response;
+            for (let i = 0; i < MAX_RETRIES; i++) {
+                try {
+                    response = await ai.models.generateContent({
+                        model: "gemini-2.5-flash",
+                        contents: prompt,
+                        config: {
+                            responseMimeType: "application/json",
+                            responseSchema: schema,
+                        },
+                    });
+                    break; // Exit retry loop on success
+                } catch (error: any) {
+                    const isRetryable = error.toString().includes('503') || error.toString().includes('429');
+                    if (isRetryable && i < MAX_RETRIES - 1) {
+                        const delay = INITIAL_DELAY_MS * Math.pow(2, i);
+                        console.warn(`API call failed for kazanım ${task.kazanim.id}, retrying in ${delay}ms... (Attempt ${i + 1}/${MAX_RETRIES})`, error);
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                    } else {
+                        throw handleApiError(error, 'quiz');
+                    }
                 }
-            } catch (parseError) {
-                console.error(`AI'dan gelen JSON ayrıştırılamadı (kazanım: ${task.kazanim.id}):`, parseError);
+            }
+            
+            if (response) {
+                const jsonText = response.text.trim();
+                try {
+                    const parsedData = JSON.parse(jsonText);
+                    const questions = (parsedData?.questions || []) as DetailedQuestion[];
+                    if (questions.length > 0) {
+                        onChunk(questions);
+                    }
+                } catch (parseError) {
+                    console.error(`AI'dan gelen JSON ayrıştırılamadı (kazanım: ${task.kazanim.id}):`, parseError);
+                }
             }
         }
     } catch (error: any) {
-        console.error("Sınav oluşturma akışında hata:", error);
-        if (error.toString().includes('429') || (error.message && error.message.includes('429'))) {
-             throw new Error("API istek limiti aşıldı. Lütfen bir dakika bekleyip daha az sayıda soruyla tekrar deneyin.");
-        }
-        throw new Error("Yapay zeka ile sınav oluşturulurken bir hata oluştu. Lütfen tekrar deneyin.");
+        throw error;
     }
 };
 
 export const generateSingleQuestion = async (grade: string, unit: string, kazanim: Kazanim, questionType: QuestionType, existingQuestionText: string): Promise<DetailedQuestion | null> => {
-    try {
-        const isDataKazanim = kazanim.name.toLowerCase().includes('tablo') || kazanim.name.toLowerCase().includes('grafik') || unit.toLowerCase().includes('geometri');
-        const { prompt: basePrompt, singleSchema } = getPromptAndSchema(grade, unit, [kazanim], 1, questionType, "", isDataKazanim, 0);
-        const remixPrompt = `${basePrompt}\n\nÖNEMLİ KURAL: Üreteceğin yeni soru, aşağıdaki sorudan MUTLAKA farklı olmalıdır:\n"${existingQuestionText}"`;
+    for (let i = 0; i < MAX_RETRIES; i++) {
+        try {
+            const isDataKazanim = kazanim.name.toLowerCase().includes('tablo') || kazanim.name.toLowerCase().includes('grafik') || unit.toLowerCase().includes('geometri');
+            const { prompt: basePrompt, singleSchema } = getPromptAndSchema(grade, unit, [kazanim], 1, questionType, "", isDataKazanim, 0);
+            const remixPrompt = `${basePrompt}\n\nÖNEMLİ KURAL: Üreteceğin yeni soru, aşağıdaki sorudan MUTLAKA farklı olmalıdır:\n"${existingQuestionText}"`;
 
-        const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: remixPrompt,
-            config: {
-                responseMimeType: "application/json",
-                responseSchema: singleSchema
+            const response = await ai.models.generateContent({
+                model: "gemini-2.5-flash",
+                contents: remixPrompt,
+                config: {
+                    responseMimeType: "application/json",
+                    responseSchema: singleSchema
+                }
+            });
+            
+            const jsonText = response.text.trim();
+            return JSON.parse(jsonText) as DetailedQuestion;
+        } catch (error: any) {
+             const isRetryable = error.toString().includes('503') || error.toString().includes('429');
+            
+            if (isRetryable && i < MAX_RETRIES - 1) {
+                const delay = INITIAL_DELAY_MS * Math.pow(2, i);
+                console.warn(`Single question generation failed, retrying in ${delay}ms... (Attempt ${i + 1}/${MAX_RETRIES})`, error);
+                await new Promise(resolve => setTimeout(resolve, delay));
+            } else {
+                throw handleApiError(error, 'single_question');
             }
-        });
-        
-        const jsonText = response.text.trim();
-        return JSON.parse(jsonText) as DetailedQuestion;
-    } catch (error) {
-        console.error("Error generating single question:", error);
-        throw new Error("Soru yenilenirken bir hata oluştu.");
+        }
     }
+    return null; // Should not be reached
 }

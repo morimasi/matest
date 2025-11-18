@@ -1,13 +1,14 @@
 
 
 
+
 import React, { useState } from 'react';
 import CurriculumSelector from './CurriculumSelector';
 import QuizView from './QuizView';
 import { CURRICULUM_DATA } from '../constants';
 import { generateQuizStream, generateSingleQuestion } from '../services/geminiService';
 import { saveQuiz as saveQuizToStorage, saveQuizToArchive, updateQuiz } from '../services/storageService';
-import { SavedQuiz, QuestionType, DetailedQuestion } from '../types';
+import { SavedQuiz, QuestionType, DetailedQuestion, DifficultyLevel } from '../types';
 
 const usePersistentState = <T,>(key: string, defaultValue: T): [T, React.Dispatch<React.SetStateAction<T>>] => {
     const [state, setState] = React.useState<T>(() => {
@@ -41,6 +42,7 @@ const QuizGenerator: React.FC = () => {
     const [customPrompt, setCustomPrompt] = usePersistentState('qg_customPrompt', '');
     const [includeCharts, setIncludeCharts] = usePersistentState<boolean>('qg_includeCharts', false);
     const [numOperations, setNumOperations] = usePersistentState<number>('qg_numOperations', 0);
+    const [difficultyLevel, setDifficultyLevel] = usePersistentState<DifficultyLevel>('qg_difficultyLevel', 'otomatik');
 
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -93,6 +95,7 @@ const QuizGenerator: React.FC = () => {
                 customPrompt, 
                 includeCharts, 
                 numOperations,
+                difficultyLevel,
                 (chunk) => {
                     allQuestions.push(...chunk);
                     setQuestionsForView(prev => [...prev, ...chunk]);
@@ -223,6 +226,8 @@ Teşekkürler.
                     setIncludeCharts={setIncludeCharts}
                     numOperations={numOperations}
                     setNumOperations={setNumOperations}
+                    difficultyLevel={difficultyLevel}
+                    setDifficultyLevel={setDifficultyLevel}
                     onGenerate={handleGenerateQuiz}
                     isLoading={isLoading}
                 />

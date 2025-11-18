@@ -1,4 +1,5 @@
 export type QuestionType = 'coktan_secmeli' | 'dogru_yanlis' | 'bosluk_doldurma';
+export type DifficultyLevel = 'otomatik' | 'temel' | 'orta' | 'ileri';
 
 export interface ChartDataItem {
   etiket: string;

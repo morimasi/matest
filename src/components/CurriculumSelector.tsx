@@ -1,7 +1,7 @@
 
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Grade, Unit, QuestionType } from '../types';
+import { Grade, Unit, QuestionType, DifficultyLevel } from '../types';
 import { SparklesIcon, MicrophoneIcon } from './icons';
 
 interface CurriculumSelectorProps {
@@ -23,6 +23,8 @@ interface CurriculumSelectorProps {
   setIncludeCharts: (include: boolean) => void;
   numOperations: number;
   setNumOperations: (num: number) => void;
+  difficultyLevel: DifficultyLevel;
+  setDifficultyLevel: (level: DifficultyLevel) => void;
   onGenerate: () => void;
   isLoading: boolean;
 }
@@ -45,6 +47,8 @@ const CurriculumSelector: React.FC<CurriculumSelectorProps> = ({
   setIncludeCharts,
   numOperations,
   setNumOperations,
+  difficultyLevel,
+  setDifficultyLevel,
   onGenerate,
   isLoading,
 }) => {
@@ -268,7 +272,7 @@ const CurriculumSelector: React.FC<CurriculumSelectorProps> = ({
             )}
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div>
             <label htmlFor="question-count-select" className="block text-sm font-medium text-slate-600 mb-1">Soru Sayısı</label>
             <select
@@ -321,6 +325,20 @@ const CurriculumSelector: React.FC<CurriculumSelectorProps> = ({
                 <option value={1}>1 İşlemli Problem</option>
                 <option value={2}>2 İşlemli Problem</option>
                 <option value={3}>3 İşlemli Problem</option>
+            </select>
+          </div>
+          <div>
+            <label htmlFor="difficulty-level-select" className="block text-sm font-medium text-slate-600 mb-1">Zorluk Seviyesi</label>
+            <select
+                id="difficulty-level-select"
+                value={difficultyLevel}
+                onChange={(e) => setDifficultyLevel(e.target.value as DifficultyLevel)}
+                className="w-full p-2.5 bg-white/60 border border-slate-300/50 rounded-md shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-300"
+            >
+                <option value="otomatik">Otomatik</option>
+                <option value="temel">Temel</option>
+                <option value="orta">Orta</option>
+                <option value="ileri">İleri</option>
             </select>
           </div>
         </div>
