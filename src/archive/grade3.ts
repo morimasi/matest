@@ -7,7 +7,7 @@ export const ARCHIVE_DATA_GRADE_3: Record<string, ArchiveQuiz> = {
   // =================================================================
   "M.3.1.1.1": {
     gradeName: "3. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Üç basamaklı doğal sayıları okur ve yazar.",
-    templates: [{ id: 'system-default-M.3.1.1.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+    templates: [{ id: 'system-default-M.3.1.1.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
       const num = 123 + i * 33;
       const words = numberToWordsTr(num);
       return {
@@ -24,7 +24,7 @@ export const ARCHIVE_DATA_GRADE_3: Record<string, ArchiveQuiz> = {
   },
   "M.3.1.1.2": {
     gradeName: "3. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Üç basamaklı doğal sayıların basamak adlarını, basamaklarındaki rakamların basamak değerlerini belirler.",
-    templates: [{ id: 'system-default-M.3.1.1.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+    templates: [{ id: 'system-default-M.3.1.1.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
       const hundreds = 2 + (i % 8);
       const tens = 1 + (i % 9);
       const ones = (i % 7);
@@ -43,7 +43,7 @@ export const ARCHIVE_DATA_GRADE_3: Record<string, ArchiveQuiz> = {
   },
   "M.3.1.1.3": {
     gradeName: "3. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "1000’e kadar olan doğal sayıları karşılaştırır ve sıralar.",
-    templates: [{ id: 'system-default-M.3.1.1.3', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+    templates: [{ id: 'system-default-M.3.1.1.3', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
         const nums = [456 - i*10, 654 + i*10, 546 + i*5];
         if (new Set(nums).size < 3) { // Regenerate if not unique
              nums[1] += 1;
@@ -64,7 +64,7 @@ export const ARCHIVE_DATA_GRADE_3: Record<string, ArchiveQuiz> = {
   },
    "M.3.1.1.4": {
     gradeName: "3. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "1000’e kadar olan doğal sayıları en yakın onluğa ve yüzlüğe yuvarlar.",
-    templates: [{ id: 'system-default-M.3.1.1.4', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+    templates: [{ id: 'system-default-M.3.1.1.4', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
       const num = 458 + i * 15;
       const nearestTen = Math.round(num / 10) * 10;
       const nearestHundred = Math.round(num / 100) * 100;
@@ -87,7 +87,7 @@ export const ARCHIVE_DATA_GRADE_3: Record<string, ArchiveQuiz> = {
   },
    "M.3.1.1.5": {
     gradeName: "3. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "1000 içinde altışar, yedişer, sekizer, dokuzar ileriye ritmik sayar.",
-    templates: [{ id: 'system-default-M.3.1.1.5', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+    templates: [{ id: 'system-default-M.3.1.1.5', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
       const step = 6 + (i % 4); // 6, 7, 8, 9
       const start = step * (5 + i);
       const sequence = [start, start + step, '...', start + 3 * step];
@@ -108,7 +108,7 @@ export const ARCHIVE_DATA_GRADE_3: Record<string, ArchiveQuiz> = {
   },
    "M.3.1.2.1": {
     gradeName: "3. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "En çok üç basamaklı sayılarla eldesiz ve eldeli toplama işlemini yapar.",
-    templates: [{ id: 'system-default-M.3.1.2.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+    templates: [{ id: 'system-default-M.3.1.2.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
       const num1 = 148 + i * 11;
       const num2 = 279 + i * 13;
       const answer = num1 + num2;
@@ -128,7 +128,7 @@ export const ARCHIVE_DATA_GRADE_3: Record<string, ArchiveQuiz> = {
   },
   "M.3.1.2.2": {
     gradeName: "3. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "İki sayının toplamını tahmin eder ve tahminini işlem sonucuyla karşılaştırır.",
-    templates: [{ id: 'system-default-M.3.1.2.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+    templates: [{ id: 'system-default-M.3.1.2.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
       const num1 = 348 + i * 5;
       const num2 = 471 - i * 5;
       const estimate = Math.round(num1 / 100) * 100 + Math.round(num2 / 100) * 100;
@@ -146,7 +146,7 @@ export const ARCHIVE_DATA_GRADE_3: Record<string, ArchiveQuiz> = {
   },
   "M.3.1.2.3": {
     gradeName: "3. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Toplama işleminin özelliklerini kullanır.",
-    templates: [{ id: 'system-default-M.3.1.2.3', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+    templates: [{ id: 'system-default-M.3.1.2.3', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
       const num1 = 125 + i * 10;
       const num2 = 248 + i * 5;
       return {
@@ -163,7 +163,7 @@ export const ARCHIVE_DATA_GRADE_3: Record<string, ArchiveQuiz> = {
   },
   "M.3.1.2.4": {
     gradeName: "3. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Toplama işlemi gerektiren problemleri çözer.",
-    templates: [{ id: 'system-default-M.3.1.2.4', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+    templates: [{ id: 'system-default-M.3.1.2.4', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
       const num1 = 350 + i * 10;
       const num2 = 175 + i * 5;
       const answer = num1 + num2;
@@ -183,7 +183,7 @@ export const ARCHIVE_DATA_GRADE_3: Record<string, ArchiveQuiz> = {
   },
    "M.3.1.3.1": {
     gradeName: "3. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "En çok üç basamaklı sayılardan, en çok üç basamaklı sayıları çıkarır.",
-    templates: [{ id: 'system-default-M.3.1.3.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+    templates: [{ id: 'system-default-M.3.1.3.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
       const num1 = 812 - i * 15;
       const num2 = 345 + i * 10;
       const answer = num1 - num2;
@@ -203,7 +203,7 @@ export const ARCHIVE_DATA_GRADE_3: Record<string, ArchiveQuiz> = {
   },
   "M.3.1.3.2": {
     gradeName: "3. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Zihinden çıkarma işlemi yapar.",
-    templates: [{ id: 'system-default-M.3.1.3.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+    templates: [{ id: 'system-default-M.3.1.3.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
       const num1 = (4 + i) * 100;
       const num2 = 55 + i*5;
       const answer = num1 - num2;
@@ -223,7 +223,7 @@ export const ARCHIVE_DATA_GRADE_3: Record<string, ArchiveQuiz> = {
   },
   "M.3.1.3.3": {
     gradeName: "3. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Çıkarma işlemi gerektiren problemleri çözer.",
-    templates: [{ id: 'system-default-M.3.1.3.3', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+    templates: [{ id: 'system-default-M.3.1.3.3', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
       const start = 950 - i * 10;
       const end = 480 + i * 5;
       const answer = start - end;
@@ -243,7 +243,7 @@ export const ARCHIVE_DATA_GRADE_3: Record<string, ArchiveQuiz> = {
   },
   "M.3.1.4.1": {
     gradeName: "3. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Çarpma işleminin özelliklerini kullanır.",
-    templates: [{ id: 'system-default-M.3.1.4.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+    templates: [{ id: 'system-default-M.3.1.4.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
       const n1 = 15 + i;
       const n2 = 4 + i;
       const n3 = 7 + i;
@@ -261,7 +261,7 @@ export const ARCHIVE_DATA_GRADE_3: Record<string, ArchiveQuiz> = {
   },
    "M.3.1.4.2": {
     gradeName: "3. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Üç basamaklı bir doğal sayı ile bir basamaklı bir doğal sayıyı çarpar.",
-    templates: [{ id: 'system-default-M.3.1.4.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+    templates: [{ id: 'system-default-M.3.1.4.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
       const num1 = 125 + i * 4;
       const num2 = 3 + (i % 5);
       const answer = num1 * num2;
@@ -281,7 +281,7 @@ export const ARCHIVE_DATA_GRADE_3: Record<string, ArchiveQuiz> = {
   },
   "M.3.1.4.3": {
     gradeName: "3. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "İki basamaklı bir doğal sayı ile en çok iki basamaklı bir doğal sayıyı çarpar.",
-    templates: [{ id: 'system-default-M.3.1.4.3', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+    templates: [{ id: 'system-default-M.3.1.4.3', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
       const num1 = 25 + i;
       const num2 = 15 + i;
       const answer = num1 * num2;
@@ -301,7 +301,7 @@ export const ARCHIVE_DATA_GRADE_3: Record<string, ArchiveQuiz> = {
   },
   "M.3.1.4.4": {
     gradeName: "3. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Zihinden çarpma işlemi yapar.",
-    templates: [{ id: 'system-default-M.3.1.4.4', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+    templates: [{ id: 'system-default-M.3.1.4.4', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
       const num1 = 45 + i * 2;
       const num2 = 10;
       const answer = num1 * num2;
@@ -319,7 +319,7 @@ export const ARCHIVE_DATA_GRADE_3: Record<string, ArchiveQuiz> = {
   },
   "M.3.1.4.5": {
     gradeName: "3. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Çarpma işlemi gerektiren problemleri çözer.",
-    templates: [{ id: 'system-default-M.3.1.4.5', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+    templates: [{ id: 'system-default-M.3.1.4.5', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
       const num1 = 8 + i;
       const num2 = 12;
       const answer = num1 * num2;
@@ -339,7 +339,7 @@ export const ARCHIVE_DATA_GRADE_3: Record<string, ArchiveQuiz> = {
   },
   "M.3.1.5.1": {
     gradeName: "3. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "İki basamaklı bir doğal sayıyı bir basamaklı bir doğal sayıya böler.",
-    templates: [{ id: 'system-default-M.3.1.5.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+    templates: [{ id: 'system-default-M.3.1.5.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
       const divisor = 3 + (i % 5);
       const quotient = 12 + i;
       const dividend = divisor * quotient;
@@ -359,7 +359,7 @@ export const ARCHIVE_DATA_GRADE_3: Record<string, ArchiveQuiz> = {
   },
   "M.3.1.5.2": {
     gradeName: "3. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Bölme işleminde kalanı yorumlar.",
-    templates: [{ id: 'system-default-M.3.1.5.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+    templates: [{ id: 'system-default-M.3.1.5.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
       const divisor = 5 + (i % 3);
       const dividend = 27 + i * 2;
       const answer = dividend % divisor;
@@ -379,7 +379,7 @@ export const ARCHIVE_DATA_GRADE_3: Record<string, ArchiveQuiz> = {
   },
   "M.3.1.5.3": {
     gradeName: "3. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Bölme işlemi gerektiren problemleri çözer.",
-    templates: [{ id: 'system-default-M.3.1.5.3', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+    templates: [{ id: 'system-default-M.3.1.5.3', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
       const groups = 4 + (i%2);
       const answer = 24 - i;
       const total = groups * answer;
@@ -399,7 +399,7 @@ export const ARCHIVE_DATA_GRADE_3: Record<string, ArchiveQuiz> = {
   },
   "M.3.1.6.1": {
     gradeName: "3. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Birim kesirleri tanır ve modellerle gösterir.",
-    templates: [{ id: 'system-default-M.3.1.6.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+    templates: [{ id: 'system-default-M.3.1.6.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
         const denominator = 3 + i;
         return {
             sinif: 3, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.3.1.6.1", kazanim_metni: "Birim kesirleri tanır ve modellerle gösterir.",
@@ -415,7 +415,7 @@ export const ARCHIVE_DATA_GRADE_3: Record<string, ArchiveQuiz> = {
   },
   "M.3.1.6.2": {
     gradeName: "3. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Bir bütünün belirtilen birim kesir kadarını belirler.",
-    templates: [{ id: 'system-default-M.3.1.6.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+    templates: [{ id: 'system-default-M.3.1.6.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
       const den = 4 + (i % 5);
       const total = den * (5 + i);
       const answer = total / den;
@@ -435,7 +435,7 @@ export const ARCHIVE_DATA_GRADE_3: Record<string, ArchiveQuiz> = {
   },
   "M.3.1.6.3": {
     gradeName: "3. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Paydası 10 ve 100 olan kesirleri birim kesir olarak ifade eder.",
-    templates: [{ id: 'system-default-M.3.1.6.3', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+    templates: [{ id: 'system-default-M.3.1.6.3', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
       const num = 3 + i;
       const den = i % 2 === 0 ? 10 : 100;
       return {
@@ -452,7 +452,7 @@ export const ARCHIVE_DATA_GRADE_3: Record<string, ArchiveQuiz> = {
   },
   "M.3.2.1.1": {
     gradeName: "3. Sınıf", unitName: "Geometri", kazanimName: "Nokta, doğru, doğru parçası ve ışını açıklar.",
-    templates: [{ id: 'system-default-M.3.2.1.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+    templates: [{ id: 'system-default-M.3.2.1.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
         const concepts = [
             { question: "İki ucu da sınırsız uzayan düz çizgiye ne ad verilir?", answer: "Doğru" },
             { question: "İki ucu sınırlı olan düz çizgi parçasına ne ad verilir?", answer: "Doğru parçası" },
@@ -474,7 +474,7 @@ export const ARCHIVE_DATA_GRADE_3: Record<string, ArchiveQuiz> = {
   },
   "M.3.2.1.2": {
     gradeName: "3. Sınıf", unitName: "Geometri", kazanimName: "Düzlem ve düzlemsel şekilleri açıklar.",
-    templates: [{ id: 'system-default-M.3.2.1.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+    templates: [{ id: 'system-default-M.3.2.1.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
       const items = ["Bir top", "Bir ip", "Bir masanın yüzeyi", "Bir yıldız", "Bir halının yüzeyi", "Bir bardak"];
       const correct = "Bir masanın yüzeyi";
       return {
@@ -491,7 +491,7 @@ export const ARCHIVE_DATA_GRADE_3: Record<string, ArchiveQuiz> = {
   },
   "M.3.2.2.1": {
     gradeName: "3. Sınıf", unitName: "Geometri", kazanimName: "Açıları isimlendirir ve sınıflandırır.",
-    templates: [{ id: 'system-default-M.3.2.2.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+    templates: [{ id: 'system-default-M.3.2.2.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
       const concepts = [
           { question: "Dik açıdan daha küçük olan açılara ne ad verilir?", answer: "Dar açı" },
           { question: "Ölçüsü 90 derece olan açıya ne ad verilir?", answer: "Dik açı" },
@@ -512,7 +512,7 @@ export const ARCHIVE_DATA_GRADE_3: Record<string, ArchiveQuiz> = {
   },
   "M.3.2.2.2": {
     gradeName: "3. Sınıf", unitName: "Geometri", kazanimName: "Üçgen, kare, dikdörtgeni kenarlarına ve açılarına göre sınıflandırır.",
-    templates: [{ id: 'system-default-M.3.2.2.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+    templates: [{ id: 'system-default-M.3.2.2.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
       const concepts = [
           { question: "Karşılıklı kenarları birbirine eşit ve tüm açıları dik açı olan geometrik şekil hangisidir?", answer: "Dikdörtgen" },
           { question: "Tüm kenarları birbirine eşit ve tüm açıları dik açı olan geometrik şekil hangisidir?", answer: "Kare" },
@@ -533,7 +533,7 @@ export const ARCHIVE_DATA_GRADE_3: Record<string, ArchiveQuiz> = {
   },
   "M.3.2.3.1": {
     gradeName: "3. Sınıf", unitName: "Geometri", kazanimName: "Tekrarlayan bir geometrik örüntü oluşturur ve örüntünün kuralını açıklar.",
-    templates: [{ id: 'system-default-M.3.2.3.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+    templates: [{ id: 'system-default-M.3.2.3.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
       const rules = [
           { pattern: "Sarı, Mavi, Mavi", rule: "Bir sarı, iki mavi", options: { A: 'Bir sarı, bir mavi', B: 'İki sarı, bir mavi', C: 'Bir sarı, iki mavi', D: 'İki sarı, iki mavi' }, answer: 'C' },
           { pattern: "Yeşil, Kırmızı", rule: "Bir yeşil, bir kırmızı", options: { A: 'Bir yeşil, bir kırmızı', B: 'İki yeşil, bir kırmızı', C: 'Bir yeşil, iki kırmızı', D: 'İki yeşil, iki kırmızı' }, answer: 'A' },
@@ -554,7 +554,7 @@ export const ARCHIVE_DATA_GRADE_3: Record<string, ArchiveQuiz> = {
   },
   "M.3.2.4.1": {
     gradeName: "3. Sınıf", unitName: "Geometri", kazanimName: "Düzlemsel şekillerin simetri doğrularını belirler ve çizer.",
-    templates: [{ id: 'system-default-M.3.2.4.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+    templates: [{ id: 'system-default-M.3.2.4.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
         const shapes = [
             { name: 'Kare', lines: '4' }, 
             { name: 'Dikdörtgen', lines: '2' }, 

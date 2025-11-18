@@ -4,8 +4,8 @@ import { createNumericOptions } from './helpers';
 export const ARCHIVE_DATA_GRADE_1: Record<string, ArchiveQuiz> = {
   "M.1.1.1.1": {
     gradeName: "1. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Nesne sayısı 20’ye kadar (20 dâhil) olan bir topluluktaki nesnelerin sayısını belirler ve bu sayıyı rakamla yazar.",
-    templates: [{ id: 'system-default-M.1.1.1.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
-        const count = 5 + i;
+    templates: [{ id: 'system-default-M.1.1.1.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
+        const count = 5 + (i % 15);
         const options = createNumericOptions(count);
         const correctAnswerKey = Object.keys(options).find(key => options[key as keyof typeof options] === String(count))!;
         return {
@@ -22,8 +22,8 @@ export const ARCHIVE_DATA_GRADE_1: Record<string, ArchiveQuiz> = {
   },
   "M.1.1.1.2": {
     gradeName: "1. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "20’ye kadar olan sayıları ileriye ve geriye doğru birer birer ritmik sayar.",
-    templates: [{ id: 'system-default-M.1.1.1.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
-        const start = 8 + i;
+    templates: [{ id: 'system-default-M.1.1.1.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
+        const start = 8 + (i % 10);
         const isForward = i % 2 === 0;
         return {
             sinif: 1, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.1.1.1.2", kazanim_metni: "20’ye kadar olan sayıları ileriye ve geriye doğru birer birer ritmik sayar.",
@@ -41,8 +41,8 @@ export const ARCHIVE_DATA_GRADE_1: Record<string, ArchiveQuiz> = {
   },
   "M.1.1.1.3": {
     gradeName: "1. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Rakamları okur ve yazar.",
-    templates: [{ id: 'system-default-M.1.1.1.3', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
-        const num = 10 + i;
+    templates: [{ id: 'system-default-M.1.1.1.3', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
+        const num = 10 + (i % 10);
         const words = ["on", "on bir", "on iki", "on üç", "on dört", "on beş", "on altı", "on yedi", "on sekiz", "on dokuz"];
         const options = createNumericOptions(num);
         const correctAnswerKey = Object.keys(options).find(key => options[key as keyof typeof options] === String(num)) || 'A';
@@ -60,7 +60,7 @@ export const ARCHIVE_DATA_GRADE_1: Record<string, ArchiveQuiz> = {
   },
    "M.1.1.1.4": {
     gradeName: "1. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "20 içinde iki sayıyı karşılaştırır ve aralarındaki ilişkiyi “büyük”, “küçük”, “eşit” ifadeleriyle belirtir.",
-    templates: [{ id: 'system-default-M.1.1.1.4', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+    templates: [{ id: 'system-default-M.1.1.1.4', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
         const num1 = 5 + (i * 2 % 15);
         let num2 = 5 + ((i + 5) % 15);
         if (num1 === num2) num2 = (num2 + 1) % 20;
@@ -78,8 +78,8 @@ export const ARCHIVE_DATA_GRADE_1: Record<string, ArchiveQuiz> = {
   },
   "M.1.1.1.5": {
     gradeName: "1. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Sıra bildiren sayıları sözlü olarak ifade eder.",
-    templates: [{ id: 'system-default-M.1.1.1.5', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
-        const rank = 5 + i;
+    templates: [{ id: 'system-default-M.1.1.1.5', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
+        const rank = 5 + (i % 10);
         const ranks = ["birinci", "ikinci", "üçüncü", "dördüncü", "beşinci", "altıncı", "yedinci", "sekizinci", "dokuzuncu", "onuncu", "on birinci", "on ikinci", "on üçüncü", "on dördüncü", "on beşinci"];
         return {
             sinif: 1, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.1.1.1.5", kazanim_metni: "Sıra bildiren sayıları sözlü olarak ifade eder.",
@@ -95,7 +95,7 @@ export const ARCHIVE_DATA_GRADE_1: Record<string, ArchiveQuiz> = {
   },
   "M.1.1.2.1": {
     gradeName: "1. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Toplama işleminin anlamını kavrar.",
-    templates: [{ id: 'system-default-M.1.1.2.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => ({
+    templates: [{ id: 'system-default-M.1.1.2.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => ({
         sinif: 1, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.1.1.2.1", kazanim_metni: "Toplama işleminin anlamını kavrar.",
         soru_tipi: 'coktan_secmeli',
         soru_metni: `${5+(i%5)} elmaya ${3+(i%3)} elma daha eklersek, bu durumu hangi işlemle ifade ederiz?`,
@@ -108,8 +108,8 @@ export const ARCHIVE_DATA_GRADE_1: Record<string, ArchiveQuiz> = {
   },
     "M.1.1.2.2": {
     gradeName: "1. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Toplamları 20’ye kadar (20 dâhil) olan doğal sayılarla toplama işlemini yapar.",
-    templates: [{ id: 'system-default-M.1.1.2.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
-        const num1 = 7 + i;
+    templates: [{ id: 'system-default-M.1.1.2.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
+        const num1 = 7 + (i % 8);
         const num2 = 8 - (i % 4);
         const answer = Math.min(20, num1 + num2);
         const options = createNumericOptions(answer);
@@ -128,8 +128,8 @@ export const ARCHIVE_DATA_GRADE_1: Record<string, ArchiveQuiz> = {
   },
     "M.1.1.2.3": {
     gradeName: "1. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Toplama işleminde verilmeyen toplananı bulur.",
-    templates: [{ id: 'system-default-M.1.1.2.3', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
-        const total = 12 + i;
+    templates: [{ id: 'system-default-M.1.1.2.3', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
+        const total = 12 + (i % 8);
         const num1 = 5 + (i % 5);
         const answer = total - num1;
         const options = createNumericOptions(answer);
@@ -148,9 +148,9 @@ export const ARCHIVE_DATA_GRADE_1: Record<string, ArchiveQuiz> = {
   },
   "M.1.1.2.4": {
     gradeName: "1. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Zihinden toplama işlemi yapar.",
-    templates: [{ id: 'system-default-M.1.1.2.4', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+    templates: [{ id: 'system-default-M.1.1.2.4', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
         const num1 = 10;
-        const num2 = 3 + i;
+        const num2 = 3 + (i % 7);
         const answer = num1 + num2;
         const options = createNumericOptions(answer);
         const correctAnswerKey = Object.keys(options).find(k=>options[k as keyof typeof options] === String(answer)) || 'A';
@@ -168,7 +168,7 @@ export const ARCHIVE_DATA_GRADE_1: Record<string, ArchiveQuiz> = {
   },
   "M.1.1.3.1": {
     gradeName: "1. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Çıkarma işleminin anlamını kavrar.",
-    templates: [{ id: 'system-default-M.1.1.3.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => ({
+    templates: [{ id: 'system-default-M.1.1.3.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => ({
         sinif: 1, unite_adi: "Sayılar ve İşlemler", unite_no: 1, kazanim_kodu: "M.1.1.3.1", kazanim_metni: "Çıkarma işleminin anlamını kavrar.",
         soru_tipi: 'coktan_secmeli',
         soru_metni: `${10+(i%5)} tane cevizimin ${3+(i%3)} tanesini yedim. Kalan cevizlerimi bulmak için hangi işlemi yapmalıyım?`,
@@ -181,7 +181,7 @@ export const ARCHIVE_DATA_GRADE_1: Record<string, ArchiveQuiz> = {
   },
   "M.1.1.3.2": {
     gradeName: "1. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "20’ye kadar (20 dâhil) olan doğal sayılarla çıkarma işlemini yapar.",
-    templates: [{ id: 'system-default-M.1.1.3.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+    templates: [{ id: 'system-default-M.1.1.3.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
         const num1 = 15 + (i % 5);
         const num2 = 4 + (i % 5);
         const answer = num1 - num2;
@@ -201,8 +201,8 @@ export const ARCHIVE_DATA_GRADE_1: Record<string, ArchiveQuiz> = {
   },
   "M.1.1.3.3": {
     gradeName: "1. Sınıf", unitName: "Sayılar ve İşlemler", kazanimName: "Çıkarma işleminde verilmeyen terimleri bulur.",
-    templates: [{ id: 'system-default-M.1.1.3.3', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
-        const num1 = 18 - i;
+    templates: [{ id: 'system-default-M.1.1.3.3', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
+        const num1 = 18 - (i % 8);
         const answer = 5 + (i % 5);
         const result = num1 - answer;
         const options = createNumericOptions(answer);
@@ -221,7 +221,7 @@ export const ARCHIVE_DATA_GRADE_1: Record<string, ArchiveQuiz> = {
   },
   "M.1.2.1.1": {
     gradeName: "1. Sınıf", unitName: "Geometri", kazanimName: "Uzamsal ilişkileri ifade eder.",
-    templates: [{ id: 'system-default-M.1.2.1.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => ({
+    templates: [{ id: 'system-default-M.1.2.1.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => ({
         sinif: 1, unite_adi: "Geometri", unite_no: 2, kazanim_kodu: "M.1.2.1.1", kazanim_metni: "Uzamsal ilişkileri ifade eder.",
         soru_tipi: 'coktan_secmeli',
         soru_metni: `Kitap, kalemin solundadır. Buna göre kalem, kitabın neresindedir?`,
@@ -234,7 +234,7 @@ export const ARCHIVE_DATA_GRADE_1: Record<string, ArchiveQuiz> = {
   },
   "M.1.2.2.1": {
     gradeName: "1. Sınıf", unitName: "Geometri", kazanimName: "Geometrik cisimleri tanır ve isimlendirir.",
-    templates: [{ id: 'system-default-M.1.2.2.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+    templates: [{ id: 'system-default-M.1.2.2.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
         const items = ["futbol topu", "kibrit kutusu", "konserve kutusu", "dondurma külahı"];
         const shapes = ["Küp", "Küre", "Silindir", "Koni"];
         const answers = ["Küre", "Küp", "Silindir", "Koni"];
@@ -254,7 +254,7 @@ export const ARCHIVE_DATA_GRADE_1: Record<string, ArchiveQuiz> = {
   },
   "M.1.2.2.2": {
     gradeName: "1. Sınıf", unitName: "Geometri", kazanimName: "Geometrik şekilleri tanır ve isimlendirir.",
-    templates: [{ id: 'system-default-M.1.2.2.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => ({
+    templates: [{ id: 'system-default-M.1.2.2.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => ({
         sinif: 1, unite_adi: "Geometri", unite_no: 2, kazanim_kodu: "M.1.2.2.2", kazanim_metni: "Geometrik şekilleri tanır ve isimlendirir.",
         soru_tipi: 'coktan_secmeli',
         soru_metni: `3 kenarı ve 3 köşesi olan geometrik şekil hangisidir?`,
@@ -267,7 +267,7 @@ export const ARCHIVE_DATA_GRADE_1: Record<string, ArchiveQuiz> = {
   },
   "M.1.2.3.1": {
     gradeName: "1. Sınıf", unitName: "Geometri", kazanimName: "Bir örüntüdeki ilişkiyi belirler ve örüntüyü tamamlar.",
-    templates: [{ id: 'system-default-M.1.2.3.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => ({
+    templates: [{ id: 'system-default-M.1.2.3.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => ({
         sinif: 1, unite_adi: "Geometri", unite_no: 2, kazanim_kodu: "M.1.2.3.1", kazanim_metni: "Bir örüntüdeki ilişkiyi belirler ve örüntüyü tamamlar.",
         soru_tipi: 'coktan_secmeli',
         soru_metni: `Kırmızı boncuk, Mavi boncuk, Kırmızı boncuk, Mavi boncuk, ? ...  Örüntüsünde sıradaki boncuk ne renk olmalıdır?`,
@@ -280,7 +280,7 @@ export const ARCHIVE_DATA_GRADE_1: Record<string, ArchiveQuiz> = {
   },
   "M.1.3.1.1": {
     gradeName: "1. Sınıf", unitName: "Ölçme", kazanimName: "Uzunlukları standart olmayan birimlerle ölçer.",
-    templates: [{ id: 'system-default-M.1.3.1.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => ({
+    templates: [{ id: 'system-default-M.1.3.1.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => ({
         sinif: 1, unite_adi: "Ölçme", unite_no: 3, kazanim_kodu: "M.1.3.1.1", kazanim_metni: "Uzunlukları standart olmayan birimlerle ölçer.",
         soru_tipi: 'coktan_secmeli',
         soru_metni: `Kitabımızın boyunu ölçmek için hangisini kullanmak en mantıklıdır?`,
@@ -293,7 +293,7 @@ export const ARCHIVE_DATA_GRADE_1: Record<string, ArchiveQuiz> = {
   },
   "M.1.3.1.2": {
     gradeName: "1. Sınıf", unitName: "Ölçme", kazanimName: "Nesneleri uzunlukları yönünden karşılaştırır ve sıralar.",
-    templates: [{ id: 'system-default-M.1.3.1.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => ({
+    templates: [{ id: 'system-default-M.1.3.1.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => ({
         sinif: 1, unite_adi: "Ölçme", unite_no: 3, kazanim_kodu: "M.1.3.1.2", kazanim_metni: "Nesneleri uzunlukları yönünden karşılaştırır ve sıralar.",
         soru_tipi: 'coktan_secmeli',
         soru_metni: `Bir kalem, bir silgi ve bir cetvel arasında en uzun olan genellikle hangisidir?`,
@@ -306,7 +306,7 @@ export const ARCHIVE_DATA_GRADE_1: Record<string, ArchiveQuiz> = {
   },
   "M.1.3.2.1": {
     gradeName: "1. Sınıf", unitName: "Ölçme", kazanimName: "Paralarımızı tanır.",
-    templates: [{ id: 'system-default-M.1.3.2.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => ({
+    templates: [{ id: 'system-default-M.1.3.2.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => ({
         sinif: 1, unite_adi: "Ölçme", unite_no: 3, kazanim_kodu: "M.1.3.2.1", kazanim_metni: "Paralarımızı tanır.",
         soru_tipi: 'coktan_secmeli',
         soru_metni: `Aşağıdakilerden hangisi en değerli madeni paramızdır?`,
@@ -319,7 +319,7 @@ export const ARCHIVE_DATA_GRADE_1: Record<string, ArchiveQuiz> = {
   },
   "M.1.3.3.1": {
     gradeName: "1. Sınıf", unitName: "Ölçme", kazanimName: "Zaman ölçme birimlerini tanır.",
-    templates: [{ id: 'system-default-M.1.3.3.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => ({
+    templates: [{ id: 'system-default-M.1.3.3.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => ({
         sinif: 1, unite_adi: "Ölçme", unite_no: 3, kazanim_kodu: "M.1.3.3.1", kazanim_metni: "Zaman ölçme birimlerini tanır.",
         soru_tipi: 'coktan_secmeli',
         soru_metni: `Okula gittiğimiz zaman dilimi genellikle hangisidir?`,
@@ -332,7 +332,7 @@ export const ARCHIVE_DATA_GRADE_1: Record<string, ArchiveQuiz> = {
   },
   "M.1.3.3.2": {
     gradeName: "1. Sınıf", unitName: "Ölçme", kazanimName: "Tam saatleri okur.",
-    templates: [{ id: 'system-default-M.1.3.3.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 10 }, (_, i) => {
+    templates: [{ id: 'system-default-M.1.3.3.2', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({ length: 20 }, (_, i) => {
       const hour = 1 + (i % 11);
       return {
         sinif: 1, unite_adi: "Ölçme", unite_no: 3, kazanim_kodu: "M.1.3.3.2", kazanim_metni: "Tam saatleri okur.",
@@ -348,9 +348,9 @@ export const ARCHIVE_DATA_GRADE_1: Record<string, ArchiveQuiz> = {
   },
   "M.1.4.1.1": {
       gradeName: "1. Sınıf", unitName: "Veri İşleme", kazanimName: "En çok iki veri grubuna ait basit tabloları okur.",
-      templates: [{ id: 'system-default-M.1.4.1.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({length: 10}, (_, i) => {
-        const inek = 5+i;
-        const tavuk = 8+i;
+      templates: [{ id: 'system-default-M.1.4.1.1', createdAt: '2024-01-01T00:00:00.000Z', isSystemTemplate: true, questions: Array.from({length: 20}, (_, i) => {
+        const inek = 5+(i % 10);
+        const tavuk = 8+(i % 12);
         const options = createNumericOptions(tavuk);
         const correctAnswerKey = Object.keys(options).find(key => options[key as keyof typeof options] === String(tavuk))!;
         return {
