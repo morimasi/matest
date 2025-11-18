@@ -2,7 +2,7 @@
 
 import React, { useRef, useState, useEffect } from 'react';
 import { DetailedQuestion, ChartDataItem } from '../types';
-import { DownloadIcon, PrintIcon, ShareIcon, SparklesIcon, SettingsIcon, CopyIcon, CheckIcon, RefreshCwIcon, EditIcon, ArchiveAddIcon } from './icons';
+import { DownloadIcon, PrintIcon, ShareIcon, SparklesIcon, SettingsIcon, CopyIcon, CheckIcon, RefreshCwIcon, EditIcon, ArchiveAddIcon, TrashIcon, PlusIcon } from './icons';
 
 
 interface QuizViewProps {
@@ -233,6 +233,34 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
     };
   }, [dragInfo]);
   
+   const handleAddQuestion = () => {
+    setEditableQuestions(prev => {
+        const lastQuestion = prev[prev.length - 1];
+        const newQuestion: DetailedQuestion = {
+            sinif: lastQuestion?.sinif || 1,
+            unite_adi: lastQuestion?.unite_adi || 'Bilinmeyen Ünite',
+            unite_no: lastQuestion?.unite_no || 1,
+            kazanim_kodu: lastQuestion?.kazanim_kodu || 'M.X.X.X.X',
+            kazanim_metni: lastQuestion?.kazanim_metni || 'Yeni kazanım metni',
+            soru_tipi: lastQuestion?.soru_tipi || 'coktan_secmeli',
+            soru_metni: 'Yeni soru metnini buraya yazın...',
+            secenekler: { A: 'Seçenek A', B: 'Seçenek B', C: 'Seçenek C', D: 'Seçenek D' },
+            dogru_cevap: 'A',
+            yanlis_secenek_tipleri: ['Çeldirici açıklaması'],
+            gercek_yasam_baglantisi: 'Yeni gerçek yaşam bağlantısı.',
+            seviye: 'orta',
+            cozum_anahtari: 'Yeni çözüm anahtarı.'
+        };
+        return [...prev, newQuestion];
+    });
+  };
+
+  const handleDeleteQuestion = (indexToDelete: number) => {
+    if (window.confirm(`${indexToDelete + 1}. soruyu silmek istediğinizden emin misiniz?`)) {
+        setEditableQuestions(prev => prev.filter((_, index) => index !== indexToDelete));
+    }
+  };
+
   if (!questions || questions.length === 0) return null;
 
   const uniqueUnitNames = [...new Set(questions.map(q => q.unite_adi))].join(' & ');
@@ -250,7 +278,7 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
     const quizElement = quizRef.current;
     
     // Hide buttons before capture
-    const buttonsToHide = quizElement.querySelectorAll('button[title="Bu soruyu yeniden oluştur"], button[title*="Düzenle"]') as NodeListOf<HTMLButtonElement>;
+    const buttonsToHide = quizElement.querySelectorAll('button[title="Bu soruyu yeniden oluştur"], button[title*="Düzenle"], button[title*="sil"]') as NodeListOf<HTMLButtonElement>;
     buttonsToHide.forEach(button => button.style.display = 'none');
 
     const originalStyles = {
@@ -544,23 +572,34 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                           {q.soru_metni}
                         </p>
                       </div>
-                      {onRemixQuestion && showAnswers && isTeacherView && (
-                          <button 
-                              onClick={() => onRemixQuestion(index)} 
-                              disabled={remixingIndex === index || isEditing}
-                              title="Bu soruyu yeniden oluştur"
-                              className="p-1 rounded-full text-blue-500 hover:bg-blue-500/10 disabled:text-slate-400 disabled:cursor-wait"
-                          >
-                          {remixingIndex === index ? (
-                              <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                  </svg>
-                          ) : (
-                              <RefreshCwIcon className="w-4 h-4"/>
-                          )}
-                          </button>
-                      )}
+                      <div className="flex-shrink-0 flex items-center">
+                        {onRemixQuestion && showAnswers && isTeacherView && (
+                            <button 
+                                onClick={() => onRemixQuestion(index)} 
+                                disabled={remixingIndex === index || isEditing}
+                                title="Bu soruyu yeniden oluştur"
+                                className="p-1 rounded-full text-blue-500 hover:bg-blue-500/10 disabled:text-slate-400 disabled:cursor-wait"
+                            >
+                            {remixingIndex === index ? (
+                                <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                            ) : (
+                                <RefreshCwIcon className="w-4 h-4"/>
+                            )}
+                            </button>
+                        )}
+                        {isEditing && (
+                            <button
+                                onClick={() => handleDeleteQuestion(index)}
+                                title="Bu soruyu sil"
+                                className="p-1 ml-2 rounded-full text-red-500 hover:bg-red-500/10"
+                            >
+                                <TrashIcon className="w-4 h-4" />
+                            </button>
+                        )}
+                      </div>
                   </div>
 
                 {q.grafik_verisi && (
@@ -1074,6 +1113,17 @@ const QuizView: React.FC<QuizViewProps> = ({ questions, grade, quizId, onRemixQu
                 )}
                 </div>
             ))}
+            {isEditing && (
+                <div className="mt-8 text-center break-inside-avoid">
+                    <button
+                        onClick={handleAddQuestion}
+                        className="w-full flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-slate-400 text-slate-600 rounded-lg hover:bg-slate-200/50 hover:border-slate-500 transition-all"
+                    >
+                        <PlusIcon className="w-5 h-5" />
+                        Yeni Soru Ekle
+                    </button>
+                </div>
+            )}
             </div>
         </div>
       </div>

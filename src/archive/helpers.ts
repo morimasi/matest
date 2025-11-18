@@ -1,41 +1,50 @@
 // Helper function to create realistic options for calculation questions
 export const createNumericOptions = (correctAnswer: number, range = 5, count = 4): { A: string; B: string; C: string; D: string; } => {
-  const options: number[] = [correctAnswer];
-  // Ensure the range is at least 1 to avoid infinite loops
-  const step = Math.max(1, Math.floor(Math.random() * range) + 1);
-
-  // Generate distractors
-  while (options.length < count) {
-    const randomFactor = Math.random() < 0.5 ? -1 : 1;
-    let newOption = correctAnswer + (randomFactor * step * (options.length)); // Vary the distance
-    if (newOption < 0) newOption = correctAnswer + options.length; // Avoid negative numbers for simple cases
-    
-    const uniqueAndNotTooClose = !options.includes(newOption) && newOption >= 0 && Math.abs(newOption - correctAnswer) > 0;
-    
-    if (uniqueAndNotTooClose) {
-      options.push(newOption);
-    } else {
-       options.push(correctAnswer + options.length + (Math.floor(Math.random() * 3) + 1));
-    }
+  const options: Set<number> = new Set([correctAnswer]);
+  
+  // Generate distractors until we have enough
+  let attempts = 0;
+  while (options.size < count && attempts < 100) {
+      const randomOffset = (Math.floor(Math.random() * range) + 1) * (Math.random() < 0.5 ? -1 : 1);
+      const newOption = correctAnswer + randomOffset;
+      
+      if (newOption >= 0) {
+        options.add(newOption);
+      }
+      attempts++;
   }
 
-  const uniqueOptions = [...new Set(options)];
-  while(uniqueOptions.length < count) {
-    uniqueOptions.push(correctAnswer + 10 + uniqueOptions.length);
+  // If random generation fails, add sequential distractors
+  let fallback = 1;
+  while (options.size < count) {
+      const nextOptionUp = correctAnswer + fallback;
+      if (options.size < count) options.add(nextOptionUp);
+      
+      const nextOptionDown = correctAnswer - fallback;
+      if (options.size < count && nextOptionDown >= 0) options.add(nextOptionDown);
+      fallback++;
   }
 
-
-  // Shuffle the options to randomize position of the correct answer
-  for (let i = uniqueOptions.length - 1; i > 0; i--) {
+  const optionsArray = Array.from(options);
+  
+  // Shuffle the options to randomize the position of the correct answer
+  for (let i = optionsArray.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [uniqueOptions[i], uniqueOptions[j]] = [uniqueOptions[j], uniqueOptions[i]];
+    [optionsArray[i], optionsArray[j]] = [optionsArray[j], optionsArray[i]];
+  }
+  
+  const finalOptions = optionsArray.slice(0, count);
+
+  // This safeguard ensures exactly 'count' options are always returned.
+  while (finalOptions.length < count) {
+    finalOptions.push(correctAnswer + 10 + finalOptions.length);
   }
 
   return {
-    A: String(uniqueOptions[0]),
-    B: String(uniqueOptions[1]),
-    C: String(uniqueOptions[2]),
-    D: String(uniqueOptions[3]),
+    A: String(finalOptions[0]),
+    B: String(finalOptions[1]),
+    C: String(finalOptions[2]),
+    D: String(finalOptions[3]),
   };
 };
 
