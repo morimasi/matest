@@ -2,6 +2,8 @@
 
 
 
+
+
 import React, { useState } from 'react';
 import CurriculumSelector from './CurriculumSelector';
 import QuizView from './QuizView';
@@ -37,7 +39,7 @@ const QuizGenerator: React.FC = () => {
     const [selectedGrade, setSelectedGrade] = usePersistentState<number | null>('qg_selectedGrade', null);
     const [selectedUnits, setSelectedUnits] = usePersistentState<string[]>('qg_selectedUnits', []);
     const [selectedKazanims, setSelectedKazanims] = usePersistentState<string[]>('qg_selectedKazanims', []);
-    const [numQuestions, setNumQuestions] = usePersistentState('qg_numQuestions', 5);
+    const [numQuestions, setNumQuestions] = usePersistentState('qg_numQuestions', 30);
     const [questionType, setQuestionType] = usePersistentState<QuestionType>('qg_questionType', 'coktan_secmeli');
     const [customPrompt, setCustomPrompt] = usePersistentState('qg_customPrompt', '');
     const [includeCharts, setIncludeCharts] = usePersistentState<boolean>('qg_includeCharts', false);
